@@ -1,0 +1,32 @@
+{
+  "name": "actunime-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run build && node build",
+    "build": "tsc --pretty --locale fr",
+    "dev": "node build",
+    "dev-watch": "tsc -w --pretty --locale fr"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fastify/static": "^6.10.1",
+    "@graphql-tools/graphql-file-loader": "^7.5.16",
+    "@graphql-tools/load": "^7.8.12",
+    "@graphql-tools/schema": "^9.0.16",
+    "dotenv": "^16.0.3",
+    "fastify": "^4.13.0",
+    "graphql": "^16.6.0",
+    "jsonwebtoken": "^9.0.0",
+    "mercurius": "^12.2.0",
+    "mongoose": "^6.4.4",
+    "nanoid": "^3.3.4",
+    "typescript": "^4.9.5"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.1",
+    "@types/mongoose-sequence": "^3.0.7"
+  }
+}

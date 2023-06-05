@@ -1,0 +1,22 @@
+enum CharacterSpecies {
+  ELFE
+  DWARF
+  HUMAN
+  MONSTER
+}
+
+type Character {
+  _id: Int
+  name: PersonName
+  age: Int
+  dateOfBirth: Date
+  gender: PersonGender
+  species: CharacterSpecies
+  descrition: String
+  image: String
+  actors: [Person]
+  createdAt: Date
+  editedAt: Date
+
+  updates: [Update]
+}

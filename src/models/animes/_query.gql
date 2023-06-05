@@ -1,0 +1,64 @@
+enum AnimeSource {
+  MANGA
+  MANHWA
+  MANHUA
+  LIGHT_NOVEL
+  VISUAL_NOVEL
+  WEB_NOVEL
+  ORIGNAL
+  GAME
+}
+
+enum AnimeFormat {
+  TV
+  TV_SHORT
+  MOVIE
+  ONA
+  OVA
+  SPECIAL
+}
+
+type AnimeEpisode {
+  airing: Int
+  nextAiringDate: Date
+  total: Int
+}
+
+type Anime {
+  _id: Int
+  title: MediaTitle
+  date: MediaDate
+  image: MediaImage
+  descrition: String
+  source: AnimeSource
+  format: AnimeFormat
+  tags: [MediaTag]
+  status: MediaStatus
+  episodes: AnimeEpisode
+  explicitContent: Boolean
+  links: [MediaLink]
+  studios: [Company]
+  producers: [Company]
+  relationsAnime: [MediaRelation]
+  relationsManga: [MediaRelation]
+  staffs: [MediaRelStaffs]
+  characters: [MediaRelCharacters]
+  tracks: [MediaRelTracks]
+  createdAt: Date
+  editedAt: Date
+  contributors: [User]
+  verified: Boolean
+
+  updates: [Update]
+}
+
+type updateOut {
+  _id: Int
+  before: Anime
+  after: Anime
+}
+
+type Query {
+  animes: [Anime]
+  updates: [updateOut]
+}

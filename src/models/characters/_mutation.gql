@@ -1,0 +1,11 @@
+input CharacterInput {
+  _id: Int
+  name: PersonNameInput
+  age: Int
+  dateOfBirth: Date
+  gender: PersonGender
+  species: CharacterSpecies
+  descrition: String
+  image: String
+  actors: [PersonInput]
+}

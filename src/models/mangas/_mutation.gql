@@ -1,0 +1,30 @@
+input MangaAiringInput {
+  minDate: Date
+  maxDate: Date
+}
+
+input MangaChapter_VolumeInput {
+  airing: Int
+  nextAiringDate: MangaAiringInput
+  total: Int
+}
+
+input MangaInput {
+  title: MediaTitleInput
+  date: MediaDateInput
+  image: MediaImageInput
+  descrition: String
+  source: MangaSource
+  format: MangaFormat
+  tags: [MediaTagInput]
+  status: MediaStatus
+  chapters: MangaChapter_VolumeInput
+  volumes: MangaChapter_VolumeInput
+  explicitContent: Boolean
+  links: [MediaLinkInput]
+  producers: [CompanyInput]
+  relationsAnime: [MediaRelationInput]
+  relationsManga: [MediaRelationInput]
+  staffs: [MediaRelStaffsInput]
+  characters: [MediaRelCharactersInput]
+}

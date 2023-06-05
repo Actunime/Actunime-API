@@ -1,0 +1,8 @@
+input TrackInput {
+  _id: Int
+  type: TrackType
+  name: String
+  artists: [PersonInput]
+  episodes: [Int]
+  createdDate: Date
+}

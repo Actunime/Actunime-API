@@ -1,0 +1,7 @@
+input CompanyInput {
+  _id: Int
+  name: String
+  siteUrl: String
+  wikiUrl: String
+  createdDate: Date
+}

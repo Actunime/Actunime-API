@@ -1,0 +1,65 @@
+scalar Date
+
+union MediasUnion = User | Anime | Manga | Character | Company | Person | Track
+
+type Id {
+  _id: Int
+}
+
+type MediaTitle {
+  romaji: String
+  english: String
+  french: String
+  native: String
+  alias: [String]
+}
+
+type MediaDate {
+  start: Date
+  end: Date
+}
+
+type MediaImage {
+  poster: String
+  banner: String
+}
+
+enum MediaStatus {
+  AIRING
+  PAUSED
+  ENDED
+  STOPPED
+  POSTPONED
+  COMMING_SOON
+}
+
+type MediaTag {
+  name: String
+  votes: Int
+  spoil: Boolean
+}
+
+type MediaLink {
+  name: String
+  value: String
+}
+
+type MediaRelation {
+  label: String
+  data: Id
+}
+
+type MediaRelCharacters {
+  label: String
+  data: Character
+}
+
+type MediaRelStaffs {
+  label: String
+  data: Person
+}
+
+type MediaRelTracks {
+  label: String
+  data: Track
+}

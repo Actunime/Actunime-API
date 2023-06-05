@@ -1,0 +1,32 @@
+enum PersonLabel {
+  artist
+  actor
+  staff
+}
+
+type PersonName {
+  first: String
+  end: String
+  alias: [String]
+}
+
+enum PersonGender {
+  MAN
+  FEMAL
+  NONBINARY
+}
+
+type Person {
+  _id: Int
+  label: PersonLabel
+  name: PersonName
+  age: Int
+  dateOfBirth: Date
+  gender: PersonGender
+  bio: String
+  image: String
+  createdAt: Date
+  editedAt: Date
+
+  updates: [Update]
+}

@@ -1,0 +1,62 @@
+type UserImage {
+  avatar: String
+  banner: String
+}
+
+enum UserListProgessStatus {
+  WATCHING
+  READING
+  PAUSED
+  PLANNING
+  DROPPED
+}
+
+type UserListAnime {
+  status: UserListProgessStatus
+  data: Anime
+}
+
+type UserListManga {
+  status: UserListProgessStatus
+  data: Manga
+}
+
+type UserPremium {
+  active: Boolean
+  since: Date
+  end: Date
+}
+
+type UserContribution {
+  data: MediasUnion
+  update: Update
+}
+
+type User {
+  _id: Int
+  discordID: String
+  username: String
+  displayName: String
+  bio: String
+  roles: [String]
+  image: UserImage
+  animes: [UserListAnime]
+  mangas: [UserListManga]
+  characters: [Character]
+  tracks: [Track]
+  persons: [Person]
+  friends: [User]
+  followers: [User]
+  followings: [User]
+  premium: UserPremium
+  contributions: [UserContribution]
+  verified: Boolean
+  createdAt: Date
+  editedAt: Date
+
+  updates: [Update]
+}
+
+type Query {
+  me: User
+}

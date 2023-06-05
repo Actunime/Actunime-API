@@ -1,0 +1,20 @@
+
+enum TrackType {
+  OST
+  OP
+  ED
+  INSERT
+}
+
+type Track {
+  _id: Int
+  type: TrackType
+  name: String
+  artists: [Person]
+  episodes: [Int]
+  createdDate: Date
+  createdAt: Date
+  editedAt: Date
+
+  updates: [Update]
+}

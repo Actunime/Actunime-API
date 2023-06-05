@@ -1,0 +1,37 @@
+type Mutation {
+  # userChangeUsername(newUsername: String): User
+  createUser(user: UserInput!): userActionOut
+  logInUser(login: UserLogInInput!): UserLogInOut
+}
+
+input UserLogInInput {
+  email: String!
+  password: String!
+}
+
+type UserLogInOut {
+  token: String!
+}
+
+input UserImageInput {
+  avatar: String
+  banner: String
+}
+
+input UserInput {
+  email: String!
+  password: String!
+  username: String!
+  displayName: String!
+  image: UserImageInput
+}
+
+type userCreateError {
+  key: String
+  message: String
+}
+
+type userActionOut {
+  message: String
+  errors: [userCreateError]
+}

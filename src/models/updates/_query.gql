@@ -1,0 +1,12 @@
+type Update {
+  _id: Int
+  action: String
+  dbName: String
+  user: User
+  data: MediasUnion
+  changes: MediasUnion
+  deleted: Boolean
+  reason: String
+  createdAt: Date
+  verified: Boolean
+}

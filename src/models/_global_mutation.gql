@@ -1,0 +1,58 @@
+input IdInput {
+  _id: Int
+}
+
+input MediaTitleInput {
+  romaji: String
+  english: String
+  french: String
+  native: String
+  alias: [String]
+}
+
+input MediaDateInput {
+  start: Date
+  end: Date
+}
+
+input MediaImageInput {
+  poster: String
+  banner: String
+}
+
+input MediaTagInput {
+  name: String
+  spoil: Boolean
+}
+
+input MediaLinkInput {
+  name: String
+  value: String
+}
+
+input MediaRelationInput {
+  label: String
+  data: IdInput
+}
+
+input MediaRelCharactersInput {
+  label: String
+  data: CharacterInput
+}
+
+input MediaRelStaffsInput {
+  label: String
+  data: PersonInput
+}
+
+input MediaRelTracksInput {
+  label: String
+  data: TrackInput
+}
+
+enum MediaInputAction {
+  NEW
+  UPDATE
+  DELETE
+  VERIFY
+}

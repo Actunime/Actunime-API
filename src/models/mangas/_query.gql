@@ -1,0 +1,55 @@
+enum MangaSource {
+  LIGHT_NOVEL
+  VISUAL_NOVEL
+  WEB_NOVEL
+  ORIGNAL
+  GAME
+  ANIME
+}
+
+enum MangaFormat {
+  MANGA
+  MANHWA
+  MANHUA
+  LIGHT_NOVEL
+  VISUAL_NOVEL
+  WEB_NOVEL
+}
+
+type MangaAiring {
+  minDate: Date
+  maxDate: Date
+}
+
+type MangaChapter_Volume {
+  airing: Int
+  nextAiringDate: MangaAiring
+  total: Int
+}
+
+type Manga {
+  _id: Int
+  title: MediaTitle
+  date: MediaDate
+  image: MediaImage
+  descrition: String
+  source: MangaSource
+  format: MangaFormat
+  tags: [MediaTag]
+  status: MediaStatus
+  chapters: MangaChapter_Volume
+  volumes: MangaChapter_Volume
+  explicitContent: Boolean
+  links: [MediaLink]
+  producers: [Company]
+  relationsAnime: [MediaRelation]
+  relationsManga: [MediaRelation]
+  staffs: [MediaRelStaffs]
+  characters: [MediaRelCharacters]
+  createdAt: Date
+  editedAt: Date
+  contributors: [User]
+  verified: Boolean
+
+  updates: [Update]
+}

@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "resolveJsonModule": true,
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "jsx": "react",
+    "outDir": "./build",
+    "rootDir": "./src",
+    "removeComments": true,
+    "importHelpers": true,
+    "isolatedModules": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    // "noImplicitAny": false ,
+    // "baseUrl": ".",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": "./packages",
+    // "paths": {
+    //   "actunime-api/*": ["../src/*"],
+    //   "actunime-api": ["../src"]
+    // }
+  },
+  "exclude": [
+    "<node_internals>/**",
+  ]
+}
