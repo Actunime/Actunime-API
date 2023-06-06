@@ -37,7 +37,7 @@ API.register(fastifyStatic, {
     root: path.join(__dirname, '../gqlDoc'),
     // prefix: '/public/', // optional: default '/'
     // constraints: { host: 'example.com' } // optional: default {}
-  })
+})
 
 const schema = loadSchemaSync(['./src/models/**/*.gql', './src/models/*.gql'], {
     loaders: [new GraphQLFileLoader()],
@@ -101,7 +101,8 @@ API.register(Mercurius, {
 API.get('/', (req, res) => {
     // const stream = fs.createReadStream(path.join('./gqlDoc/index.html'))
     // res.type('text/html').send(stream)
-    res.sendFile('index.html') 
+    // res.sendFile('index.html') 
+    res.status(404).send();
 })
 
 API.listen({ port: 3001 }, (err, address) => {

@@ -35,7 +35,7 @@ interface Resolves {
 
 class Resolver {
     public static Query: Resolves = {
-        animes: (a, b, c) => this.needToBeLogged(a, b, c).then(this.search.bind(this, b, c)),
+        animes: (a, b, c) => this.needToBeLogged(a, b, c).then(this.search.bind(this)),
         updates: (a, b, c) => this.needToBeLogged(a, b, c).then(this.searchUpdate.bind(this, b, c)),
     }
 
@@ -54,10 +54,24 @@ class Resolver {
     }
 
     private static async search() {
-        let test = Updates.Model.find({ ref: undefined }).populate(['references', 'data']);
-        (await test).map(async (res) => {
-            console.log(res.toJSON())
-        })
+        // let test = Updates.Model.find({ ref: undefined }).populate(['references', 'data']);
+        // (await test).map(async (res) => {
+        //     console.log(res.toJSON())
+        // })
+        return [{
+            _id: 1,
+            title: {
+                romaji: "Kimetsu no yaiba",
+                english: "Demon Slayer"
+            }
+        },
+        {
+            _id: 2,
+            title: {
+                romaji: "Jujutsu kaisen",
+                english: "test"
+            }
+        }]
     }
 
     private static async searchUpdate(input: any, ctx: any, user: any) {
