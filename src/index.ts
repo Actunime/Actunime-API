@@ -8,9 +8,9 @@ import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import { GraphQLScalarType, Kind } from 'graphql';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import * as Medias from './models';
-import fs from 'fs';
-import path from 'path';
-import fastifyStatic from '@fastify/static';
+// import fs from 'fs';
+// import path from 'path';
+// import fastifyStatic from '@fastify/static';
 // import * as models from './models';
 
 
@@ -24,20 +24,20 @@ mongoose.connection.on('disconnected', () => {
 });
 
 // mongoose.connect(process.env.mongodb_uri as string, {
-mongoose.connect('mongodb://devlerito:devlerito@192.168.1.63:27017', {
-    dbName: 'Actunime',
-    autoIndex: false,
-    autoCreate: true
-});
+// mongoose.connect('mongodb://devlerito:devlerito@192.168.1.63:27017', {
+//     dbName: 'Actunime',
+//     autoIndex: false,
+//     autoCreate: true
+// });
 
 
 const API = Fastify({ bodyLimit: 7340032, logger: true });
 
-API.register(fastifyStatic, {
-    root: path.join(__dirname, '../gqlDoc'),
-    // prefix: '/public/', // optional: default '/'
-    // constraints: { host: 'example.com' } // optional: default {}
-})
+// API.register(fastifyStatic, {
+//     root: path.join(__dirname, '../gqlDoc'),
+//     // prefix: '/public/', // optional: default '/'
+//     // constraints: { host: 'example.com' } // optional: default {}
+// })
 
 const schema = loadSchemaSync(['./src/models/**/*.gql', './src/models/*.gql'], {
     loaders: [new GraphQLFileLoader()],
