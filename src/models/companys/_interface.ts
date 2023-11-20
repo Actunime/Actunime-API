@@ -5,6 +5,8 @@ import { IUpdatePopulated } from "../updates"
 
 export interface ICompany extends Document {
     _id: number
+    /** type de société */
+    label: 'studio' | 'producer'
     /** Nom du studio ou producteur */
     name: string
     /** Site officiel */
@@ -17,7 +19,6 @@ export interface ICompany extends Document {
     editedAt: Date
     /** Vérifié par le staff */
     verified: boolean
-
     /** Liste des dernières modifications  */
     updates: IUpdatePopulated[]
     /** Liste des animes (en tant que studio) */

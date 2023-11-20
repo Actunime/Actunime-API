@@ -1,5 +1,5 @@
 import { model, Schema as MongooseSchema } from 'mongoose';
-import AutoIncrement from "../../autoIncrementPlugin";
+import AutoIncrement from "../../lib/_autoIncrementPlugin";
 import { IMangaSchema } from "./_interface";
 
 export const Schema = new MongooseSchema<IMangaSchema>({

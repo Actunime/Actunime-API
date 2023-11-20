@@ -1,5 +1,5 @@
 import { model, Schema as MongooseSchema } from 'mongoose';
-import AutoIncrement from "../../autoIncrementPlugin";
+import AutoIncrement from "../../lib/_autoIncrementPlugin";
 import { IUpdateSchema } from "./_interface";
 
 export const Schema = new MongooseSchema<IUpdateSchema>({
@@ -7,8 +7,8 @@ export const Schema = new MongooseSchema<IUpdateSchema>({
     action: { type: String, required: true },
     status: { type: String, required: true },
     dbName: { type: String, required: true },
-    user: { type: String, ref: 'user', required: false },
     data: { type: Number, required: true, refPath: 'dbName' },
+    user: { type: String, ref: 'user', required: false },
     changes: { type: MongooseSchema.Types.Mixed, default: undefined },
     dataDeleted: { type: Boolean, default: false },
     reason: { type: String, default: undefined },

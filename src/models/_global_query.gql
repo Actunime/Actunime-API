@@ -29,7 +29,7 @@ enum MediaStatus {
   PAUSED
   ENDED
   STOPPED
-  POSTPONED
+  POSTONED
   COMMING_SOON
 }
 

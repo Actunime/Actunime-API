@@ -1,8 +1,13 @@
+input ArtistForTrackInput {
+  old: [Int!]
+  new: [PersonInput!]
+}
+
 input TrackInput {
   _id: Int
-  type: TrackType
+  label: TrackType
   name: String
-  artists: [PersonInput]
+  artists: ArtistForTrackInput
   episodes: [Int]
   createdDate: Date
 }

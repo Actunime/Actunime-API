@@ -47,8 +47,7 @@ class Resolver {
         // animeDeleteRequest: this.delete,
     }
 
-
-    public static async needToBeLogged(_: any, input: any, ctx: any) {
+    private static async needToBeLogged(_: any, input: any, ctx: any) {
         let user = null;
         return user;
     }
@@ -91,11 +90,25 @@ class Resolver {
 
         const { data, reason } = input;
 
+        /**  
+         * Initialisation du résolver anime 
+         * Il permet de vérifié les données et de déssasemblé les :
+         * - Studios
+         * - Producteurs
+         * - Characters
+         * - Staffs
+         * - Tracks
+         * Et de vérifié si ils existent déjà ou non
+         * Si il existent pas une requête d'ajout est ajouté a la base de données.
+        */
+
         const modelResolve = new Animes.AnimeModelResolve(data, user);
 
         // Chargement des données + vérification.
 
         let { errors } = await modelResolve.loadData();
+
+        // Gestion de retour d'erreurs
 
         if (errors.length) {
             return {
@@ -117,6 +130,8 @@ class Resolver {
         // Sauvegarde des données.
 
         let { animeID, updateID, saveErrors } = await modelResolve.saveData(reason);
+
+        // Gestion des erreurs de sauvegarde
 
         if (saveErrors.length) {
             return {

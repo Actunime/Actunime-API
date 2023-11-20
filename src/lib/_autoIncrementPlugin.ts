@@ -24,6 +24,9 @@ class AutoIncrement {
         let charactersIncrement = await this.model.findById('characters');
         if (!charactersIncrement) await this.model.create({ _id: 'characters' });
 
+        let charactersRequestIncrement = await this.model.findById('charactersRequest');
+        if (!charactersRequestIncrement) await this.model.create({ _id: 'charactersRequest' });
+
         let tracksIncrement = await this.model.findById('tracks');
         if (!tracksIncrement) await this.model.create({ _id: 'tracks' });
 
@@ -86,9 +89,9 @@ class AutoIncrement {
         }
     }
 
-    static AutoIncrement(schema: Schema, db: 'animes' | 'mangas' | 'updates' | 'characters' | 'tracks' | 'persons' | 'companys' | 'users', onSave?: (id: number) => void) {
+    static AutoIncrement(schema: Schema, db: string) {
         schema.post('validate', AutoIncrement.onValidate.bind(this, db));
-        schema.pre('save', () => console.log('save', db))
+        schema.pre('save', () => console.log('save', db));
         schema.post('save', this.onSave.bind(this, db));
     }
 }

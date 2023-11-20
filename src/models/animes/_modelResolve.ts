@@ -8,7 +8,7 @@ import {
     Tracks,
     Updates
 } from "..";
-import AutoIncrement from "../../autoIncrementPlugin";
+import AutoIncrement from "../../lib/_autoIncrementPlugin";
 
 
 export class AnimeModelResolve {

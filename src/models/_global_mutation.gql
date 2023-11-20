@@ -3,6 +3,7 @@ input IdInput {
 }
 
 input MediaTitleInput {
+  default: String
   romaji: String
   english: String
   french: String

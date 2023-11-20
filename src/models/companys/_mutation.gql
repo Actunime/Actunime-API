@@ -1,5 +1,11 @@
+enum CompanyLabel {
+  STUDIO
+  PRODUCER
+}
+
 input CompanyInput {
   _id: Int
+  label: CompanyLabel
   name: String
   siteUrl: String
   wikiUrl: String

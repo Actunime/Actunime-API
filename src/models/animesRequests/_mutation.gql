@@ -1,0 +1,73 @@
+input CompanyForAnimeRequest {
+  old: [Int!]
+  new: [CompanyInput!]
+}
+
+input PersonWithAnime {
+  # Quel relation a cet personne avec ce média ?
+  relationDesc: String
+  data: PersonInput!
+}
+
+input ExistPersonWithAnime {
+  relationDesc: String
+  id: Int!
+}
+
+input CharacterWithAnime {
+  # Quel relation a ce personnage a avec ce média, personange principal, secondaire ?
+  relationDesc: CharacterType
+  data: CharacterInput!
+}
+
+input ExistCharacterWithAnime {
+  relationDesc: CharacterType
+  id: Int!
+}
+
+input StaffForAnimeRequest {
+  old: [ExistPersonWithAnime!]
+  new: [PersonWithAnime!]
+}
+
+input CharacterForAnimeRequest {
+  old: [ExistCharacterWithAnime!]
+  new: [CharacterWithAnime!]
+}
+
+input TrackWithAnime {
+    episodes: [Int!]
+    data: TrackInput
+}
+
+input ExistTrackWithAnime {
+    episodes: [Int!]
+    id: Int!
+}
+
+input TrackForAnimeRequest {
+  old: [ExistTrackWithAnime!]
+  new: [TrackWithAnime!]
+}
+
+type Mutation {
+  addRequestAnime(
+    title: MediaTitleInput
+    date: MediaDateInput
+    image: MediaImageInput
+    synopsis: String
+    source: AnimeSource
+    format: AnimeFormat
+    genres: [String!]
+    themes: [String!]
+    status: MediaStatus
+    episodes: AnimeEpisodeInput
+    adult: Boolean
+    explicit: Boolean
+    links: [MediaLinkInput!]
+    companys: CompanyForAnimeRequest
+    staffs: StaffForAnimeRequest
+    characters: CharacterForAnimeRequest
+    tracks: TrackForAnimeRequest
+  ): Boolean!
+}

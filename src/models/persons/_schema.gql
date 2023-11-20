@@ -1,0 +1,61 @@
+enum PersonLabel {
+  ARTIST
+  ACTOR
+  STAFF
+}
+
+type PersonName {
+  first: String
+  end: String
+  pseudonyme: String
+  alias: [String]
+}
+
+enum PersonGender {
+  MAN
+  FEMAL
+  NONBINARY
+}
+
+type Person {
+  _id: Int
+  label: PersonLabel
+  name: PersonName
+  age: Int
+  birthDate: Date
+  gender: PersonGender
+  bio: String
+  image: String
+  wikiUrl: String
+  createdAt: Date
+  editedAt: Date
+
+  updates: [Update]
+}
+
+input PersonNameInput {
+  first: String
+  end: String
+  pseudonyme: String
+  alias: [String]
+}
+
+input PersonInput {
+  label: PersonLabel
+  name: PersonNameInput
+  age: Int
+  birthDate: Date
+  gender: PersonGender
+  bio: String
+  image: String
+  wikiUrl: String
+}
+
+type Query {
+  persons(search: String!): [Person!]
+}
+
+type Mutation {
+  addPerson(data: PersonInput!): Boolean
+  addPersonRequest(data: PersonInput!): Boolean
+}

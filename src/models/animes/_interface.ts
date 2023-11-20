@@ -32,14 +32,12 @@ export interface IAnime extends Document {
     explicitContent?: boolean
     /** Liens officiels */
     links?: MediaLink[]
-    /** Liste studios */
-    studios?: (number | ICompanyPopulated)[];
-    /** Liste producteurs */
-    producers?: (number | ICompanyPopulated)[];
-    /** Liste relations animes */
-    relationsAnime?: { label: string, data: number | IAnimePopulated | IPersonGql }[],
-    /** Liste relations mangas */
-    relationsManga?: { label: string, data: number | IMangaPopulated | IPersonGql }[],
+    /** Liste studios & producteurs */
+    companys?: (number | ICompanyPopulated)[];
+    // /** Liste relations animes */
+    // relationsAnime?: { label: string, data: number | IAnimePopulated | IPersonGql }[],
+    // /** Liste relations mangas */
+    // relationsManga?: { label: string, data: number | IMangaPopulated | IPersonGql }[],
     /** Liste staffs */
     staffs?: (number | IPersonSchema)[];
     /** Liste personnages */
@@ -51,8 +49,7 @@ export interface IAnime extends Document {
     /** Date de dernière modification dans la BD */
     editedAt?: Date;
     /** Vérifié par le staff */
-    verified: boolean
-
+    verified: boolean;
     /** @virtual - Liste des modifications */
     updates: IUpdatePopulated[]
 };

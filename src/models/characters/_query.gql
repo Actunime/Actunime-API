@@ -9,10 +9,10 @@ type Character {
   _id: Int
   name: PersonName
   age: Int
-  dateOfBirth: Date
+  birthDate: Date
   gender: PersonGender
   species: CharacterSpecies
-  descrition: String
+  bio: String
   image: String
   actors: [Person]
   createdAt: Date

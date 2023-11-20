@@ -50,7 +50,7 @@ class Resolver {
         return user;
     }
 
-    static async logInUser(input: { login: userLoginInput }, ctx: any) {
+    static async logInUser(input: { login: userLoginInput }, ctx: any): Promise<any> {
 
         let { email, password } = input.login;
 

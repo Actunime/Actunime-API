@@ -1,5 +1,5 @@
 import { model, Schema as MongooseSchema } from 'mongoose';
-import AutoIncrement from '../../autoIncrementPlugin';
+import AutoIncrement from '../../lib/_autoIncrementPlugin';
 import { IAnimeSchema } from './_interface';
 
 export const Schema = new MongooseSchema<IAnimeSchema>({
@@ -133,9 +133,9 @@ export const Schema = new MongooseSchema<IAnimeSchema>({
 
     producers: { type: [{ type: Number, ref: 'company' }], default: undefined },
 
-    relationsAnime: { type: [{ label: String, data: { type: Number, ref: 'anime' }, _id: false }], default: undefined },
+    // relationsAnime: { type: [{ label: String, data: { type: Number, ref: 'anime' }, _id: false }], default: undefined },
 
-    relationsManga: { type: [{ label: String, data: { type: Number, ref: 'manga' }, _id: false }], default: undefined },
+    // relationsManga: { type: [{ label: String, data: { type: Number, ref: 'manga' }, _id: false }], default: undefined },
 
     characters: { type: [{ label: { type: String }, data: { type: Number, ref: 'character' }, _id: false }], default: undefined },
 

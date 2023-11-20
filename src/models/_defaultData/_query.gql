@@ -1,0 +1,26 @@
+
+type Status {
+    label: String
+    value: MediaStatus!
+}
+
+type Source {
+    label: String
+    value: AnimeSource!
+}
+
+type Format {
+    label: String
+    value: AnimeFormat!
+}
+
+
+type DefaultDataOutput {
+    sources: [Source]
+    status: [Status]
+    formats: [Format]
+}
+
+type Query {
+    defaultData: DefaultDataOutput
+}

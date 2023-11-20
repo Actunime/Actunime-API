@@ -1,11 +1,22 @@
+input ActorForCharacterRequest {
+  old: [Int!]
+  new: [PersonInput!]
+}
+
+
 input CharacterInput {
   _id: Int
   name: PersonNameInput
   age: Int
-  dateOfBirth: Date
+  birthDate: Date
   gender: PersonGender
   species: CharacterSpecies
-  descrition: String
+  bio: String
   image: String
-  actors: [PersonInput]
+  actors: ActorForCharacterRequest
+}
+
+enum CharacterType {
+  PRINCIPAL
+  SECONDAIRE
 }

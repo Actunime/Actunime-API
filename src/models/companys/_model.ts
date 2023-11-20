@@ -1,10 +1,11 @@
 import { model, Schema as MongooseSchema } from 'mongoose';
-import AutoIncrement from "../../autoIncrementPlugin";
+import AutoIncrement from "../../lib/_autoIncrementPlugin";
 import { ICompanySchema } from "./_interface";
 
 
 export const Schema = new MongooseSchema<ICompanySchema>({
     _id: Number,
+    label: { type: String, required: [true, "Le type de société est requis"] },
     name: { type: String, required: [true, "Le nom du studio est requis."] },
     siteUrl: {
         type: String, required: [true, "Le site officiel du studio est requis."],
@@ -24,23 +25,23 @@ export const Schema = new MongooseSchema<ICompanySchema>({
 export const dbName = 'companys';
 export const rowName = dbName.slice(0, -1);
 
-Schema.virtual('animeStudios', {
+Schema.virtual('animeCompanys', {
     ref: 'anime',
     localField: '_id',
-    foreignField: 'studios',
+    foreignField: 'companys',
 });
 
-Schema.virtual('animeProducers', {
-    ref: 'anime',
-    localField: '_id',
-    foreignField: 'producers',
-});
+// Schema.virtual('animeProducers', {
+//     ref: 'anime',
+//     localField: '_id',
+//     foreignField: 'producers',
+// });
 
-Schema.virtual('mangaProducers', {
-    ref: 'manga',
-    localField: '_id',
-    foreignField: 'producers',
-});
+// Schema.virtual('mangaCompanys', {
+//     ref: 'manga',
+//     localField: '_id',
+//     foreignField: 'companys',
+// });
 
 Schema.virtual('updates', {
     ref: 'update',

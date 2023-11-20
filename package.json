@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npm run build && node build",
+    "start": "node build",
     "build": "tsc --pretty --locale fr",
     "dev": "node build",
     "dev-watch": "tsc -w --pretty --locale fr"
@@ -12,6 +12,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@apollo/server": "^4.9.4",
+    "@as-integrations/fastify": "^2.1.1",
+    "@fastify/compress": "^6.4.0",
+    "@fastify/cors": "^8.4.0",
+    "@fastify/formbody": "^7.4.0",
+    "@fastify/helmet": "^11.1.1",
+    "@fastify/rate-limit": "^8.0.3",
     "@fastify/static": "^6.10.1",
     "@graphql-tools/graphql-file-loader": "^7.5.16",
     "@graphql-tools/load": "^7.8.12",

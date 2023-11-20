@@ -5,14 +5,13 @@ enum AnimeSource {
   LIGHT_NOVEL
   VISUAL_NOVEL
   WEB_NOVEL
-  ORIGNAL
+  ORIGINAL
   GAME
 }
 
 enum AnimeFormat {
-  TV
-  TV_SHORT
-  MOVIE
+  SERIE
+  FILM
   ONA
   OVA
   SPECIAL
