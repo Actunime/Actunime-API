@@ -1,142 +1,160 @@
-import { Prop } from "@typegoose/typegoose";
-import { Field, InputType } from "type-graphql";
-import { Anime } from "./_anime.type";
-import { MediaDateInput, MediaImageInput, MediaLinkInput, MediaTitleInput } from "../util.input";
+import * as GraphqlType from "type-graphql";
+import * as MongooseType from "@typegoose/typegoose";
+import * as Medias from '../';
 
-const notRequired = { nullable: true };
-
-
-@InputType()
+@GraphqlType.InputType()
 class AnimeEpisodeInput {
-    @Field()
-    @Prop()
-    airing!: string;
-    @Field()
-    @Prop()
-    nextAiringDate!: string;
-    @Field()
-    @Prop()
-    total!: string;
+    @GraphqlType.Field({ nullable: true })
+    airing!: number;
+    @GraphqlType.Field({ nullable: true })
+    nextAiringDate!: Date;
+    @GraphqlType.Field({ nullable: true })
+    total!: number;
+    @GraphqlType.Field({ nullable: true })
+    durationMinutePerEp!: number;
 }
 
-// @InputType()
-// class AnimeRelation<T> {
-//     @Field()
-//     @Prop()
-//     description!: string;
-//     @Field(_ => [Number])
-//     @Prop({ type: () => [Number] })
-//     episodes!: number[];
-//     @Field()
-//     @Prop()
-//     data!: T;
-//     @Field()
-//     @Prop()
-//     id!: number;
-// }
+enum AnimeStatus {
+    INCONNU = "INCONNU",
+    BIENTOT_DISPO = "BIENTÔT_DISPO",
+    EN_COURS = "EN_COURS",
+    EN_PAUSE = "EN_PAUSE",
+    TERMINE = "TERMINÉ",
+    REPPORTE = "REPPORTÉ",
+    ARRETE = "ARRÉTÉ",
+}
+
+GraphqlType.registerEnumType(AnimeStatus, {
+    name: "AnimeStatus",
+    description: "Type de statut pour un Anime"
+})
 
 
-@InputType({ description: "Anime" })
-export class AnimeInput implements Partial<Anime> {
-    @Field()
-    @Prop()
-    title?: MediaTitleInput
+enum AnimeFormat {
+    SERIE = "SÉRIE",
+    FILM = "FILM",
+    ONA = "ONA",
+    OVA = "OVA",
+}
 
-    @Field(notRequired)
-    @Prop()
-    date?: MediaDateInput;
+GraphqlType.registerEnumType(AnimeFormat, {
+    name: "AnimeFormat",
+    description: "Type de format pour un Anime"
+})
 
-    @Field(notRequired)
-    @Prop()
-    image?: MediaImageInput;
+export enum AnimeSourceType {
+    ORIGINAL = "ORIGINAL",
+    MANGA = "MANGA",
+    LIGHT_NOVEL = "LIGHT_NOVEL",
+    VISUAL_NOVEL = "VISUAL_NOVEL",
+    JEU = "JEU",
+}
 
-    @Field(notRequired)
-    @Prop()
+GraphqlType.registerEnumType(AnimeSourceType, {
+    name: "AnimeSourceType",
+    description: "Type de source pour un Anime"
+})
+
+@GraphqlType.InputType()
+class AnimeSourceInput {
+    @GraphqlType.Field(() => AnimeSourceType)
+    origine!: AnimeSourceType
+    @GraphqlType.Field({ nullable: true })
+    refPubId!: string
+}
+
+@GraphqlType.InputType({ description: "Anime" })
+export class AnimeInput {
+    @GraphqlType.Field(() => Medias.MediaTitleInput)
+    title!: Medias.MediaTitleInput
+
+    @GraphqlType.Field(() => Medias.MediaDateInput, { nullable: true })
+    date?: Medias.MediaDateInput;
+
+    @GraphqlType.Field(() => Medias.MediaImageInput, { nullable: true })
+    image?: Medias.MediaImageInput;
+
+    @GraphqlType.Field({ nullable: true })
     synopsis?: string;
 
-    @Field(notRequired)
-    @Prop()
-    source?: string;
+    @GraphqlType.Field(() => AnimeSourceInput)
+    source!: AnimeSourceInput;
 
-    @Field(notRequired)
-    @Prop()
-    format?: string;
+    @GraphqlType.Field(() => AnimeFormat, { nullable: true })
+    format?: AnimeFormat;
 
-    @Field(_ => [String], notRequired)
-    @Prop({ type: () => [String] })
+    @GraphqlType.Field({ nullable: true })
+    vf?: boolean
+
+    @GraphqlType.Field(() => [String], { nullable: true })
     genres?: string[];
 
-    @Field(_ => [String], notRequired)
-    @Prop({ type: () => [String] })
+    @GraphqlType.Field(() => [String], { nullable: true })
     themes?: string[];
 
-    @Field(notRequired)
-    @Prop()
-    status?: string;
+    @GraphqlType.Field(() => AnimeStatus)
+    status!: AnimeStatus;
 
-    @Field(notRequired)
-    @Prop()
+    @GraphqlType.Field(() => AnimeEpisodeInput, { nullable: true })
     episodes?: AnimeEpisodeInput;
 
-    @Field(notRequired)
-    @Prop()
+    @GraphqlType.Field({ defaultValue: false, nullable: true })
     adult?: boolean;
 
-    @Field(notRequired)
-    @Prop()
+    @GraphqlType.Field({ defaultValue: false, nullable: true })
     explicit?: boolean;
 
-    @Field(notRequired)
-    @Prop()
-    links?: MediaLinkInput;
+    @GraphqlType.Field(() => Medias.MediaLinkInput, { nullable: true })
+    links?: Medias.MediaLinkInput;
 
-    // @Field(_ => [AnimeRelation])
-    // @Prop({ type: () => [AnimeRelation] })
-    // companys?: AnimeRelation[];
+    @GraphqlType.Field(() => Medias.CompanyRelationFields, { nullable: true })
+    companys?: Medias.CompanyRelationFields;
 
-    // @Field(_ => [AnimeRelation])
-    // @Prop({ type: () => [AnimeRelation] })
+    // @GraphqlType.Field(_ => [AnimeRelation])
+    // @MongooseType.Prop({ type: () => [AnimeRelation] })
     // staffs?: AnimeRelation[];
 
-    // @Field(_ => [AnimeRelation])
-    // @Prop({ type: () => [AnimeRelation] })
+    // @GraphqlType.Field(_ => [AnimeRelation])
+    // @MongooseType.Prop({ type: () => [AnimeRelation] })
     // characters?: AnimeRelation[];
 
-    // @Field(_ => [AnimeRelation])
-    // @Prop({ type: () => [AnimeRelation] })
+    // @GraphqlType.Field(_ => [AnimeRelation])
+    // @MongooseType.Prop({ type: () => [AnimeRelation] })
     // tracks?: AnimeRelation[]
 
     async init(props: AnimeInput) {
-        this.title = props.title;
-        this.date = props.date;
-        this.image = props.image;
-        this.synopsis = props.synopsis;
-        this.source = props.source;
-        this.format = props.format;
-        this.genres = props.genres;
-        this.themes = props.themes;
-        this.status = props.status;
-        this.episodes = props.episodes;
-        this.adult = props.adult;
-        this.explicit = props.explicit;
-        this.links = props.links;
-
-        return this;
+        const media = new Medias.Anime({
+            ...props,
+            companys: await this.handleCompanysGraphql(props.companys)
+        });
+        console.log('animeinput init', media);
+        return media;
     }
 
-    async toJSON() {
-        let data: Anime = {};
+    public relationsMediasToSave: Medias.MediaDoc[] = [];
 
-        for (const key in this) {
-            if (Object.prototype.hasOwnProperty.call(this, key)) {
-                const element = this[key];
-                if (typeof element !== 'function') {
-                    // @ts-ignore
-                    data[key] = element;
-                }
-            }
-        }
+    private addRelationsMediasToSave(documents: Medias.MediaDoc[]) {
+        this.relationsMediasToSave = this.relationsMediasToSave.concat(documents);
+    }
 
-        return data;
+    private async handleCompanysGraphql(props?: Medias.CompanyRelationFields): Promise<Medias.CompanyRelation[]> {
+        if (!props) return [];
+
+        const newCompanys = await Promise.all(props.news.map(async (newCompany) => {
+            return await new Medias.CompanyInput().init(newCompany.data);
+        }))
+
+        const oldCompanys = await Promise.all(props.exists.map(async (existCompany) => {
+            const company = await Medias.CompanyModel.findOne({ pubId: existCompany.pubId });
+            if (!company) throw `La société avec l'identifiant ${existCompany.pubId} n'existe pas.`;
+            return company._id
+        }))
+
+
+        this.addRelationsMediasToSave(newCompanys.map((d) => d.doc));
+
+        const companysIds = [...newCompanys.map((doc) => doc.doc._id), ...oldCompanys];
+
+        return companysIds.map((id) => ({ data: id }));
     }
 }

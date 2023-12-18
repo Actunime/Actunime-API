@@ -1,19 +1,26 @@
 import { Index, Pre, Prop } from "@typegoose/typegoose";
-import { ClassType, Field, InputType, ObjectType } from "type-graphql";
+import { ClassType, Field, InputType, ObjectType, registerEnumType } from "type-graphql";
 import { genPublicID } from "../helpers.db";
-import { genMediaFromUpdate } from "./ulti.query";
+import { genMediaFromUpdate } from "./util.query";
+import { Document, Types } from 'mongoose';
+import { BeAnObject, IObjectWithTypegooseFunction } from "@typegoose/typegoose/lib/types";
+
 
 const notRequired = { nullable: true };
 
 /** Media construction */
-@Index({ id: 'text' }, { unique: true })
+@Index({ pubId: 'text' }, { unique: true })
 @ObjectType()
 export class MediaFormat<TMedia, UpdateSchema, UpdateRequest> {
+    _id!: Types.ObjectId;
+
     @Prop({ required: true, default: () => genPublicID() })
     @Field()
-    id?: string;
+    pubId?: string;
+
     @Prop({ default: null })
     data!: TMedia;
+
     @Prop({ default: [] })
     updates!: UpdateSchema[];
     @Prop({ default: [] })
@@ -154,7 +161,7 @@ export function PaginationOutput<TData extends object>(DataClass: ClassType<TDat
         @Field()
         limitPerPage!: number;
         @Field()
-        resultsCount!: number;
+        totalResults!: number;
         @Field()
         hasNextPage!: boolean;
         @Field()
@@ -185,3 +192,43 @@ export function MediaFormatOutput<TMedia extends object, TUpdate, TUpdateRequest
     return MediaFormatOutput;
 }
 
+export enum MediaType {
+    ANIME = "ANIME",
+    MANGA = "MANGA",
+    CHARACTER = "CHARACTER",
+    COMPANY = "COMPANY",
+    STAFF = "STAFF",
+    TRACK = "TRACK",
+    PERSON = "PERSON"
+}
+
+registerEnumType(MediaType, {
+    name: "MediaType",
+    description: "Type de média"
+})
+
+@ObjectType()
+export class MediaUpdateOutput {
+    @Field(_ => MediaType, { description: "media type" })
+    mediaType!: MediaType
+    @Field({ description: "Message informatif", nullable: true })
+    message!: string;
+    @Field({ description: "Message d'erreur si y a une erreur", nullable: true })
+    error?: string;
+    @Field({ description: "Id du média si il a été bien crée.", nullable: true })
+    id?: string;
+}
+
+// @ObjectType()
+// export class MediaMultipleUpdateOutput {
+//     @Field({ description: "Message informatif" })
+//     message!: string;
+//     @Field({ description: "Message d'erreur si y a une erreur" })
+//     error!: string;
+//     @Field(_ => [MediaUpdateOutput], { description: "Id du média si il a été bien crée." })
+//     medias!: MediaUpdateOutput[];
+// }
+
+export type MediaDoc<T = any> = Document<unknown, BeAnObject, T> & Omit<T & { _id: Types.ObjectId; }, "typegooseName"> & IObjectWithTypegooseFunction
+
+export type ObjectId = Types.ObjectId;

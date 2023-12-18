@@ -1,180 +1,180 @@
-import { Index, Pre, Prop, QueryMethod, getModelForClass, modelOptions, post, pre, types } from "@typegoose/typegoose";
-import { Arg, Field, InputType, ObjectType, Query, Resolver } from "type-graphql";
-import { MediaDate, MediaImage, MediaFormat, MediaTitle, MediaUpdateFormat, MediaUpdateRequestFormat, MediaLink, MediaFormatOutput, PaginationOutput, SearchQuery } from "../util.type";
+import * as MongooseType from "@typegoose/typegoose";
+import * as GraphqlType from "type-graphql";
+import * as Medias from "../";
 import { Types } from 'mongoose';
-import { genMediaFromUpdate, searchMediaByTitle } from "../ulti.query";
-let notRequired = { nullable: true }
+import { AnimeSourceType } from "./_anime.input";
 /** Anime part types */
 
-@ObjectType()
+@GraphqlType.ObjectType()
 class AnimeEpisode {
-    @Field()
-    @Prop()
-    airing!: string;
-    @Field()
-    @Prop()
-    nextAiringDate!: string;
-    @Field()
-    @Prop()
-    total!: string;
+    @GraphqlType.Field({ nullable: true })
+    @MongooseType.Prop()
+    airing?: number;
+    @GraphqlType.Field({ nullable: true })
+    @MongooseType.Prop()
+    nextAiringDate!: Date;
+    @GraphqlType.Field({ nullable: true })
+    @MongooseType.Prop()
+    total?: number;
+    @GraphqlType.Field({ nullable: true })
+    @MongooseType.Prop()
+    durationMinutePerEp!: number;
 }
 
-@ObjectType()
-class AnimeRelation<T = any> {
-    @Field()
-    @Prop()
-    description!: string;
-    @Field(_ => [Number])
-    @Prop({ type: () => [Number] })
-    episodes!: number[];
-    // @Field()
-    // @Prop()
-    // data!: T;
-    @Field()
-    @Prop()
-    id!: number;
+@GraphqlType.ObjectType()
+class AnimeSource {
+    @GraphqlType.Field(() => AnimeSourceType)
+    @MongooseType.Prop({ type: AnimeSourceType })
+    origine!: AnimeSourceType
+    @GraphqlType.Field({ nullable: true })
+    @MongooseType.Prop()
+    refPubId!: string
 }
-
 
 /** Anime type */
-@ObjectType({ description: "Anime" })
+@GraphqlType.ObjectType({ description: "Anime" })
 export class Anime {
-    _id?: Types.ObjectId
+    // _id?: Types.ObjectId
 
-    @Field()
-    @Prop()
+    @GraphqlType.Field()
+    @MongooseType.Prop()
     id?: string;
 
-    @Field(notRequired)
-    @Prop()
-    title?: MediaTitle
+    @GraphqlType.Field()
+    @MongooseType.Prop({ required: true })
+    title!: Medias.MediaTitle
 
-    @Field(notRequired)
-    @Prop()
-    date?: MediaDate;
+    @GraphqlType.Field()
+    @MongooseType.Prop()
+    date?: Medias.MediaDate;
 
-    @Field()
-    @Prop()
-    image?: MediaImage;
+    @GraphqlType.Field()
+    @MongooseType.Prop()
+    image?: Medias.MediaImage;
 
-    @Field()
-    @Prop()
+    @GraphqlType.Field()
+    @MongooseType.Prop()
     synopsis?: string;
 
-    @Field()
-    @Prop()
-    source?: string;
+    @GraphqlType.Field(() => AnimeSource)
+    @MongooseType.Prop({ type: AnimeSource })
+    source?: AnimeSource;
 
-    @Field()
-    @Prop()
+    @GraphqlType.Field()
+    @MongooseType.Prop()
     format?: string;
 
-    @Field(_ => [String])
-    @Prop({ type: () => [String] })
+    @GraphqlType.Field({ nullable: true })
+    @MongooseType.Prop({ default: false })
+    vf?: boolean
+
+    @GraphqlType.Field(_ => [String])
+    @MongooseType.Prop({ type: () => [String] })
     genres?: string[];
 
-    @Field(_ => [String])
-    @Prop({ type: () => [String] })
+    @GraphqlType.Field(_ => [String])
+    @MongooseType.Prop({ type: () => [String] })
     themes?: string[];
 
-    @Field()
-    @Prop()
+    @GraphqlType.Field()
+    @MongooseType.Prop()
     status?: string;
 
-    @Field()
-    @Prop()
+    @GraphqlType.Field()
+    @MongooseType.Prop()
     episodes?: AnimeEpisode;
 
-    @Field()
-    @Prop()
+    @GraphqlType.Field()
+    @MongooseType.Prop()
     adult?: boolean;
 
-    @Field()
-    @Prop()
+    @GraphqlType.Field()
+    @MongooseType.Prop()
     explicit?: boolean;
 
-    @Field()
-    @Prop()
-    links?: MediaLink;
+    @GraphqlType.Field()
+    @MongooseType.Prop()
+    links?: Medias.MediaLink;
 
-    @Field(_ => [AnimeRelation])
-    @Prop({ type: () => [AnimeRelation] })
-    companys?: AnimeRelation[];
+    @GraphqlType.Field(_ => [Medias.CompanyRelation])
+    @MongooseType.Prop({ type: () => [Medias.CompanyRelation] })
+    companys?: Medias.CompanyRelation[];
 
-    @Field(_ => [AnimeRelation])
-    @Prop({ type: () => [AnimeRelation] })
-    staffs?: AnimeRelation[];
+    // @GraphqlType.Field(_ => [AnimeRelation])
+    // @MongooseType.Prop({ type: () => [AnimeRelation] })
+    // staffs?: AnimeRelation[];
 
-    @Field(_ => [AnimeRelation])
-    @Prop({ type: () => [AnimeRelation] })
-    characters?: AnimeRelation[];
+    // @GraphqlType.Field(_ => [AnimeRelation])
+    // @MongooseType.Prop({ type: () => [AnimeRelation] })
+    // characters?: AnimeRelation[];
 
-    @Field(_ => [AnimeRelation])
-    @Prop({ type: () => [AnimeRelation] })
-    tracks?: AnimeRelation[]
+    // @GraphqlType.Field(_ => [AnimeRelation])
+    // @MongooseType.Prop({ type: () => [AnimeRelation] })
+    // tracks?: AnimeRelation[]
+
+    constructor(props: Anime) {
+        Object.assign(this, props);
+    }
 }
 
 
-@ObjectType({ description: "Format AnimeUpdate dans la base de données" })
-export class AnimeUpdate extends MediaUpdateFormat<Anime> {
-    @Prop({ type: () => Anime })
-    @Field(_ => Anime)
+@GraphqlType.ObjectType({ description: "Format AnimeUpdate dans la base de données" })
+export class AnimeUpdate extends Medias.MediaUpdateFormat<Anime> {
+    @MongooseType.Prop({ type: () => Anime })
+    @GraphqlType.Field(_ => Anime)
     declare data: Anime;
 }
 
-@ObjectType({ description: "Format AnimeRequest dans la base de données" })
-export class AnimeRequest extends MediaUpdateRequestFormat<Anime> {
-    @Prop({ type: () => Anime })
-    @Field(_ => Anime)
+@GraphqlType.ObjectType({ description: "Format AnimeRequest dans la base de données" })
+export class AnimeRequest extends Medias.MediaUpdateRequestFormat<Anime> {
+    @MongooseType.Prop({ type: () => Anime })
+    @GraphqlType.Field(_ => Anime)
     declare data: Anime;
 }
 
 
-// @Index({ id: 'text' }, { unique: true })
-@Pre<AnimeMedia>('save', function (next) {
-    this.data = genMediaFromUpdate(this.updates);
+
+@MongooseType.Pre<AnimeMedia>('save', function (next) {
+    this.data = Medias.genMediaFromUpdate(this.updates);
     next()
 })
-@QueryMethod(searchMediaByTitle<typeof AnimeMedia>)
-@ObjectType({ description: "Format Anime dans la base de données" })
-export class AnimeMedia extends MediaFormat<Anime, AnimeUpdate, AnimeRequest> {
-    @Prop({ default: [] })
-    @Field(_ => [AnimeUpdate])
+@MongooseType.QueryMethod(Medias.searchMediaByTitle<typeof AnimeMedia>)
+@GraphqlType.ObjectType({ description: "Format Anime dans la base de données" })
+export class AnimeMedia extends Medias.MediaFormat<Anime, AnimeUpdate, AnimeRequest> {
+    @MongooseType.Prop({ default: [] })
+    @GraphqlType.Field(_ => [AnimeUpdate])
     declare updates: AnimeUpdate[];
-    @Prop({ default: [] })
-    @Field(_ => [AnimeRequest])
+    @MongooseType.Prop({ default: [] })
+    @GraphqlType.Field(_ => [AnimeRequest])
     declare updatesRequests: AnimeRequest[];
-
-    // public get data(): Anime | null {
-    //     console.log('virtual get', this.updates)
-    //     let res = genMediaFromUpdate(this.updates);
-    //     return { id: this.id, ...res } || null
-    // }
-
-    // public set data(data) {
-    //     console.log('virtual set')
-    //     this.data = data;
-    // }
 }
 
+@GraphqlType.ObjectType()
+export class AnimeMediaOutput extends Medias.MediaFormatOutput<Anime, AnimeUpdate, AnimeRequest>(Anime) {
+    @GraphqlType.Field(() => Anime)
+    declare data: Anime;
+    @MongooseType.Prop({ default: [] })
+    @GraphqlType.Field(_ => [AnimeUpdate])
+    declare updates: AnimeUpdate[];
+    @MongooseType.Prop({ default: [] })
+    @GraphqlType.Field(_ => [AnimeRequest])
+    declare updatesRequests: AnimeRequest[];
+}
 
-@ObjectType()
-export class AnimeMediaOutput extends MediaFormatOutput<Anime, AnimeUpdate, AnimeRequest>(Anime) { }
+@GraphqlType.ObjectType()
+export class AnimeMediaPaginationOutput extends Medias.PaginationOutput<AnimeMediaOutput>(AnimeMediaOutput) { }
 
-@ObjectType()
-export class AnimeMediaPaginationOutput extends PaginationOutput<AnimeMediaOutput>(AnimeMediaOutput) { }
+@GraphqlType.ObjectType()
+export class AnimePaginationOutput extends Medias.PaginationOutput<Anime>(Anime) { }
 
-@ObjectType()
-export class AnimePaginationOutput extends PaginationOutput<Anime>(Anime) { }
-
-@InputType()
-export class AnimeSearchQuery extends SearchQuery {
-    @Field()
+@GraphqlType.InputType()
+export class AnimeSearchQuery extends Medias.SearchQuery {
+    @GraphqlType.Field()
     title!: string;
 }
 
 interface AnimeMediaQueryHelpers {
-    searchMediaByTitle: types.AsQueryMethod<typeof searchMediaByTitle<typeof AnimeMedia>>;
+    searchMediaByTitle: MongooseType.types.AsQueryMethod<typeof Medias.searchMediaByTitle<typeof AnimeMedia>>;
 }
 
-export const AnimeModel = getModelForClass<typeof AnimeMedia, AnimeMediaQueryHelpers>(AnimeMedia, { schemaOptions: { toJSON: { virtuals: true } } });
+export const AnimeModel = MongooseType.getModelForClass<typeof AnimeMedia, AnimeMediaQueryHelpers>(AnimeMedia, { schemaOptions: { toJSON: { virtuals: true } } });
