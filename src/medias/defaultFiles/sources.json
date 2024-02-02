@@ -1,0 +1,52 @@
+[
+    {
+        "label": "Original",
+        "value": "ORIGINAL",
+        "description": "L'anime a été créé de manière originale et ne se base sur aucune œuvre préexistante."
+    },
+    {
+        "label": "Manga",
+        "value": "MANGA",
+        "description": "L'anime est basé sur un manga japonais."
+    },
+    {
+        "label": "Manhwa",
+        "value": "MANHWA",
+        "description": "L'anime est basé sur un manhwa, une bande dessinée sud-coréenne."
+    },
+    {
+        "label": "Manhua",
+        "value": "MANHUA",
+        "description": "L'anime est basé sur un manhua, une bande dessinée chinoise."
+    },
+    {
+        "label": "Light novel",
+        "value": "LIGHT_NOVEL",
+        "description": "L'anime est basé sur un light novel, un type de roman japonais destiné aux jeunes adultes."
+    },
+    {
+        "label": "Visual novel",
+        "value": "VISUAL_NOVEL",
+        "description": "L'anime est basé sur un visual novel, un type de jeu vidéo interactif japonais qui utilise principalement du texte narratif."
+    },
+    {
+        "label": "Web novel",
+        "value": "WEB_NOVEL",
+        "description": "L'anime est basé sur un web novel, un roman publié en ligne."
+    },
+    {
+        "label": "Jeu video",
+        "value": "GAME",
+        "description": "L'anime est basé sur un jeu vidéo."
+    },
+    {
+        "label": "Roman",
+        "value": "NOVEL",
+        "description": "L'anime est basé sur un roman."
+    },
+    {
+        "label": "Anime",
+        "value": "ANIME",
+        "description": "L'anime est basé sur une autre série d'anime."
+    }
+]

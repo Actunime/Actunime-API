@@ -1,160 +1,108 @@
-import * as GraphqlType from "type-graphql";
-import * as MongooseType from "@typegoose/typegoose";
-import * as Medias from '../';
 
-@GraphqlType.InputType()
+import { Field, InputType } from 'type-graphql';
+import { CharacterInput, CharacterRelationFields } from '../characters/_character.input';
+import { Anime } from './_anime.type';
+import { MediaTitleInput, MediaDateInput, MediaImageInput, MediaLinkInput, MediaDoc, createUpdate } from '../../utils';
+import { CompanyInput, CompanyRelationFields } from '../companys/_company.input';
+import { PersonInput, PersonRelationFields } from '../persons/_person.input';
+import { TrackInput, TrackRelationFields } from '../tracks/_track.input';
+import { AnimeModel } from './_anime.model';
+import { DefaultAnimeFormatEnum, DefaultSourceEnum, DefaultStatusEnum, GenresEnum } from '../defaultData';
+
+
+@InputType()
 class AnimeEpisodeInput {
-    @GraphqlType.Field({ nullable: true })
+    @Field({ nullable: true })
     airing!: number;
-    @GraphqlType.Field({ nullable: true })
-    nextAiringDate!: Date;
-    @GraphqlType.Field({ nullable: true })
+    @Field({ nullable: true })
+    nextAiringDate?: Date;
+    @Field({ nullable: true })
     total!: number;
-    @GraphqlType.Field({ nullable: true })
-    durationMinutePerEp!: number;
+    @Field({ nullable: true })
+    durationMinutePerEp?: number;
 }
 
-enum AnimeStatus {
-    INCONNU = "INCONNU",
-    BIENTOT_DISPO = "BIENTÔT_DISPO",
-    EN_COURS = "EN_COURS",
-    EN_PAUSE = "EN_PAUSE",
-    TERMINE = "TERMINÉ",
-    REPPORTE = "REPPORTÉ",
-    ARRETE = "ARRÉTÉ",
-}
-
-GraphqlType.registerEnumType(AnimeStatus, {
-    name: "AnimeStatus",
-    description: "Type de statut pour un Anime"
-})
-
-
-enum AnimeFormat {
-    SERIE = "SÉRIE",
-    FILM = "FILM",
-    ONA = "ONA",
-    OVA = "OVA",
-}
-
-GraphqlType.registerEnumType(AnimeFormat, {
-    name: "AnimeFormat",
-    description: "Type de format pour un Anime"
-})
-
-export enum AnimeSourceType {
-    ORIGINAL = "ORIGINAL",
-    MANGA = "MANGA",
-    LIGHT_NOVEL = "LIGHT_NOVEL",
-    VISUAL_NOVEL = "VISUAL_NOVEL",
-    JEU = "JEU",
-}
-
-GraphqlType.registerEnumType(AnimeSourceType, {
-    name: "AnimeSourceType",
-    description: "Type de source pour un Anime"
-})
-
-@GraphqlType.InputType()
+@InputType()
 class AnimeSourceInput {
-    @GraphqlType.Field(() => AnimeSourceType)
-    origine!: AnimeSourceType
-    @GraphqlType.Field({ nullable: true })
-    refPubId!: string
+    @Field(() => DefaultSourceEnum)
+    origine!: DefaultSourceEnum
+    @Field({ nullable: true })
+    refPubId?: string
 }
 
-@GraphqlType.InputType({ description: "Anime" })
+@InputType({ description: "Anime" })
 export class AnimeInput {
-    @GraphqlType.Field(() => Medias.MediaTitleInput)
-    title!: Medias.MediaTitleInput
+    @Field(() => MediaTitleInput)
+    title!: MediaTitleInput
 
-    @GraphqlType.Field(() => Medias.MediaDateInput, { nullable: true })
-    date?: Medias.MediaDateInput;
+    @Field(() => MediaDateInput, { nullable: true })
+    date?: MediaDateInput;
 
-    @GraphqlType.Field(() => Medias.MediaImageInput, { nullable: true })
-    image?: Medias.MediaImageInput;
+    @Field(() => MediaImageInput, { nullable: true })
+    image?: MediaImageInput;
 
-    @GraphqlType.Field({ nullable: true })
+    @Field({ nullable: true })
     synopsis?: string;
 
-    @GraphqlType.Field(() => AnimeSourceInput)
-    source!: AnimeSourceInput;
+    @Field(() => AnimeSourceInput)
+    source?: AnimeSourceInput;
 
-    @GraphqlType.Field(() => AnimeFormat, { nullable: true })
-    format?: AnimeFormat;
+    @Field(() => DefaultAnimeFormatEnum, { nullable: true })
+    format?: DefaultAnimeFormatEnum;
 
-    @GraphqlType.Field({ nullable: true })
+    @Field({ nullable: true })
     vf?: boolean
 
-    @GraphqlType.Field(() => [String], { nullable: true })
-    genres?: string[];
+    @Field(() => [GenresEnum], { nullable: true })
+    genres?: GenresEnum[];
 
-    @GraphqlType.Field(() => [String], { nullable: true })
+    @Field(() => [String], { nullable: true })
     themes?: string[];
 
-    @GraphqlType.Field(() => AnimeStatus)
-    status!: AnimeStatus;
+    @Field(() => DefaultStatusEnum)
+    status!: DefaultStatusEnum;
 
-    @GraphqlType.Field(() => AnimeEpisodeInput, { nullable: true })
+    @Field(() => AnimeEpisodeInput, { nullable: true })
     episodes?: AnimeEpisodeInput;
 
-    @GraphqlType.Field({ defaultValue: false, nullable: true })
+    @Field({ defaultValue: false, nullable: true })
     adult?: boolean;
 
-    @GraphqlType.Field({ defaultValue: false, nullable: true })
+    @Field({ defaultValue: false, nullable: true })
     explicit?: boolean;
 
-    @GraphqlType.Field(() => Medias.MediaLinkInput, { nullable: true })
-    links?: Medias.MediaLinkInput;
+    @Field(() => MediaLinkInput, { nullable: true })
+    links?: MediaLinkInput[];
 
-    @GraphqlType.Field(() => Medias.CompanyRelationFields, { nullable: true })
-    companys?: Medias.CompanyRelationFields;
+    @Field(() => CompanyRelationFields, { nullable: true })
+    companys?: CompanyRelationFields;
 
-    // @GraphqlType.Field(_ => [AnimeRelation])
-    // @MongooseType.Prop({ type: () => [AnimeRelation] })
-    // staffs?: AnimeRelation[];
+    @Field(_ => PersonRelationFields, { nullable: true })
+    staffs?: PersonRelationFields;
 
-    // @GraphqlType.Field(_ => [AnimeRelation])
-    // @MongooseType.Prop({ type: () => [AnimeRelation] })
-    // characters?: AnimeRelation[];
+    @Field(_ => CharacterRelationFields)
+    characters?: CharacterRelationFields
 
-    // @GraphqlType.Field(_ => [AnimeRelation])
-    // @MongooseType.Prop({ type: () => [AnimeRelation] })
-    // tracks?: AnimeRelation[]
+    @Field(_ => TrackRelationFields)
+    tracks?: TrackRelationFields
 
-    async init(props: AnimeInput) {
-        const media = new Medias.Anime({
+    static async createUpdate(props: AnimeInput, action: "request" | "direct_update", visible: boolean) {
+
+        const db = AnimeModel;
+        let docToSaveWith: MediaDoc[] = [];
+
+        let media: Anime = {
             ...props,
-            companys: await this.handleCompanysGraphql(props.companys)
-        });
-        console.log('animeinput init', media);
-        return media;
-    }
+            companys: props.companys ? CompanyInput.InitFromRelation(props.companys, action, (m) => docToSaveWith = docToSaveWith.concat(m)) : undefined,
+            staffs: props.staffs ? PersonInput.InitFromRelation(props.staffs, action, (m) => docToSaveWith = docToSaveWith.concat(m)) : undefined,
+            characters: props.characters ? CharacterInput.InitFromRelation(props.characters, action, (m) => docToSaveWith = docToSaveWith.concat(m)) : undefined,
+            tracks: props.tracks ? TrackInput.InitFromRelation(props.tracks, action, (m) => docToSaveWith = docToSaveWith.concat(m)) : undefined,
+        };
 
-    public relationsMediasToSave: Medias.MediaDoc[] = [];
-
-    private addRelationsMediasToSave(documents: Medias.MediaDoc[]) {
-        this.relationsMediasToSave = this.relationsMediasToSave.concat(documents);
-    }
-
-    private async handleCompanysGraphql(props?: Medias.CompanyRelationFields): Promise<Medias.CompanyRelation[]> {
-        if (!props) return [];
-
-        const newCompanys = await Promise.all(props.news.map(async (newCompany) => {
-            return await new Medias.CompanyInput().init(newCompany.data);
-        }))
-
-        const oldCompanys = await Promise.all(props.exists.map(async (existCompany) => {
-            const company = await Medias.CompanyModel.findOne({ pubId: existCompany.pubId });
-            if (!company) throw `La société avec l'identifiant ${existCompany.pubId} n'existe pas.`;
-            return company._id
-        }))
-
-
-        this.addRelationsMediasToSave(newCompanys.map((d) => d.doc));
-
-        const companysIds = [...newCompanys.map((doc) => doc.doc._id), ...oldCompanys];
-
-        return companysIds.map((id) => ({ data: id }));
+        if (action === 'direct_update') {
+            return createUpdate<Anime>({ media, db, visible, docToSaveWith })
+        } else {
+            return createUpdate<Anime>({ media, db, visible, docToSaveWith })
+        }
     }
 }

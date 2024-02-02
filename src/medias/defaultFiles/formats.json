@@ -1,0 +1,32 @@
+[
+    {
+        "label": "Série",
+        "value": "SERIE",
+        "description": "Un format d'anime qui est diffusé en épisodes réguliers."
+    },
+    {
+        "label": "Film",
+        "value": "FILM",
+        "description": "Un format d'anime qui est produit comme un long métrage."
+    },
+    {
+        "label": "ONA",
+        "value": "ONA",
+        "description": "Original Net Animation. Un format d'anime qui est diffusé directement sur Internet."
+    },
+    {
+        "label": "OVA",
+        "value": "OVA",
+        "description": "Original Video Animation. Un format d'anime qui est destiné à la vente directe aux consommateurs sur home video."
+    },
+    {
+        "label": "Spécial",
+        "value": "SPECIAL",
+        "description": "Un épisode unique ou une série d'épisodes qui ne fait pas partie de la diffusion régulière d'une série."
+    },
+    {
+        "label": "TV Short",
+        "value": "TV_SHORT",
+        "description": "Un format d'anime qui est diffusé en épisodes courts, généralement moins de 15 minutes chacun."
+    }
+]

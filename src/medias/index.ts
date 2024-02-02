@@ -1,8 +1,6 @@
-export * from './animes';
-export * from './companys';
-
-
-// Utils
-export * from './util.query';
-export * from './util.input';
-export * from './util.type';
+// export * from './animes';
+// export * from './companys';
+// export * from './characters';
+// export * from './groupe';
+// export * from './persons';
+// export * from './tracks';

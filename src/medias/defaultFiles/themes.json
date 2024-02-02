@@ -1,0 +1,5022 @@
+[
+    {
+        "label": "Action",
+        "value": "ACTION"
+    },
+    {
+        "label": "Sport",
+        "value": "SPORT"
+    },
+    {
+        "label": "Mecha",
+        "value": "MECHA"
+    },
+    {
+        "label": "Nekketsu",
+        "value": "NEKKETSU"
+    },
+    {
+        "label": "Magical girl",
+        "value": "MAGICAL_GIRL"
+    },
+    {
+        "label": "Absence",
+        "value": "ABSENCE"
+    },
+    {
+        "label": "Absurde",
+        "value": "ABSURDE"
+    },
+    {
+        "label": "Abus",
+        "value": "ABUS"
+    },
+    {
+        "label": "Académie",
+        "value": "ACADÉMIE"
+    },
+    {
+        "label": "Acceptation",
+        "value": "ACCEPTATION"
+    },
+    {
+        "label": "Accident",
+        "value": "ACCIDENT"
+    },
+    {
+        "label": "Acteur",
+        "value": "ACTEUR"
+    },
+    {
+        "label": "Addiction",
+        "value": "ADDICTION"
+    },
+    {
+        "label": "Adolescence",
+        "value": "ADOLESCENCE"
+    },
+    {
+        "label": "Affirmation",
+        "value": "AFFIRMATION"
+    },
+    {
+        "label": "Afrique",
+        "value": "AFRIQUE"
+    },
+    {
+        "label": "Afro",
+        "value": "AFRO"
+    },
+    {
+        "label": "Âge",
+        "value": "ÂGE"
+    },
+    {
+        "label": "Agenda",
+        "value": "AGENDA"
+    },
+    {
+        "label": "Agriculture",
+        "value": "AGRICULTURE"
+    },
+    {
+        "label": "Ahegao",
+        "value": "AHEGAO"
+    },
+    {
+        "label": "Aïnou",
+        "value": "AÏNOU"
+    },
+    {
+        "label": "Aladin",
+        "value": "ALADIN"
+    },
+    {
+        "label": "Alaska",
+        "value": "ALASKA"
+    },
+    {
+        "label": "Alchimiste",
+        "value": "ALCHIMISTE"
+    },
+    {
+        "label": "Alchimie",
+        "value": "ALCHIMIE"
+    },
+    {
+        "label": "Alcool",
+        "value": "ALCOOL"
+    },
+    {
+        "label": "Alice aux pays des Merveilles",
+        "value": "ALICE_AUX_PAYS_DES_MERVEILLES"
+    },
+    {
+        "label": "Alien",
+        "value": "ALIEN"
+    },
+    {
+        "label": "Alimentation",
+        "value": "ALIMENTATION"
+    },
+    {
+        "label": "Allemagne",
+        "value": "ALLEMAGNE"
+    },
+    {
+        "label": "Alpinisme",
+        "value": "ALPINISME"
+    },
+    {
+        "label": "Altruisme",
+        "value": "ALTRUISME"
+    },
+    {
+        "label": "Ambition",
+        "value": "AMBITION"
+    },
+    {
+        "label": "Âme",
+        "value": "ÂME"
+    },
+    {
+        "label": "Amérique",
+        "value": "AMÉRIQUE"
+    },
+    {
+        "label": "Amertume",
+        "value": "AMERTUME"
+    },
+    {
+        "label": "Amitié",
+        "value": "AMITIÉ"
+    },
+    {
+        "label": "Amnésie",
+        "value": "AMNÉSIE"
+    },
+    {
+        "label": "Amour",
+        "value": "AMOUR"
+    },
+    {
+        "label": "Ancestral",
+        "value": "ANCESTRAL"
+    },
+    {
+        "label": "Ange",
+        "value": "ANGE"
+    },
+    {
+        "label": "Angleterre",
+        "value": "ANGLETERRE"
+    },
+    {
+        "label": "Animaux",
+        "value": "ANIMAUX"
+    },
+    {
+        "label": "Animerama",
+        "value": "ANIMERAMA"
+    },
+    {
+        "label": "Antarctique",
+        "value": "ANTARCTIQUE"
+    },
+    {
+        "label": "Anthologie",
+        "value": "ANTHOLOGIE"
+    },
+    {
+        "label": "Anticipation",
+        "value": "ANTICIPATION"
+    },
+    {
+        "label": "Aot",
+        "value": "AOT"
+    },
+    {
+        "label": "Apnée",
+        "value": "APNÉE"
+    },
+    {
+        "label": "Apocalypse",
+        "value": "APOCALYPSE"
+    },
+    {
+        "label": "Apparence",
+        "value": "APPARENCE"
+    },
+    {
+        "label": "Appartement",
+        "value": "APPARTEMENT"
+    },
+    {
+        "label": "Apprentie",
+        "value": "APPRENTIE"
+    },
+    {
+        "label": "Apprentissage",
+        "value": "APPRENTISSAGE"
+    },
+    {
+        "label": "Aquarium",
+        "value": "AQUARIUM"
+    },
+    {
+        "label": "Araignée",
+        "value": "ARAIGNÉE"
+    },
+    {
+        "label": "Arcade",
+        "value": "ARCADE"
+    },
+    {
+        "label": "Archéologie",
+        "value": "ARCHÉOLOGIE"
+    },
+    {
+        "label": "Architecte",
+        "value": "ARCHITECTE"
+    },
+    {
+        "label": "Arène",
+        "value": "ARÈNE"
+    },
+    {
+        "label": "Argent",
+        "value": "ARGENT"
+    },
+    {
+        "label": "Aristocratie",
+        "value": "ARISTOCRATIE"
+    },
+    {
+        "label": "Arme",
+        "value": "ARME"
+    },
+    {
+        "label": "Armée",
+        "value": "ARMÉE"
+    },
+    {
+        "label": "Arnaque",
+        "value": "ARNAQUE"
+    },
+    {
+        "label": "Art",
+        "value": "ART"
+    },
+    {
+        "label": "Artisan",
+        "value": "ARTISAN"
+    },
+    {
+        "label": "Artiste",
+        "value": "ARTISTE"
+    },
+    {
+        "label": "Arts martiaux",
+        "value": "ARTS_MARTIAUX"
+    },
+    {
+        "label": "Asexualité",
+        "value": "ASEXUALITÉ"
+    },
+    {
+        "label": "Assassin",
+        "value": "ASSASSIN"
+    },
+    {
+        "label": "Astronaute",
+        "value": "ASTRONAUTE"
+    },
+    {
+        "label": "Astronomie",
+        "value": "ASTRONOMIE"
+    },
+    {
+        "label": "Athéna",
+        "value": "ATHÉNA"
+    },
+    {
+        "label": "Athlétisme",
+        "value": "ATHLÉTISME"
+    },
+    {
+        "label": "Atlantide",
+        "value": "ATLANTIDE"
+    },
+    {
+        "label": "Auberge",
+        "value": "AUBERGE"
+    },
+    {
+        "label": "Australie",
+        "value": "AUSTRALIE"
+    },
+    {
+        "label": "Auteur",
+        "value": "AUTEUR"
+    },
+    {
+        "label": "Autobiographie",
+        "value": "AUTOBIOGRAPHIE"
+    },
+    {
+        "label": "Autonomie",
+        "value": "AUTONOMIE"
+    },
+    {
+        "label": "Avatar",
+        "value": "AVATAR"
+    },
+    {
+        "label": "Aventure",
+        "value": "AVENTURE"
+    },
+    {
+        "label": "Aventurier",
+        "value": "AVENTURIER"
+    },
+    {
+        "label": "Avion",
+        "value": "AVION"
+    },
+    {
+        "label": "Aviron",
+        "value": "AVIRON"
+    },
+    {
+        "label": "Avocat",
+        "value": "AVOCAT"
+    },
+    {
+        "label": "Babysitting",
+        "value": "BABYSITTING"
+    },
+    {
+        "label": "Badminton",
+        "value": "BADMINTON"
+    },
+    {
+        "label": "Bagarre",
+        "value": "BAGARRE"
+    },
+    {
+        "label": "Bain",
+        "value": "BAIN"
+    },
+    {
+        "label": "Balade",
+        "value": "BALADE"
+    },
+    {
+        "label": "Balai",
+        "value": "BALAI"
+    },
+    {
+        "label": "Ballet",
+        "value": "BALLET"
+    },
+    {
+        "label": "Bandit",
+        "value": "BANDIT"
+    },
+    {
+        "label": "Baseball",
+        "value": "BASEBALL"
+    },
+    {
+        "label": "Basket",
+        "value": "BASKET"
+    },
+    {
+        "label": "Baston",
+        "value": "BASTON"
+    },
+    {
+        "label": "Bataille",
+        "value": "BATAILLE"
+    },
+    {
+        "label": "Bateau",
+        "value": "BATEAU"
+    },
+    {
+        "label": "Batman",
+        "value": "BATMAN"
+    },
+    {
+        "label": "Battle royale",
+        "value": "BATTLE_ROYALE"
+    },
+    {
+        "label": "Bdsm",
+        "value": "BDSM"
+    },
+    {
+        "label": "Bébé",
+        "value": "BÉBÉ"
+    },
+    {
+        "label": "Bénévole",
+        "value": "BÉNÉVOLE"
+    },
+    {
+        "label": "Bento",
+        "value": "BENTO"
+    },
+    {
+        "label": "Bête",
+        "value": "BÊTE"
+    },
+    {
+        "label": "Bêtise",
+        "value": "BÊTISE"
+    },
+    {
+        "label": "Beyblade",
+        "value": "BEYBLADE"
+    },
+    {
+        "label": "Bibliothèque",
+        "value": "BIBLIOTHÈQUE"
+    },
+    {
+        "label": "Bienveillance",
+        "value": "BIENVEILLANCE"
+    },
+    {
+        "label": "Bijou",
+        "value": "BIJOU"
+    },
+    {
+        "label": "Biographie",
+        "value": "BIOGRAPHIE"
+    },
+    {
+        "label": "Biologie",
+        "value": "BIOLOGIE"
+    },
+    {
+        "label": "Boisson",
+        "value": "BOISSON"
+    },
+    {
+        "label": "Bombardier",
+        "value": "BOMBARDIER"
+    },
+    {
+        "label": "Bonbon",
+        "value": "BONBON"
+    },
+    {
+        "label": "Bondage",
+        "value": "BONDAGE"
+    },
+    {
+        "label": "Bonheur",
+        "value": "BONHEUR"
+    },
+    {
+        "label": "Bonne humeur",
+        "value": "BONNE_HUMEUR"
+    },
+    {
+        "label": "Bonze",
+        "value": "BONZE"
+    },
+    {
+        "label": "Boucle temporelle",
+        "value": "BOUCLE_TEMPORELLE"
+    },
+    {
+        "label": "Bouddha",
+        "value": "BOUDDHA"
+    },
+    {
+        "label": "Boulot",
+        "value": "BOULOT"
+    },
+    {
+        "label": "Bourgade",
+        "value": "BOURGADE"
+    },
+    {
+        "label": "Bourreau",
+        "value": "BOURREAU"
+    },
+    {
+        "label": "Boxe",
+        "value": "BOXE"
+    },
+    {
+        "label": "Boy's love",
+        "value": "BOY'S_LOVE"
+    },
+    {
+        "label": "Braquage",
+        "value": "BRAQUAGE"
+    },
+    {
+        "label": "Brimade",
+        "value": "BRIMADE"
+    },
+    {
+        "label": "Bug",
+        "value": "BUG"
+    },
+    {
+        "label": "Bunny girls",
+        "value": "BUNNY_GIRLS"
+    },
+    {
+        "label": "Bureau",
+        "value": "BUREAU"
+    },
+    {
+        "label": "Burlesque",
+        "value": "BURLESQUE"
+    },
+    {
+        "label": "Bushi",
+        "value": "BUSHI"
+    },
+    {
+        "label": "Cabaret",
+        "value": "CABARET"
+    },
+    {
+        "label": "Cadavre",
+        "value": "CADAVRE"
+    },
+    {
+        "label": "Cafard",
+        "value": "CAFARD"
+    },
+    {
+        "label": "Café",
+        "value": "CAFÉ"
+    },
+    {
+        "label": "Californie",
+        "value": "CALIFORNIE"
+    },
+    {
+        "label": "Calligraphie",
+        "value": "CALLIGRAPHIE"
+    },
+    {
+        "label": "Cambrioleur",
+        "value": "CAMBRIOLEUR"
+    },
+    {
+        "label": "Campagne",
+        "value": "CAMPAGNE"
+    },
+    {
+        "label": "Camping",
+        "value": "CAMPING"
+    },
+    {
+        "label": "Cancer",
+        "value": "CANCER"
+    },
+    {
+        "label": "Cancre",
+        "value": "CANCRE"
+    },
+    {
+        "label": "Cannibale",
+        "value": "CANNIBALE"
+    },
+    {
+        "label": "Capitalisme",
+        "value": "CAPITALISME"
+    },
+    {
+        "label": "Capsule témoin",
+        "value": "CAPSULE_TÉMOIN"
+    },
+    {
+        "label": "Carnet",
+        "value": "CARNET"
+    },
+    {
+        "label": "Carrière",
+        "value": "CARRIÈRE"
+    },
+    {
+        "label": "Cartes",
+        "value": "CARTES"
+    },
+    {
+        "label": "Casino",
+        "value": "CASINO"
+    },
+    {
+        "label": "Catastophe",
+        "value": "CATASTOPHE"
+    },
+    {
+        "label": "Catch",
+        "value": "CATCH"
+    },
+    {
+        "label": "Célibataire",
+        "value": "CÉLIBATAIRE"
+    },
+    {
+        "label": "Cellule",
+        "value": "CELLULE"
+    },
+    {
+        "label": "Céramique",
+        "value": "CÉRAMIQUE"
+    },
+    {
+        "label": "Cercueil",
+        "value": "CERCUEIL"
+    },
+    {
+        "label": "Champion",
+        "value": "CHAMPION"
+    },
+    {
+        "label": "Chanson",
+        "value": "CHANSON"
+    },
+    {
+        "label": "Chantage",
+        "value": "CHANTAGE"
+    },
+    {
+        "label": "Chanteur",
+        "value": "CHANTEUR"
+    },
+    {
+        "label": "Chaos",
+        "value": "CHAOS"
+    },
+    {
+        "label": "Chasseur",
+        "value": "CHASSEUR"
+    },
+    {
+        "label": "Chat",
+        "value": "CHAT"
+    },
+    {
+        "label": "Chateau",
+        "value": "CHATEAU"
+    },
+    {
+        "label": "Chefs",
+        "value": "CHEFS"
+    },
+    {
+        "label": "Cheval",
+        "value": "CHEVAL"
+    },
+    {
+        "label": "Chevalier",
+        "value": "CHEVALIER"
+    },
+    {
+        "label": "Chien",
+        "value": "CHIEN"
+    },
+    {
+        "label": "Chimère",
+        "value": "CHIMÈRE"
+    },
+    {
+        "label": "Chimie",
+        "value": "CHIMIE"
+    },
+    {
+        "label": "Chine",
+        "value": "CHINE"
+    },
+    {
+        "label": "Chirurgie",
+        "value": "CHIRURGIE"
+    },
+    {
+        "label": "Chômage",
+        "value": "CHÔMAGE"
+    },
+    {
+        "label": "Cinéma",
+        "value": "CINÉMA"
+    },
+    {
+        "label": "Cirque",
+        "value": "CIRQUE"
+    },
+    {
+        "label": "Civilisation",
+        "value": "CIVILISATION"
+    },
+    {
+        "label": "Clan",
+        "value": "CLAN"
+    },
+    {
+        "label": "Clone",
+        "value": "CLONE"
+    },
+    {
+        "label": "Club",
+        "value": "CLUB"
+    },
+    {
+        "label": "Coach",
+        "value": "COACH"
+    },
+    {
+        "label": "Cobaye",
+        "value": "COBAYE"
+    },
+    {
+        "label": "Cohabitation",
+        "value": "COHABITATION"
+    },
+    {
+        "label": "Collectionneur",
+        "value": "COLLECTIONNEUR"
+    },
+    {
+        "label": "Collège",
+        "value": "COLLÈGE"
+    },
+    {
+        "label": "Colocation",
+        "value": "COLOCATION"
+    },
+    {
+        "label": "Combat",
+        "value": "COMBAT"
+    },
+    {
+        "label": "Comédie",
+        "value": "COMÉDIE"
+    },
+    {
+        "label": "Comics",
+        "value": "COMICS"
+    },
+    {
+        "label": "Coming-out",
+        "value": "COMING-OUT"
+    },
+    {
+        "label": "Comique",
+        "value": "COMIQUE"
+    },
+    {
+        "label": "Communauté",
+        "value": "COMMUNAUTÉ"
+    },
+    {
+        "label": "Communication",
+        "value": "COMMUNICATION"
+    },
+    {
+        "label": "Communisme",
+        "value": "COMMUNISME"
+    },
+    {
+        "label": "Compétition",
+        "value": "COMPÉTITION"
+    },
+    {
+        "label": "Complot",
+        "value": "COMPLOT"
+    },
+    {
+        "label": "Concert",
+        "value": "CONCERT"
+    },
+    {
+        "label": "Concierge",
+        "value": "CONCIERGE"
+    },
+    {
+        "label": "Concours",
+        "value": "CONCOURS"
+    },
+    {
+        "label": "Concubinage",
+        "value": "CONCUBINAGE"
+    },
+    {
+        "label": "Confiance",
+        "value": "CONFIANCE"
+    },
+    {
+        "label": "Conspiration",
+        "value": "CONSPIRATION"
+    },
+    {
+        "label": "Conte",
+        "value": "CONTE"
+    },
+    {
+        "label": "Contemplation",
+        "value": "CONTEMPLATION"
+    },
+    {
+        "label": "Corée",
+        "value": "CORÉE"
+    },
+    {
+        "label": "Corps",
+        "value": "CORPS"
+    },
+    {
+        "label": "Corsaire",
+        "value": "CORSAIRE"
+    },
+    {
+        "label": "Cosmos",
+        "value": "COSMOS"
+    },
+    {
+        "label": "Cosplay",
+        "value": "COSPLAY"
+    },
+    {
+        "label": "Coulisse",
+        "value": "COULISSE"
+    },
+    {
+        "label": "Couple",
+        "value": "COUPLE"
+    },
+    {
+        "label": "Couronne",
+        "value": "COURONNE"
+    },
+    {
+        "label": "Courrier",
+        "value": "COURRIER"
+    },
+    {
+        "label": "Course",
+        "value": "COURSE"
+    },
+    {
+        "label": "Court",
+        "value": "COURT"
+    },
+    {
+        "label": "Courtisane",
+        "value": "COURTISANE"
+    },
+    {
+        "label": "Créancier",
+        "value": "CRÉANCIER"
+    },
+    {
+        "label": "Création",
+        "value": "CRÉATION"
+    },
+    {
+        "label": "Créature",
+        "value": "CRÉATURE"
+    },
+    {
+        "label": "Crime",
+        "value": "CRIME"
+    },
+    {
+        "label": "Criminel",
+        "value": "CRIMINEL"
+    },
+    {
+        "label": "Cristal",
+        "value": "CRISTAL"
+    },
+    {
+        "label": "Cuir",
+        "value": "CUIR"
+    },
+    {
+        "label": "Cuisine",
+        "value": "CUISINE"
+    },
+    {
+        "label": "Culinaire",
+        "value": "CULINAIRE"
+    },
+    {
+        "label": "Culture",
+        "value": "CULTURE"
+    },
+    {
+        "label": "Cyberpunk",
+        "value": "CYBERPUNK"
+    },
+    {
+        "label": "Cyborg",
+        "value": "CYBORG"
+    },
+    {
+        "label": "Cyclisme",
+        "value": "CYCLISME"
+    },
+    {
+        "label": "Danse",
+        "value": "DANSE"
+    },
+    {
+        "label": "Dark",
+        "value": "DARK"
+    },
+    {
+        "label": "Dark fantasy",
+        "value": "DARK_FANTASY"
+    },
+    {
+        "label": "Death game",
+        "value": "DEATH_GAME"
+    },
+    {
+        "label": "Début",
+        "value": "DÉBUT"
+    },
+    {
+        "label": "Décès",
+        "value": "DÉCÈS"
+    },
+    {
+        "label": "Découvertes",
+        "value": "DÉCOUVERTES"
+    },
+    {
+        "label": "Déesse",
+        "value": "DÉESSE"
+    },
+    {
+        "label": "Déguisement",
+        "value": "DÉGUISEMENT"
+    },
+    {
+        "label": "Déjanté",
+        "value": "DÉJANTÉ"
+    },
+    {
+        "label": "Démocratie",
+        "value": "DÉMOCRATIE"
+    },
+    {
+        "label": "Démon",
+        "value": "DÉMON"
+    },
+    {
+        "label": "Démons",
+        "value": "DÉMONS"
+    },
+    {
+        "label": "Dépression",
+        "value": "DÉPRESSION"
+    },
+    {
+        "label": "Désert",
+        "value": "DÉSERT"
+    },
+    {
+        "label": "Désespoir",
+        "value": "DÉSESPOIR"
+    },
+    {
+        "label": "Design",
+        "value": "DESIGN"
+    },
+    {
+        "label": "Désir",
+        "value": "DÉSIR"
+    },
+    {
+        "label": "Dessin",
+        "value": "DESSIN"
+    },
+    {
+        "label": "Destin",
+        "value": "DESTIN"
+    },
+    {
+        "label": "Détective",
+        "value": "DÉTECTIVE"
+    },
+    {
+        "label": "Dette",
+        "value": "DETTE"
+    },
+    {
+        "label": "Deuil",
+        "value": "DEUIL"
+    },
+    {
+        "label": "Déviance",
+        "value": "DÉVIANCE"
+    },
+    {
+        "label": "Diable",
+        "value": "DIABLE"
+    },
+    {
+        "label": "Dictionnaire",
+        "value": "DICTIONNAIRE"
+    },
+    {
+        "label": "Dieux",
+        "value": "DIEUX"
+    },
+    {
+        "label": "Différence",
+        "value": "DIFFÉRENCE"
+    },
+    {
+        "label": "Dimension",
+        "value": "DIMENSION"
+    },
+    {
+        "label": "Dinosaure",
+        "value": "DINOSAURE"
+    },
+    {
+        "label": "Diplôme",
+        "value": "DIPLÔME"
+    },
+    {
+        "label": "Disciple",
+        "value": "DISCIPLE"
+    },
+    {
+        "label": "Discipline",
+        "value": "DISCIPLINE"
+    },
+    {
+        "label": "Disney",
+        "value": "DISNEY"
+    },
+    {
+        "label": "Divinité",
+        "value": "DIVINITÉ"
+    },
+    {
+        "label": "Divorce",
+        "value": "DIVORCE"
+    },
+    {
+        "label": "Docteur",
+        "value": "DOCTEUR"
+    },
+    {
+        "label": "Documentaire",
+        "value": "DOCUMENTAIRE"
+    },
+    {
+        "label": "Domestique",
+        "value": "DOMESTIQUE"
+    },
+    {
+        "label": "Don",
+        "value": "DON"
+    },
+    {
+        "label": "Donjon",
+        "value": "DONJON"
+    },
+    {
+        "label": "Douleur",
+        "value": "DOULEUR"
+    },
+    {
+        "label": "Dracula",
+        "value": "DRACULA"
+    },
+    {
+        "label": "Dragon",
+        "value": "DRAGON"
+    },
+    {
+        "label": "Drame",
+        "value": "DRAME"
+    },
+    {
+        "label": "Dresseur",
+        "value": "DRESSEUR"
+    },
+    {
+        "label": "Drift",
+        "value": "DRIFT"
+    },
+    {
+        "label": "Drogue",
+        "value": "DROGUE"
+    },
+    {
+        "label": "Droïde",
+        "value": "DROÏDE"
+    },
+    {
+        "label": "Drôle",
+        "value": "DRÔLE"
+    },
+    {
+        "label": "Duo",
+        "value": "DUO"
+    },
+    {
+        "label": "Dystopie",
+        "value": "DYSTOPIE"
+    },
+    {
+        "label": "Ecchi",
+        "value": "ECCHI"
+    },
+    {
+        "label": "Échange",
+        "value": "ÉCHANGE"
+    },
+    {
+        "label": "Échangisme",
+        "value": "ÉCHANGISME"
+    },
+    {
+        "label": "Échec",
+        "value": "ÉCHEC"
+    },
+    {
+        "label": "École",
+        "value": "ÉCOLE"
+    },
+    {
+        "label": "Écologie",
+        "value": "ÉCOLOGIE"
+    },
+    {
+        "label": "Écrivain",
+        "value": "ÉCRIVAIN"
+    },
+    {
+        "label": "Éditeur",
+        "value": "ÉDITEUR"
+    },
+    {
+        "label": "Édition",
+        "value": "ÉDITION"
+    },
+    {
+        "label": "Edo",
+        "value": "EDO"
+    },
+    {
+        "label": "Éducation",
+        "value": "ÉDUCATION"
+    },
+    {
+        "label": "Eglise",
+        "value": "EGLISE"
+    },
+    {
+        "label": "Égoïsme",
+        "value": "ÉGOÏSME"
+    },
+    {
+        "label": "Egypte",
+        "value": "EGYPTE"
+    },
+    {
+        "label": "Électricité",
+        "value": "ÉLECTRICITÉ"
+    },
+    {
+        "label": "Elfes",
+        "value": "ELFES"
+    },
+    {
+        "label": "Élite",
+        "value": "ÉLITE"
+    },
+    {
+        "label": "Emotion",
+        "value": "EMOTION"
+    },
+    {
+        "label": "Empereur",
+        "value": "EMPEREUR"
+    },
+    {
+        "label": "Empire",
+        "value": "EMPIRE"
+    },
+    {
+        "label": "Employé",
+        "value": "EMPLOYÉ"
+    },
+    {
+        "label": "Énergie",
+        "value": "ÉNERGIE"
+    },
+    {
+        "label": "Enfance",
+        "value": "ENFANCE"
+    },
+    {
+        "label": "Enfants",
+        "value": "ENFANTS"
+    },
+    {
+        "label": "Enfer",
+        "value": "ENFER"
+    },
+    {
+        "label": "Enquête",
+        "value": "ENQUÊTE"
+    },
+    {
+        "label": "Entomologie",
+        "value": "ENTOMOLOGIE"
+    },
+    {
+        "label": "Entrainement",
+        "value": "ENTRAINEMENT"
+    },
+    {
+        "label": "Entreprise",
+        "value": "ENTREPRISE"
+    },
+    {
+        "label": "Environnement",
+        "value": "ENVIRONNEMENT"
+    },
+    {
+        "label": "Épée",
+        "value": "ÉPÉE"
+    },
+    {
+        "label": "Épidémie",
+        "value": "ÉPIDÉMIE"
+    },
+    {
+        "label": "Épreuve",
+        "value": "ÉPREUVE"
+    },
+    {
+        "label": "Équipage",
+        "value": "ÉQUIPAGE"
+    },
+    {
+        "label": "Équipe",
+        "value": "ÉQUIPE"
+    },
+    {
+        "label": "Equitation",
+        "value": "EQUITATION"
+    },
+    {
+        "label": "Érotique",
+        "value": "ÉROTIQUE"
+    },
+    {
+        "label": "Érotisme",
+        "value": "ÉROTISME"
+    },
+    {
+        "label": "Escalade",
+        "value": "ESCALADE"
+    },
+    {
+        "label": "Escape game",
+        "value": "ESCAPE_GAME"
+    },
+    {
+        "label": "Esclave",
+        "value": "ESCLAVE"
+    },
+    {
+        "label": "Escrime",
+        "value": "ESCRIME"
+    },
+    {
+        "label": "Ésotérique",
+        "value": "ÉSOTÉRIQUE"
+    },
+    {
+        "label": "Espace",
+        "value": "ESPACE"
+    },
+    {
+        "label": "Espagne",
+        "value": "ESPAGNE"
+    },
+    {
+        "label": "Espion",
+        "value": "ESPION"
+    },
+    {
+        "label": "Espionnage",
+        "value": "ESPIONNAGE"
+    },
+    {
+        "label": "Esport",
+        "value": "ESPORT"
+    },
+    {
+        "label": "Esprit",
+        "value": "ESPRIT"
+    },
+    {
+        "label": "Estime",
+        "value": "ESTIME"
+    },
+    {
+        "label": "Été",
+        "value": "ÉTÉ"
+    },
+    {
+        "label": "Europe",
+        "value": "EUROPE"
+    },
+    {
+        "label": "Ex-libris",
+        "value": "EX-LIBRIS"
+    },
+    {
+        "label": "Examen",
+        "value": "EXAMEN"
+    },
+    {
+        "label": "Exclusion",
+        "value": "EXCLUSION"
+    },
+    {
+        "label": "Exorciste",
+        "value": "EXORCISTE"
+    },
+    {
+        "label": "Expédition",
+        "value": "EXPÉDITION"
+    },
+    {
+        "label": "Expérience",
+        "value": "EXPÉRIENCE"
+    },
+    {
+        "label": "Expert",
+        "value": "EXPERT"
+    },
+    {
+        "label": "Explorateur",
+        "value": "EXPLORATEUR"
+    },
+    {
+        "label": "Extinction",
+        "value": "EXTINCTION"
+    },
+    {
+        "label": "Extraterrestre",
+        "value": "EXTRATERRESTRE"
+    },
+    {
+        "label": "Fable",
+        "value": "FABLE"
+    },
+    {
+        "label": "Famille",
+        "value": "FAMILLE"
+    },
+    {
+        "label": "Fanfare",
+        "value": "FANFARE"
+    },
+    {
+        "label": "Fantasme",
+        "value": "FANTASME"
+    },
+    {
+        "label": "Fantastique",
+        "value": "FANTASTIQUE"
+    },
+    {
+        "label": "Fantôme",
+        "value": "FANTÔME"
+    },
+    {
+        "label": "Far west",
+        "value": "FAR_WEST"
+    },
+    {
+        "label": "Farfelue",
+        "value": "FARFELUE"
+    },
+    {
+        "label": "Fashion",
+        "value": "FASHION"
+    },
+    {
+        "label": "Fée",
+        "value": "FÉE"
+    },
+    {
+        "label": "Feel-good",
+        "value": "FEEL-GOOD"
+    },
+    {
+        "label": "Féminisme",
+        "value": "FÉMINISME"
+    },
+    {
+        "label": "Femme",
+        "value": "FEMME"
+    },
+    {
+        "label": "Femme fatale",
+        "value": "FEMME_FATALE"
+    },
+    {
+        "label": "Festival",
+        "value": "FESTIVAL"
+    },
+    {
+        "label": "Feu",
+        "value": "FEU"
+    },
+    {
+        "label": "Fiction",
+        "value": "FICTION"
+    },
+    {
+        "label": "Fidélité",
+        "value": "FIDÉLITÉ"
+    },
+    {
+        "label": "Fille",
+        "value": "FILLE"
+    },
+    {
+        "label": "Film",
+        "value": "FILM"
+    },
+    {
+        "label": "Fin du monde",
+        "value": "FIN_DU_MONDE"
+    },
+    {
+        "label": "Fleur",
+        "value": "FLEUR"
+    },
+    {
+        "label": "Flirt",
+        "value": "FLIRT"
+    },
+    {
+        "label": "Folie",
+        "value": "FOLIE"
+    },
+    {
+        "label": "Football",
+        "value": "FOOTBALL"
+    },
+    {
+        "label": "Forêt",
+        "value": "FORÊT"
+    },
+    {
+        "label": "Formule 1",
+        "value": "FORMULE_1"
+    },
+    {
+        "label": "Fortune",
+        "value": "FORTUNE"
+    },
+    {
+        "label": "Fou",
+        "value": "FOU"
+    },
+    {
+        "label": "Foudre",
+        "value": "FOUDRE"
+    },
+    {
+        "label": "Fourmi",
+        "value": "FOURMI"
+    },
+    {
+        "label": "France",
+        "value": "FRANCE"
+    },
+    {
+        "label": "Franchise",
+        "value": "FRANCHISE"
+    },
+    {
+        "label": "Fraternité",
+        "value": "FRATERNITÉ"
+    },
+    {
+        "label": "Freaks",
+        "value": "FREAKS"
+    },
+    {
+        "label": "Fuite",
+        "value": "FUITE"
+    },
+    {
+        "label": "Fusée",
+        "value": "FUSÉE"
+    },
+    {
+        "label": "Futur",
+        "value": "FUTUR"
+    },
+    {
+        "label": "Gag",
+        "value": "GAG"
+    },
+    {
+        "label": "Gakuen",
+        "value": "GAKUEN"
+    },
+    {
+        "label": "Galaxie",
+        "value": "GALAXIE"
+    },
+    {
+        "label": "Gang",
+        "value": "GANG"
+    },
+    {
+        "label": "Gangster",
+        "value": "GANGSTER"
+    },
+    {
+        "label": "Garde du corps",
+        "value": "GARDE_DU_CORPS"
+    },
+    {
+        "label": "Gardien",
+        "value": "GARDIEN"
+    },
+    {
+        "label": "Gastronomie",
+        "value": "GASTRONOMIE"
+    },
+    {
+        "label": "Géant",
+        "value": "GÉANT"
+    },
+    {
+        "label": "Géographie",
+        "value": "GÉOGRAPHIE"
+    },
+    {
+        "label": "Géologie",
+        "value": "GÉOLOGIE"
+    },
+    {
+        "label": "Géométrie",
+        "value": "GÉOMÉTRIE"
+    },
+    {
+        "label": "Géopolitique",
+        "value": "GÉOPOLITIQUE"
+    },
+    {
+        "label": "Gérontologie",
+        "value": "GÉRONTOLOGIE"
+    },
+    {
+        "label": "Gestion",
+        "value": "GESTION"
+    },
+    {
+        "label": "Ghibli",
+        "value": "GHIBLI"
+    },
+    {
+        "label": "Glace",
+        "value": "GLACE"
+    },
+    {
+        "label": "Gladiateur",
+        "value": "GLADIATEUR"
+    },
+    {
+        "label": "Gloire",
+        "value": "GLOIRE"
+    },
+    {
+        "label": "Gnome",
+        "value": "GNOME"
+    },
+    {
+        "label": "Go",
+        "value": "GO"
+    },
+    {
+        "label": "Golf",
+        "value": "GOLF"
+    },
+    {
+        "label": "Gothique",
+        "value": "GOTHIQUE"
+    },
+    {
+        "label": "Gourmet",
+        "value": "GOURMET"
+    },
+    {
+        "label": "Gouvernement",
+        "value": "GOUVERNEMENT"
+    },
+    {
+        "label": "Graffiti",
+        "value": "GRAFFITI"
+    },
+    {
+        "label": "Graphe",
+        "value": "GRAPHE"
+    },
+    {
+        "label": "Gravité",
+        "value": "GRAVITÉ"
+    },
+    {
+        "label": "Grec",
+        "value": "GREC"
+    },
+    {
+        "label": "Grimoire",
+        "value": "GRIMOIRE"
+    },
+    {
+        "label": "Grimper",
+        "value": "GRIMPER"
+    },
+    {
+        "label": "Gris",
+        "value": "GRIS"
+    },
+    {
+        "label": "Grotte",
+        "value": "GROTTE"
+    },
+    {
+        "label": "Groupe",
+        "value": "GROUPE"
+    },
+    {
+        "label": "Guerre",
+        "value": "GUERRE"
+    },
+    {
+        "label": "Guerrier",
+        "value": "GUERRIER"
+    },
+    {
+        "label": "Guide",
+        "value": "GUIDE"
+    },
+    {
+        "label": "Guitare",
+        "value": "GUITARE"
+    },
+    {
+        "label": "Gym",
+        "value": "GYM"
+    },
+    {
+        "label": "Gymnastique",
+        "value": "GYMNASTIQUE"
+    },
+    {
+        "label": "Habit",
+        "value": "HABIT"
+    },
+    {
+        "label": "Haine",
+        "value": "HAINE"
+    },
+    {
+        "label": "Halloween",
+        "value": "HALLOWEEN"
+    },
+    {
+        "label": "Handicap",
+        "value": "HANDICAP"
+    },
+    {
+        "label": "Hard rock",
+        "value": "HARD_ROCK"
+    },
+    {
+        "label": "Harmonie",
+        "value": "HARMONIE"
+    },
+    {
+        "label": "Hélicoptère",
+        "value": "HÉLICOPTÈRE"
+    },
+    {
+        "label": "Héritage",
+        "value": "HÉRITAGE"
+    },
+    {
+        "label": "Héros",
+        "value": "HÉROS"
+    },
+    {
+        "label": "Héroïne",
+        "value": "HÉROÏNE"
+    },
+    {
+        "label": "Hétéro",
+        "value": "HÉTÉRO"
+    },
+    {
+        "label": "Heure",
+        "value": "HEURE"
+    },
+    {
+        "label": "Hiérarchie",
+        "value": "HIÉRARCHIE"
+    },
+    {
+        "label": "High school",
+        "value": "HIGH_SCHOOL"
+    },
+    {
+        "label": "Hikikomori",
+        "value": "HIKIKOMORI"
+    },
+    {
+        "label": "Histoire",
+        "value": "HISTOIRE"
+    },
+    {
+        "label": "Hockey",
+        "value": "HOCKEY"
+    },
+    {
+        "label": "Homme",
+        "value": "HOMME"
+    },
+    {
+        "label": "Homosexualité",
+        "value": "HOMOSEXUALITÉ"
+    },
+    {
+        "label": "Honneur",
+        "value": "HONNEUR"
+    },
+    {
+        "label": "Horreur",
+        "value": "HORREUR"
+    },
+    {
+        "label": "Hôtel",
+        "value": "HÔTEL"
+    },
+    {
+        "label": "Humain",
+        "value": "HUMAIN"
+    },
+    {
+        "label": "Humour",
+        "value": "HUMOUR"
+    },
+    {
+        "label": "Hybride",
+        "value": "HYBRIDE"
+    },
+    {
+        "label": "Hydrogène",
+        "value": "HYDROGÈNE"
+    },
+    {
+        "label": "Hypnose",
+        "value": "HYPNOSE"
+    },
+    {
+        "label": "Idole",
+        "value": "IDOLE"
+    },
+    {
+        "label": "Ile",
+        "value": "ILE"
+    },
+    {
+        "label": "Illusion",
+        "value": "ILLUSION"
+    },
+    {
+        "label": "Imagination",
+        "value": "IMAGINATION"
+    },
+    {
+        "label": "Immortalité",
+        "value": "IMMORTALITÉ"
+    },
+    {
+        "label": "Impératrice",
+        "value": "IMPÉRATRICE"
+    },
+    {
+        "label": "Impérialisme",
+        "value": "IMPÉRIALISME"
+    },
+    {
+        "label": "Inceste",
+        "value": "INCESTE"
+    },
+    {
+        "label": "Incube",
+        "value": "INCUBE"
+    },
+    {
+        "label": "Indépendance",
+        "value": "INDÉPENDANCE"
+    },
+    {
+        "label": "Indien",
+        "value": "INDIEN"
+    },
+    {
+        "label": "Industrie",
+        "value": "INDUSTRIE"
+    },
+    {
+        "label": "Inégalité",
+        "value": "INÉGALITÉ"
+    },
+    {
+        "label": "Infanterie",
+        "value": "INFANTERIE"
+    },
+    {
+        "label": "Infirmière",
+        "value": "INFIRMIÈRE"
+    },
+    {
+        "label": "Influence",
+        "value": "INFLUENCE"
+    },
+    {
+        "label": "Informatique",
+        "value": "INFORMATIQUE"
+    },
+    {
+        "label": "Ingénieur",
+        "value": "INGÉNIEUR"
+    },
+    {
+        "label": "Innocence",
+        "value": "INNOCENCE"
+    },
+    {
+        "label": "Insecte",
+        "value": "INSECTE"
+    },
+    {
+        "label": "Insomnie",
+        "value": "INSOMNIE"
+    },
+    {
+        "label": "Inspiration",
+        "value": "INSPIRATION"
+    },
+    {
+        "label": "Intelligence",
+        "value": "INTELLIGENCE"
+    },
+    {
+        "label": "Intimité",
+        "value": "INTIMITÉ"
+    },
+    {
+        "label": "Intrigue",
+        "value": "INTRIGUE"
+    },
+    {
+        "label": "Invasion",
+        "value": "INVASION"
+    },
+    {
+        "label": "Inventeur",
+        "value": "INVENTEUR"
+    },
+    {
+        "label": "Investigation",
+        "value": "INVESTIGATION"
+    },
+    {
+        "label": "Investisseur",
+        "value": "INVESTISSEUR"
+    },
+    {
+        "label": "Invincible",
+        "value": "INVINCIBLE"
+    },
+    {
+        "label": "Invocateur",
+        "value": "INVOCATEUR"
+    },
+    {
+        "label": "Iris",
+        "value": "IRIS"
+    },
+    {
+        "label": "Ironie",
+        "value": "IRONIE"
+    },
+    {
+        "label": "Isekai",
+        "value": "ISEKAI"
+    },
+    {
+        "label": "Islam",
+        "value": "ISLAM"
+    },
+    {
+        "label": "Island",
+        "value": "ISLAND"
+    },
+    {
+        "label": "Isolement",
+        "value": "ISOLEMENT"
+    },
+    {
+        "label": "Italie",
+        "value": "ITALIE"
+    },
+    {
+        "label": "Ivoire",
+        "value": "IVOIRE"
+    },
+    {
+        "label": "Jalousie",
+        "value": "JALOUSIE"
+    },
+    {
+        "label": "Japon",
+        "value": "JAPON"
+    },
+    {
+        "label": "Jardin",
+        "value": "JARDIN"
+    },
+    {
+        "label": "Jazz",
+        "value": "JAZZ"
+    },
+    {
+        "label": "Jealousy",
+        "value": "JEALOUSY"
+    },
+    {
+        "label": "Jeune",
+        "value": "JEUNE"
+    },
+    {
+        "label": "Jeunesse",
+        "value": "JEUNESSE"
+    },
+    {
+        "label": "Jeux",
+        "value": "JEUX"
+    },
+    {
+        "label": "Jeux vidéo",
+        "value": "JEUX_VIDÉO"
+    },
+    {
+        "label": "Joker",
+        "value": "JOKER"
+    },
+    {
+        "label": "Journal",
+        "value": "JOURNAL"
+    },
+    {
+        "label": "Journaliste",
+        "value": "JOURNALISTE"
+    },
+    {
+        "label": "Judo",
+        "value": "JUDO"
+    },
+    {
+        "label": "Jungle",
+        "value": "JUNGLE"
+    },
+    {
+        "label": "Justice",
+        "value": "JUSTICE"
+    },
+    {
+        "label": "Juvenile",
+        "value": "JUVENILE"
+    },
+    {
+        "label": "Kabuki",
+        "value": "KABUKI"
+    },
+    {
+        "label": "Kaiju",
+        "value": "KAIJU"
+    },
+    {
+        "label": "Kamikaze",
+        "value": "KAMIKAZE"
+    },
+    {
+        "label": "Kanji",
+        "value": "KANJI"
+    },
+    {
+        "label": "Karma",
+        "value": "KARMA"
+    },
+    {
+        "label": "Karuta",
+        "value": "KARUTA"
+    },
+    {
+        "label": "Kawaii",
+        "value": "KAWAII"
+    },
+    {
+        "label": "Kenjutsu",
+        "value": "KENJUTSU"
+    },
+    {
+        "label": "Kickboxing",
+        "value": "KICKBOXING"
+    },
+    {
+        "label": "Kidnapping",
+        "value": "KIDNAPPING"
+    },
+    {
+        "label": "Kimono",
+        "value": "KIMONO"
+    },
+    {
+        "label": "King",
+        "value": "KING"
+    },
+    {
+        "label": "Kitsune",
+        "value": "KITSUNE"
+    },
+    {
+        "label": "Knight",
+        "value": "KNIGHT"
+    },
+    {
+        "label": "Kodomo",
+        "value": "KODOMO"
+    },
+    {
+        "label": "Kung-fu",
+        "value": "KUNG-FU"
+    },
+    {
+        "label": "Kunoichi",
+        "value": "KUNOICHI"
+    },
+    {
+        "label": "Labyrinthe",
+        "value": "LABYRINTHE"
+    },
+    {
+        "label": "Lac",
+        "value": "LAC"
+    },
+    {
+        "label": "Lait",
+        "value": "LAIT"
+    },
+    {
+        "label": "Lama",
+        "value": "LAMA"
+    },
+    {
+        "label": "Lance",
+        "value": "LANCE"
+    },
+    {
+        "label": "Langage",
+        "value": "LANGAGE"
+    },
+    {
+        "label": "Lapin",
+        "value": "LAPIN"
+    },
+    {
+        "label": "Larme",
+        "value": "LARME"
+    },
+    {
+        "label": "Laser",
+        "value": "LASER"
+    },
+    {
+        "label": "Légende",
+        "value": "LÉGENDE"
+    },
+    {
+        "label": "Légion",
+        "value": "LÉGION"
+    },
+    {
+        "label": "Léopard",
+        "value": "LÉOPARD"
+    },
+    {
+        "label": "Lettre",
+        "value": "LETTRE"
+    },
+    {
+        "label": "Liberté",
+        "value": "LIBERTÉ"
+    },
+    {
+        "label": "Librairie",
+        "value": "LIBRAIRIE"
+    },
+    {
+        "label": "Licorne",
+        "value": "LICORNE"
+    },
+    {
+        "label": "Lien",
+        "value": "LIEN"
+    },
+    {
+        "label": "Ligue",
+        "value": "LIGUE"
+    },
+    {
+        "label": "Littérature",
+        "value": "LITTÉRATURE"
+    },
+    {
+        "label": "Livraison",
+        "value": "LIVRAISON"
+    },
+    {
+        "label": "Livre",
+        "value": "LIVRE"
+    },
+    {
+        "label": "Lobby",
+        "value": "LOBBY"
+    },
+    {
+        "label": "Loli",
+        "value": "LOLI"
+    },
+    {
+        "label": "Lolita",
+        "value": "LOLITA"
+    },
+    {
+        "label": "Loup",
+        "value": "LOUP"
+    },
+    {
+        "label": "Loup-garou",
+        "value": "LOUP-GAROU"
+    },
+    {
+        "label": "Lumière",
+        "value": "LUMIÈRE"
+    },
+    {
+        "label": "Lune",
+        "value": "LUNE"
+    },
+    {
+        "label": "Lunettes",
+        "value": "LUNETTES"
+    },
+    {
+        "label": "Lutte",
+        "value": "LUTTE"
+    },
+    {
+        "label": "Lycée",
+        "value": "LYCÉE"
+    },
+    {
+        "label": "Lynx",
+        "value": "LYNX"
+    },
+    {
+        "label": "Macabre",
+        "value": "MACABRE"
+    },
+    {
+        "label": "Machine",
+        "value": "MACHINE"
+    },
+    {
+        "label": "Madness",
+        "value": "MADNESS"
+    },
+    {
+        "label": "Magasin",
+        "value": "MAGASIN"
+    },
+    {
+        "label": "Magazine",
+        "value": "MAGAZINE"
+    },
+    {
+        "label": "Magie",
+        "value": "MAGIE"
+    },
+    {
+        "label": "Magma",
+        "value": "MAGMA"
+    },
+    {
+        "label": "Magnétisme",
+        "value": "MAGNÉTISME"
+    },
+    {
+        "label": "Mahjong",
+        "value": "MAHJONG"
+    },
+    {
+        "label": "Maid",
+        "value": "MAID"
+    },
+    {
+        "label": "Maillot",
+        "value": "MAILLOT"
+    },
+    {
+        "label": "Main",
+        "value": "MAIN"
+    },
+    {
+        "label": "Maison",
+        "value": "MAISON"
+    },
+    {
+        "label": "Majordome",
+        "value": "MAJORDOME"
+    },
+    {
+        "label": "Mal",
+        "value": "MAL"
+    },
+    {
+        "label": "Maladie",
+        "value": "MALADIE"
+    },
+    {
+        "label": "Malédiction",
+        "value": "MALÉDICTION"
+    },
+    {
+        "label": "Malfaiteur",
+        "value": "MALFAITEUR"
+    },
+    {
+        "label": "Maman",
+        "value": "MAMAN"
+    },
+    {
+        "label": "Management",
+        "value": "MANAGEMENT"
+    },
+    {
+        "label": "Manga",
+        "value": "MANGA"
+    },
+    {
+        "label": "Manhua",
+        "value": "MANHUA"
+    },
+    {
+        "label": "Manhwa",
+        "value": "MANHWA"
+    },
+    {
+        "label": "Manipulation",
+        "value": "MANIPULATION"
+    },
+    {
+        "label": "Manteau",
+        "value": "MANTEAU"
+    },
+    {
+        "label": "Maquillage",
+        "value": "MAQUILLAGE"
+    },
+    {
+        "label": "Marathon",
+        "value": "MARATHON"
+    },
+    {
+        "label": "Marchand",
+        "value": "MARCHAND"
+    },
+    {
+        "label": "Mariage",
+        "value": "MARIAGE"
+    },
+    {
+        "label": "Marin",
+        "value": "MARIN"
+    },
+    {
+        "label": "Marionnette",
+        "value": "MARIONNETTE"
+    },
+    {
+        "label": "Mars",
+        "value": "MARS"
+    },
+    {
+        "label": "Marteau",
+        "value": "MARTEAU"
+    },
+    {
+        "label": "Martien",
+        "value": "MARTIEN"
+    },
+    {
+        "label": "Martyr",
+        "value": "MARTYR"
+    },
+    {
+        "label": "Masculinité",
+        "value": "MASCULINITÉ"
+    },
+    {
+        "label": "Masque",
+        "value": "MASQUE"
+    },
+    {
+        "label": "Massacre",
+        "value": "MASSACRE"
+    },
+    {
+        "label": "Masse",
+        "value": "MASSE"
+    },
+    {
+        "label": "Masturbation",
+        "value": "MASTURBATION"
+    },
+    {
+        "label": "Maternité",
+        "value": "MATERNITÉ"
+    },
+    {
+        "label": "Mathématiques",
+        "value": "MATHÉMATIQUES"
+    },
+    {
+        "label": "Mécanique",
+        "value": "MÉCANIQUE"
+    },
+    {
+        "label": "Médecine",
+        "value": "MÉDECINE"
+    },
+    {
+        "label": "Méditation",
+        "value": "MÉDITATION"
+    },
+    {
+        "label": "Méduse",
+        "value": "MÉDUSE"
+    },
+    {
+        "label": "Mélancolie",
+        "value": "MÉLANCOLIE"
+    },
+    {
+        "label": "Mélodrame",
+        "value": "MÉLODRAME"
+    },
+    {
+        "label": "Mémoire",
+        "value": "MÉMOIRE"
+    },
+    {
+        "label": "Menace",
+        "value": "MENACE"
+    },
+    {
+        "label": "Mensonge",
+        "value": "MENSONGE"
+    },
+    {
+        "label": "Mental",
+        "value": "MENTAL"
+    },
+    {
+        "label": "Mentor",
+        "value": "MENTOR"
+    },
+    {
+        "label": "Mercenaire",
+        "value": "MERCENAIRE"
+    },
+    {
+        "label": "Mermaid",
+        "value": "MERMAID"
+    },
+    {
+        "label": "Mésopotamie",
+        "value": "MÉSOPOTAMIE"
+    },
+    {
+        "label": "Messager",
+        "value": "MESSAGER"
+    },
+    {
+        "label": "Métal",
+        "value": "MÉTAL"
+    },
+    {
+        "label": "Métamorphose",
+        "value": "MÉTAMORPHOSE"
+    },
+    {
+        "label": "Métaphore",
+        "value": "MÉTAPHORE"
+    },
+    {
+        "label": "Météorite",
+        "value": "MÉTÉORITE"
+    },
+    {
+        "label": "Métier",
+        "value": "MÉTIER"
+    },
+    {
+        "label": "Métro",
+        "value": "MÉTRO"
+    },
+    {
+        "label": "Meurtre",
+        "value": "MEURTRE"
+    },
+    {
+        "label": "Mexique",
+        "value": "MEXIQUE"
+    },
+    {
+        "label": "Microbe",
+        "value": "MICROBE"
+    },
+    {
+        "label": "Microcosme",
+        "value": "MICROCOSME"
+    },
+    {
+        "label": "Militaire",
+        "value": "MILITAIRE"
+    },
+    {
+        "label": "Milliardaire",
+        "value": "MILLIARDAIRE"
+    },
+    {
+        "label": "Mime",
+        "value": "MIME"
+    },
+    {
+        "label": "Minaudière",
+        "value": "MINAUDIÈRE"
+    },
+    {
+        "label": "Mine",
+        "value": "MINE"
+    },
+    {
+        "label": "Ministre",
+        "value": "MINISTRE"
+    },
+    {
+        "label": "Minorité",
+        "value": "MINORITÉ"
+    },
+    {
+        "label": "Miracle",
+        "value": "MIRACLE"
+    },
+    {
+        "label": "Miroir",
+        "value": "MIROIR"
+    },
+    {
+        "label": "Missile",
+        "value": "MISSILE"
+    },
+    {
+        "label": "Mite",
+        "value": "MITE"
+    },
+    {
+        "label": "Mitraillette",
+        "value": "MITRAILLETTE"
+    },
+    {
+        "label": "Mixte",
+        "value": "MIXTE"
+    },
+    {
+        "label": "Mob",
+        "value": "MOB"
+    },
+    {
+        "label": "Mobile",
+        "value": "MOBILE"
+    },
+    {
+        "label": "Mode",
+        "value": "MODE"
+    },
+    {
+        "label": "Modèle",
+        "value": "MODÈLE"
+    },
+    {
+        "label": "Moderne",
+        "value": "MODERNE"
+    },
+    {
+        "label": "Moine",
+        "value": "MOINE"
+    },
+    {
+        "label": "Moi",
+        "value": "MOI"
+    },
+    {
+        "label": "Moka",
+        "value": "MOKA"
+    },
+    {
+        "label": "Moldavie",
+        "value": "MOLDAVIE"
+    },
+    {
+        "label": "Molécule",
+        "value": "MOLÉCULE"
+    },
+    {
+        "label": "Momie",
+        "value": "MOMIE"
+    },
+    {
+        "label": "Monarque",
+        "value": "MONARQUE"
+    },
+    {
+        "label": "Monde",
+        "value": "MONDE"
+    },
+    {
+        "label": "Monstre",
+        "value": "MONSTRE"
+    },
+    {
+        "label": "Montagne",
+        "value": "MONTAGNE"
+    },
+    {
+        "label": "Montgolfière",
+        "value": "MONTGOLFIÈRE"
+    },
+    {
+        "label": "Monument",
+        "value": "MONUMENT"
+    },
+    {
+        "label": "Moral",
+        "value": "MORAL"
+    },
+    {
+        "label": "Morale",
+        "value": "MORALE"
+    },
+    {
+        "label": "Mort",
+        "value": "MORT"
+    },
+    {
+        "label": "Motel",
+        "value": "MOTEL"
+    },
+    {
+        "label": "Motivation",
+        "value": "MOTIVATION"
+    },
+    {
+        "label": "Moto",
+        "value": "MOTO"
+    },
+    {
+        "label": "Mouche",
+        "value": "MOUCHE"
+    },
+    {
+        "label": "Mouvement",
+        "value": "MOUVEMENT"
+    },
+    {
+        "label": "Moyen-âge",
+        "value": "MOYEN-ÂGE"
+    },
+    {
+        "label": "Multivers",
+        "value": "MULTIVERS"
+    },
+    {
+        "label": "Mumie",
+        "value": "MUMIE"
+    },
+    {
+        "label": "Muscle",
+        "value": "MUSCLE"
+    },
+    {
+        "label": "Musée",
+        "value": "MUSÉE"
+    },
+    {
+        "label": "Musical",
+        "value": "MUSICAL"
+    },
+    {
+        "label": "Musique",
+        "value": "MUSIQUE"
+    },
+    {
+        "label": "Mutation",
+        "value": "MUTATION"
+    },
+    {
+        "label": "Mystère",
+        "value": "MYSTÈRE"
+    },
+    {
+        "label": "Mythe",
+        "value": "MYTHE"
+    },
+    {
+        "label": "Mythologie",
+        "value": "MYTHOLOGIE"
+    },
+    {
+        "label": "Nain",
+        "value": "NAIN"
+    },
+    {
+        "label": "Narcissisme",
+        "value": "NARCISSISME"
+    },
+    {
+        "label": "Naruto",
+        "value": "NARUTO"
+    },
+    {
+        "label": "Nasa",
+        "value": "NASA"
+    },
+    {
+        "label": "Naturisme",
+        "value": "NATURISME"
+    },
+    {
+        "label": "Nature",
+        "value": "NATURE"
+    },
+    {
+        "label": "Naufrage",
+        "value": "NAUFRAGE"
+    },
+    {
+        "label": "Nausée",
+        "value": "NAUSÉE"
+    },
+    {
+        "label": "Navire",
+        "value": "NAVIRE"
+    },
+    {
+        "label": "Nécromancie",
+        "value": "NÉCROMANCIE"
+    },
+    {
+        "label": "Négociation",
+        "value": "NÉGOCIATION"
+    },
+    {
+        "label": "Néko",
+        "value": "NÉKO"
+    },
+    {
+        "label": "Nerd",
+        "value": "NERD"
+    },
+    {
+        "label": "Net",
+        "value": "NET"
+    },
+    {
+        "label": "Neurologie",
+        "value": "NEUROLOGIE"
+    },
+    {
+        "label": "Neutron",
+        "value": "NEUTRON"
+    },
+    {
+        "label": "New york",
+        "value": "NEW_YORK"
+    },
+    {
+        "label": "Ninja",
+        "value": "NINJA"
+    },
+    {
+        "label": "Nirvana",
+        "value": "NIRVANA"
+    },
+    {
+        "label": "Noblesse",
+        "value": "NOBLESSE"
+    },
+    {
+        "label": "Noël",
+        "value": "NOËL"
+    },
+    {
+        "label": "Nomade",
+        "value": "NOMADE"
+    },
+    {
+        "label": "Nonne",
+        "value": "NONNE"
+    },
+    {
+        "label": "Nostalgie",
+        "value": "NOSTALGIE"
+    },
+    {
+        "label": "Notaire",
+        "value": "NOTAIRE"
+    },
+    {
+        "label": "Nourriture",
+        "value": "NOURRITURE"
+    },
+    {
+        "label": "Nouveau",
+        "value": "NOUVEAU"
+    },
+    {
+        "label": "Nouvelle",
+        "value": "NOUVELLE"
+    },
+    {
+        "label": "Novice",
+        "value": "NOVICE"
+    },
+    {
+        "label": "Nuage",
+        "value": "NUAGE"
+    },
+    {
+        "label": "Nudité",
+        "value": "NUDITÉ"
+    },
+    {
+        "label": "Numéro",
+        "value": "NUMÉRO"
+    },
+    {
+        "label": "Nunchaku",
+        "value": "NUNCHAKU"
+    },
+    {
+        "label": "Nurse",
+        "value": "NURSE"
+    },
+    {
+        "label": "Nutrition",
+        "value": "NUTRITION"
+    },
+    {
+        "label": "Nymphe",
+        "value": "NYMPHE"
+    },
+    {
+        "label": "Oasis",
+        "value": "OASIS"
+    },
+    {
+        "label": "Obésité",
+        "value": "OBÉSITÉ"
+    },
+    {
+        "label": "Objet",
+        "value": "OBJET"
+    },
+    {
+        "label": "Obligation",
+        "value": "OBLIGATION"
+    },
+    {
+        "label": "Observatoire",
+        "value": "OBSERVATOIRE"
+    },
+    {
+        "label": "Obsession",
+        "value": "OBSESSION"
+    },
+    {
+        "label": "Occulte",
+        "value": "OCCULTE"
+    },
+    {
+        "label": "Océan",
+        "value": "OCÉAN"
+    },
+    {
+        "label": "Octopus",
+        "value": "OCTOPUS"
+    },
+    {
+        "label": "Ogre",
+        "value": "OGRE"
+    },
+    {
+        "label": "Oiseau",
+        "value": "OISEAU"
+    },
+    {
+        "label": "Ombre",
+        "value": "OMBRE"
+    },
+    {
+        "label": "Omnibus",
+        "value": "OMNIBUS"
+    },
+    {
+        "label": "One-shot",
+        "value": "ONE-SHOT"
+    },
+    {
+        "label": "Opéra",
+        "value": "OPÉRA"
+    },
+    {
+        "label": "Optimisme",
+        "value": "OPTIMISME"
+    },
+    {
+        "label": "Oracle",
+        "value": "ORACLE"
+    },
+    {
+        "label": "Orchestre",
+        "value": "ORCHESTRE"
+    },
+    {
+        "label": "Ordinateur",
+        "value": "ORDINATEUR"
+    },
+    {
+        "label": "Organisation",
+        "value": "ORGANISATION"
+    },
+    {
+        "label": "Orgasme",
+        "value": "ORGASME"
+    },
+    {
+        "label": "Orgueil",
+        "value": "ORGUEIL"
+    },
+    {
+        "label": "Origami",
+        "value": "ORIGAMI"
+    },
+    {
+        "label": "Origine",
+        "value": "ORIGINE"
+    },
+    {
+        "label": "Orphelin",
+        "value": "ORPHELIN"
+    },
+    {
+        "label": "Oscar",
+        "value": "OSCAR"
+    },
+    {
+        "label": "Otarie",
+        "value": "OTARIE"
+    },
+    {
+        "label": "Otome",
+        "value": "OTOME"
+    },
+    {
+        "label": "Ours",
+        "value": "OURS"
+    },
+    {
+        "label": "Outlaw",
+        "value": "OUTLAW"
+    },
+    {
+        "label": "Ouvrier",
+        "value": "OUVRIER"
+    },
+    {
+        "label": "Ovni",
+        "value": "OVNI"
+    },
+    {
+        "label": "Pacte",
+        "value": "PACTE"
+    },
+    {
+        "label": "Paganisme",
+        "value": "PAGANISME"
+    },
+    {
+        "label": "Pain",
+        "value": "PAIN"
+    },
+    {
+        "label": "Paix",
+        "value": "PAIX"
+    },
+    {
+        "label": "Palais",
+        "value": "PALAIS"
+    },
+    {
+        "label": "Pandémie",
+        "value": "PANDÉMIE"
+    },
+    {
+        "label": "Panique",
+        "value": "PANIQUE"
+    },
+    {
+        "label": "Panthère",
+        "value": "PANTHÈRE"
+    },
+    {
+        "label": "Papillon",
+        "value": "PAPILLON"
+    },
+    {
+        "label": "Paradis",
+        "value": "PARADIS"
+    },
+    {
+        "label": "Paradoxe",
+        "value": "PARADOXE"
+    },
+    {
+        "label": "Paranormal",
+        "value": "PARANORMAL"
+    },
+    {
+        "label": "Parasite",
+        "value": "PARASITE"
+    },
+    {
+        "label": "Parents",
+        "value": "PARENTS"
+    },
+    {
+        "label": "Paris",
+        "value": "PARIS"
+    },
+    {
+        "label": "Parodie",
+        "value": "PARODIE"
+    },
+    {
+        "label": "Partenaire",
+        "value": "PARTENAIRE"
+    },
+    {
+        "label": "Passé",
+        "value": "PASSÉ"
+    },
+    {
+        "label": "Passion",
+        "value": "PASSION"
+    },
+    {
+        "label": "Pâtisserie",
+        "value": "PÂTISSERIE"
+    },
+    {
+        "label": "Patron",
+        "value": "PATRON"
+    },
+    {
+        "label": "Pauvreté",
+        "value": "PAUVRETÉ"
+    },
+    {
+        "label": "Pavillon",
+        "value": "PAVILLON"
+    },
+    {
+        "label": "Paysage",
+        "value": "PAYSAGE"
+    },
+    {
+        "label": "Péché",
+        "value": "PÉCHÉ"
+    },
+    {
+        "label": "Pédophilie",
+        "value": "PÉDOPHILIE"
+    },
+    {
+        "label": "Peinture",
+        "value": "PEINTURE"
+    },
+    {
+        "label": "Péplum",
+        "value": "PÉPLUM"
+    },
+    {
+        "label": "Perception",
+        "value": "PERCEPTION"
+    },
+    {
+        "label": "Perdu",
+        "value": "PERDU"
+    },
+    {
+        "label": "Père",
+        "value": "PÈRE"
+    },
+    {
+        "label": "Péripétie",
+        "value": "PÉRIPÉTIE"
+    },
+    {
+        "label": "Perroquet",
+        "value": "PERROQUET"
+    },
+    {
+        "label": "Persécution",
+        "value": "PERSÉCUTION"
+    },
+    {
+        "label": "Personnalité",
+        "value": "PERSONNALITÉ"
+    },
+    {
+        "label": "Personnage",
+        "value": "PERSONNAGE"
+    },
+    {
+        "label": "Perte",
+        "value": "PERTE"
+    },
+    {
+        "label": "Perversion",
+        "value": "PERVERSION"
+    },
+    {
+        "label": "Peste",
+        "value": "PESTE"
+    },
+    {
+        "label": "Pétale",
+        "value": "PÉTALE"
+    },
+    {
+        "label": "Pétanque",
+        "value": "PÉTANQUE"
+    },
+    {
+        "label": "Pétrole",
+        "value": "PÉTROLE"
+    },
+    {
+        "label": "Peur",
+        "value": "PEUR"
+    },
+    {
+        "label": "Pharaon",
+        "value": "PHARAON"
+    },
+    {
+        "label": "Phare",
+        "value": "PHARE"
+    },
+    {
+        "label": "Phénix",
+        "value": "PHÉNIX"
+    },
+    {
+        "label": "Philosophie",
+        "value": "PHILOSOPHIE"
+    },
+    {
+        "label": "Photographie",
+        "value": "PHOTOGRAPHIE"
+    },
+    {
+        "label": "Physique",
+        "value": "PHYSIQUE"
+    },
+    {
+        "label": "Piano",
+        "value": "PIANO"
+    },
+    {
+        "label": "Pilote",
+        "value": "PILOTE"
+    },
+    {
+        "label": "Pirate",
+        "value": "PIRATE"
+    },
+    {
+        "label": "Piscine",
+        "value": "PISCINE"
+    },
+    {
+        "label": "Pistolet",
+        "value": "PISTOLET"
+    },
+    {
+        "label": "Plage",
+        "value": "PLAGE"
+    },
+    {
+        "label": "Planète",
+        "value": "PLANÈTE"
+    },
+    {
+        "label": "Plante",
+        "value": "PLANTE"
+    },
+    {
+        "label": "Plat",
+        "value": "PLAT"
+    },
+    {
+        "label": "Plongée",
+        "value": "PLONGÉE"
+    },
+    {
+        "label": "Pluie",
+        "value": "PLUIE"
+    },
+    {
+        "label": "Poésie",
+        "value": "POÉSIE"
+    },
+    {
+        "label": "Poker",
+        "value": "POKER"
+    },
+    {
+        "label": "Police",
+        "value": "POLICE"
+    },
+    {
+        "label": "Politique",
+        "value": "POLITIQUE"
+    },
+    {
+        "label": "Pollution",
+        "value": "POLLUTION"
+    },
+    {
+        "label": "Pom-pom girl",
+        "value": "POM-POM_GIRL"
+    },
+    {
+        "label": "Pompier",
+        "value": "POMPIER"
+    },
+    {
+        "label": "Pont",
+        "value": "PONT"
+    },
+    {
+        "label": "Pop star",
+        "value": "POP_STAR"
+    },
+    {
+        "label": "Porc",
+        "value": "PORC"
+    },
+    {
+        "label": "Porte",
+        "value": "PORTE"
+    },
+    {
+        "label": "Portugal",
+        "value": "PORTUGAL"
+    },
+    {
+        "label": "Possession",
+        "value": "POSSESSION"
+    },
+    {
+        "label": "Post-apocalyptique",
+        "value": "POST-APOCALYPTIQUE"
+    },
+    {
+        "label": "Potager",
+        "value": "POTAGER"
+    },
+    {
+        "label": "Poule",
+        "value": "POULE"
+    },
+    {
+        "label": "Poupée",
+        "value": "POUPÉE"
+    },
+    {
+        "label": "Pouvoir",
+        "value": "POUVOIR"
+    },
+    {
+        "label": "Préhistoire",
+        "value": "PRÉHISTOIRE"
+    },
+    {
+        "label": "Préjugé",
+        "value": "PRÉJUGÉ"
+    },
+    {
+        "label": "Prémonition",
+        "value": "PRÉMONITION"
+    },
+    {
+        "label": "Présent",
+        "value": "PRÉSENT"
+    },
+    {
+        "label": "Président",
+        "value": "PRÉSIDENT"
+    },
+    {
+        "label": "Presse",
+        "value": "PRESSE"
+    },
+    {
+        "label": "Prestidigitation",
+        "value": "PRESTIDIGITATION"
+    },
+    {
+        "label": "Prêtre",
+        "value": "PRÊTRE"
+    },
+    {
+        "label": "Princesse",
+        "value": "PRINCESSE"
+    },
+    {
+        "label": "Prison",
+        "value": "PRISON"
+    },
+    {
+        "label": "Privé",
+        "value": "PRIVÉ"
+    },
+    {
+        "label": "Problème",
+        "value": "PROBLÈME"
+    },
+    {
+        "label": "Procès",
+        "value": "PROCÈS"
+    },
+    {
+        "label": "Professeur",
+        "value": "PROFESSEUR"
+    },
+    {
+        "label": "Progrès",
+        "value": "PROGRÈS"
+    },
+    {
+        "label": "Prohibition",
+        "value": "PROHIBITION"
+    },
+    {
+        "label": "Projet",
+        "value": "PROJET"
+    },
+    {
+        "label": "Promesse",
+        "value": "PROMESSE"
+    },
+    {
+        "label": "Prophétie",
+        "value": "PROPHÉTIE"
+    },
+    {
+        "label": "Prostitution",
+        "value": "PROSTITUTION"
+    },
+    {
+        "label": "Protection",
+        "value": "PROTECTION"
+    },
+    {
+        "label": "Protestantisme",
+        "value": "PROTESTANTISME"
+    },
+    {
+        "label": "Psychiatrie",
+        "value": "PSYCHIATRIE"
+    },
+    {
+        "label": "Psychologie",
+        "value": "PSYCHOLOGIE"
+    },
+    {
+        "label": "Publicité",
+        "value": "PUBLICITÉ"
+    },
+    {
+        "label": "Pudeur",
+        "value": "PUDEUR"
+    },
+    {
+        "label": "Punk",
+        "value": "PUNK"
+    },
+    {
+        "label": "Purification",
+        "value": "PURIFICATION"
+    },
+    {
+        "label": "Puzzle",
+        "value": "PUZZLE"
+    },
+    {
+        "label": "Pyramide",
+        "value": "PYRAMIDE"
+    },
+    {
+        "label": "Quête",
+        "value": "QUÊTE"
+    },
+    {
+        "label": "Racisme",
+        "value": "RACISME"
+    },
+    {
+        "label": "Radio",
+        "value": "RADIO"
+    },
+    {
+        "label": "Rage",
+        "value": "RAGE"
+    },
+    {
+        "label": "Raison",
+        "value": "RAISON"
+    },
+    {
+        "label": "Rallye",
+        "value": "RALLYE"
+    },
+    {
+        "label": "Rap",
+        "value": "RAP"
+    },
+    {
+        "label": "Rapport",
+        "value": "RAPPORT"
+    },
+    {
+        "label": "Rassemblement",
+        "value": "RASSEMBLEMENT"
+    },
+    {
+        "label": "Rat",
+        "value": "RAT"
+    },
+    {
+        "label": "Réalité",
+        "value": "RÉALITÉ"
+    },
+    {
+        "label": "Rebelle",
+        "value": "REBELLE"
+    },
+    {
+        "label": "Rébellion",
+        "value": "RÉBELLION"
+    },
+    {
+        "label": "Recherche",
+        "value": "RECHERCHE"
+    },
+    {
+        "label": "Recrutement",
+        "value": "RECRUTEMENT"
+    },
+    {
+        "label": "Redemption",
+        "value": "REDEMPTION"
+    },
+    {
+        "label": "Réflexion",
+        "value": "RÉFLEXION"
+    },
+    {
+        "label": "Réforme",
+        "value": "RÉFORME"
+    },
+    {
+        "label": "Régime",
+        "value": "RÉGIME"
+    },
+    {
+        "label": "Région",
+        "value": "RÉGION"
+    },
+    {
+        "label": "Reine",
+        "value": "REINE"
+    },
+    {
+        "label": "Rejet",
+        "value": "REJET"
+    },
+    {
+        "label": "Religion",
+        "value": "RELIGION"
+    },
+    {
+        "label": "Remake",
+        "value": "REMAKE"
+    },
+    {
+        "label": "Remords",
+        "value": "REMORDS"
+    },
+    {
+        "label": "Renard",
+        "value": "RENARD"
+    },
+    {
+        "label": "Rencontre",
+        "value": "RENCONTRE"
+    },
+    {
+        "label": "Rendez-vous",
+        "value": "RENDEZ-VOUS"
+    },
+    {
+        "label": "Rénovation",
+        "value": "RÉNOVATION"
+    },
+    {
+        "label": "Rentrée",
+        "value": "RENTRÉE"
+    },
+    {
+        "label": "Réparation",
+        "value": "RÉPARATION"
+    },
+    {
+        "label": "Repos",
+        "value": "REPOS"
+    },
+    {
+        "label": "Représailles",
+        "value": "REPRÉSAILLES"
+    },
+    {
+        "label": "République",
+        "value": "RÉPUBLIQUE"
+    },
+    {
+        "label": "Résistance",
+        "value": "RÉSISTANCE"
+    },
+    {
+        "label": "Respect",
+        "value": "RESPECT"
+    },
+    {
+        "label": "Responsabilité",
+        "value": "RESPONSABILITÉ"
+    },
+    {
+        "label": "Restaurant",
+        "value": "RESTAURANT"
+    },
+    {
+        "label": "Résurrection",
+        "value": "RÉSURRECTION"
+    },
+    {
+        "label": "Retour",
+        "value": "RETOUR"
+    },
+    {
+        "label": "Réussite",
+        "value": "RÉUSSITE"
+    },
+    {
+        "label": "Révélation",
+        "value": "RÉVÉLATION"
+    },
+    {
+        "label": "Révolution",
+        "value": "RÉVOLUTION"
+    },
+    {
+        "label": "Riche",
+        "value": "RICHE"
+    },
+    {
+        "label": "Rideau",
+        "value": "RIDEAU"
+    },
+    {
+        "label": "Rire",
+        "value": "RIRE"
+    },
+    {
+        "label": "Rival",
+        "value": "RIVAL"
+    },
+    {
+        "label": "Rivalité",
+        "value": "RIVALITÉ"
+    },
+    {
+        "label": "Robot",
+        "value": "ROBOT"
+    },
+    {
+        "label": "Rock",
+        "value": "ROCK"
+    },
+    {
+        "label": "Roi",
+        "value": "ROI"
+    },
+    {
+        "label": "Romance",
+        "value": "ROMANCE"
+    },
+    {
+        "label": "Rome",
+        "value": "ROME"
+    },
+    {
+        "label": "Rouge",
+        "value": "ROUGE"
+    },
+    {
+        "label": "Roulette",
+        "value": "ROULETTE"
+    },
+    {
+        "label": "Route",
+        "value": "ROUTE"
+    },
+    {
+        "label": "Rugby",
+        "value": "RUGBY"
+    },
+    {
+        "label": "Rumeur",
+        "value": "RUMEUR"
+    },
+    {
+        "label": "Rupture",
+        "value": "RUPTURE"
+    },
+    {
+        "label": "Ruse",
+        "value": "RUSE"
+    },
+    {
+        "label": "Russe",
+        "value": "RUSSE"
+    },
+    {
+        "label": "Rythme",
+        "value": "RYTHME"
+    },
+    {
+        "label": "Sabbat",
+        "value": "SABBAT"
+    },
+    {
+        "label": "Sacrifice",
+        "value": "SACRIFICE"
+    },
+    {
+        "label": "Sadique",
+        "value": "SADIQUE"
+    },
+    {
+        "label": "Sagesse",
+        "value": "SAGESSE"
+    },
+    {
+        "label": "Sahara",
+        "value": "SAHARA"
+    },
+    {
+        "label": "Saison",
+        "value": "SAISON"
+    },
+    {
+        "label": "Sakura",
+        "value": "SAKURA"
+    },
+    {
+        "label": "Samouraï",
+        "value": "SAMOURAÏ"
+    },
+    {
+        "label": "Sanctuaire",
+        "value": "SANCTUAIRE"
+    },
+    {
+        "label": "Sang",
+        "value": "SANG"
+    },
+    {
+        "label": "Santé",
+        "value": "SANTÉ"
+    },
+    {
+        "label": "Satellite",
+        "value": "SATELLITE"
+    },
+    {
+        "label": "Satire",
+        "value": "SATIRE"
+    },
+    {
+        "label": "Sauvage",
+        "value": "SAUVAGE"
+    },
+    {
+        "label": "Sauvetage",
+        "value": "SAUVETAGE"
+    },
+    {
+        "label": "Savant",
+        "value": "SAVANT"
+    },
+    {
+        "label": "Savate",
+        "value": "SAVATE"
+    },
+    {
+        "label": "Savoir",
+        "value": "SAVOIR"
+    },
+    {
+        "label": "Science",
+        "value": "SCIENCE"
+    },
+    {
+        "label": "Scientifique",
+        "value": "SCIENTIFIQUE"
+    },
+    {
+        "label": "Scout",
+        "value": "SCOUT"
+    },
+    {
+        "label": "Sculpture",
+        "value": "SCULPTURE"
+    },
+    {
+        "label": "Seconde guerre mondiale",
+        "value": "SECONDE_GUERRE_MONDIALE"
+    },
+    {
+        "label": "Secret",
+        "value": "SECRET"
+    },
+    {
+        "label": "Secte",
+        "value": "SECTE"
+    },
+    {
+        "label": "Séduction",
+        "value": "SÉDUCTION"
+    },
+    {
+        "label": "Ségrégation",
+        "value": "SÉGRÉGATION"
+    },
+    {
+        "label": "Séisme",
+        "value": "SÉISME"
+    },
+    {
+        "label": "Séjour",
+        "value": "SÉJOUR"
+    },
+    {
+        "label": "Sélection",
+        "value": "SÉLECTION"
+    },
+    {
+        "label": "Sénat",
+        "value": "SÉNAT"
+    },
+    {
+        "label": "Sensation",
+        "value": "SENSATION"
+    },
+    {
+        "label": "Sensibilité",
+        "value": "SENSIBILITÉ"
+    },
+    {
+        "label": "Sentiment",
+        "value": "SENTIMENT"
+    },
+    {
+        "label": "Séparation",
+        "value": "SÉPARATION"
+    },
+    {
+        "label": "Séquelle",
+        "value": "SÉQUELLE"
+    },
+    {
+        "label": "Série",
+        "value": "SÉRIE"
+    },
+    {
+        "label": "Serpent",
+        "value": "SERPENT"
+    },
+    {
+        "label": "Service",
+        "value": "SERVICE"
+    },
+    {
+        "label": "Sexe",
+        "value": "SEXE"
+    },
+    {
+        "label": "Sexualité",
+        "value": "SEXUALITÉ"
+    },
+    {
+        "label": "Shaman",
+        "value": "SHAMAN"
+    },
+    {
+        "label": "Shinto",
+        "value": "SHINTO"
+    },
+    {
+        "label": "Shopping",
+        "value": "SHOPPING"
+    },
+    {
+        "label": "Shôta",
+        "value": "SHÔTA"
+    },
+    {
+        "label": "Siège",
+        "value": "SIÈGE"
+    },
+    {
+        "label": "Sieste",
+        "value": "SIESTE"
+    },
+    {
+        "label": "Silence",
+        "value": "SILENCE"
+    },
+    {
+        "label": "Simulacre",
+        "value": "SIMULACRE"
+    },
+    {
+        "label": "Sincérité",
+        "value": "SINCÉRITÉ"
+    },
+    {
+        "label": "Singe",
+        "value": "SINGE"
+    },
+    {
+        "label": "Sirène",
+        "value": "SIRÈNE"
+    },
+    {
+        "label": "Sitcom",
+        "value": "SITCOM"
+    },
+    {
+        "label": "Ski",
+        "value": "SKI"
+    },
+    {
+        "label": "Slam",
+        "value": "SLAM"
+    },
+    {
+        "label": "Société",
+        "value": "SOCIÉTÉ"
+    },
+    {
+        "label": "Soeur",
+        "value": "SOEUR"
+    },
+    {
+        "label": "Soins",
+        "value": "SOINS"
+    },
+    {
+        "label": "Soldat",
+        "value": "SOLDAT"
+    },
+    {
+        "label": "Solitude",
+        "value": "SOLITUDE"
+    },
+    {
+        "label": "Sommeil",
+        "value": "SOMMEIL"
+    },
+    {
+        "label": "Sorcellerie",
+        "value": "SORCELLERIE"
+    },
+    {
+        "label": "Sort",
+        "value": "SORT"
+    },
+    {
+        "label": "Sosie",
+        "value": "SOSIE"
+    },
+    {
+        "label": "Soul",
+        "value": "SOUL"
+    },
+    {
+        "label": "Sous-marin",
+        "value": "SOUS-MARIN"
+    },
+    {
+        "label": "Souterrain",
+        "value": "SOUTERRAIN"
+    },
+    {
+        "label": "Spectacle",
+        "value": "SPECTACLE"
+    },
+    {
+        "label": "Spectateur",
+        "value": "SPECTATEUR"
+    },
+    {
+        "label": "Spectre",
+        "value": "SPECTRE"
+    },
+    {
+        "label": "Spéléologie",
+        "value": "SPÉLÉOLOGIE"
+    },
+    {
+        "label": "Sport",
+        "value": "SPORT"
+    },
+    {
+        "label": "Stade",
+        "value": "STADE"
+    },
+    {
+        "label": "Star",
+        "value": "STAR"
+    },
+    {
+        "label": "Statue",
+        "value": "STATUE"
+    },
+    {
+        "label": "Steampunk",
+        "value": "STEAMPUNK"
+    },
+    {
+        "label": "Stoïcisme",
+        "value": "STOÏCISME"
+    },
+    {
+        "label": "Stratégie",
+        "value": "STRATÉGIE"
+    },
+    {
+        "label": "Stress",
+        "value": "STRESS"
+    },
+    {
+        "label": "Structure",
+        "value": "STRUCTURE"
+    },
+    {
+        "label": "Styliste",
+        "value": "STYLISTE"
+    },
+    {
+        "label": "Subconscient",
+        "value": "SUBCONSCIENT"
+    },
+    {
+        "label": "Substance",
+        "value": "SUBSTANCE"
+    },
+    {
+        "label": "Succube",
+        "value": "SUCCUBE"
+    },
+    {
+        "label": "Suicide",
+        "value": "SUICIDE"
+    },
+    {
+        "label": "Super-héros",
+        "value": "SUPER-HÉROS"
+    },
+    {
+        "label": "Super-pouvoir",
+        "value": "SUPER-POUVOIR"
+    },
+    {
+        "label": "Superstition",
+        "value": "SUPERSTITION"
+    },
+    {
+        "label": "Superviseur",
+        "value": "SUPERVISEUR"
+    },
+    {
+        "label": "Supplice",
+        "value": "SUPPLICE"
+    },
+    {
+        "label": "Surf",
+        "value": "SURF"
+    },
+    {
+        "label": "Surnaturel",
+        "value": "SURNATUREL"
+    },
+    {
+        "label": "Surprise",
+        "value": "SURPRISE"
+    },
+    {
+        "label": "Survie",
+        "value": "SURVIE"
+    },
+    {
+        "label": "Suspense",
+        "value": "SUSPENSE"
+    },
+    {
+        "label": "Sweat",
+        "value": "SWEAT"
+    },
+    {
+        "label": "Symbole",
+        "value": "SYMBOLE"
+    },
+    {
+        "label": "Symphonie",
+        "value": "SYMPHONIE"
+    },
+    {
+        "label": "Syndicat",
+        "value": "SYNDICAT"
+    },
+    {
+        "label": "Système",
+        "value": "SYSTÈME"
+    },
+    {
+        "label": "Tabac",
+        "value": "TABAC"
+    },
+    {
+        "label": "Table",
+        "value": "TABLE"
+    },
+    {
+        "label": "Talent",
+        "value": "TALENT"
+    },
+    {
+        "label": "Talisman",
+        "value": "TALISMAN"
+    },
+    {
+        "label": "Tango",
+        "value": "TANGO"
+    },
+    {
+        "label": "Tank",
+        "value": "TANK"
+    },
+    {
+        "label": "Taoïsme",
+        "value": "TAOÏSME"
+    },
+    {
+        "label": "Tatouage",
+        "value": "TATOUAGE"
+    },
+    {
+        "label": "Taxi",
+        "value": "TAXI"
+    },
+    {
+        "label": "Technologie",
+        "value": "TECHNOLOGIE"
+    },
+    {
+        "label": "Télékinésie",
+        "value": "TÉLÉKINÉSIE"
+    },
+    {
+        "label": "Téléphone",
+        "value": "TÉLÉPHONE"
+    },
+    {
+        "label": "Téléportation",
+        "value": "TÉLÉPORTATION"
+    },
+    {
+        "label": "Télévision",
+        "value": "TÉLÉVISION"
+    },
+    {
+        "label": "Tempête",
+        "value": "TEMPÊTE"
+    },
+    {
+        "label": "Temple",
+        "value": "TEMPLE"
+    },
+    {
+        "label": "Ténèbres",
+        "value": "TÉNÈBRES"
+    },
+    {
+        "label": "Tennis",
+        "value": "TENNIS"
+    },
+    {
+        "label": "Tentation",
+        "value": "TENTATION"
+    },
+    {
+        "label": "Terminator",
+        "value": "TERMINATOR"
+    },
+    {
+        "label": "Terre",
+        "value": "TERRE"
+    },
+    {
+        "label": "Terrorisme",
+        "value": "TERRORISME"
+    },
+    {
+        "label": "Test",
+        "value": "TEST"
+    },
+    {
+        "label": "Thé",
+        "value": "THÉ"
+    },
+    {
+        "label": "Théâtre",
+        "value": "THÉÂTRE"
+    },
+    {
+        "label": "Théologie",
+        "value": "THÉOLOGIE"
+    },
+    {
+        "label": "Thermodynamique",
+        "value": "THERMODYNAMIQUE"
+    },
+    {
+        "label": "Thriller",
+        "value": "THRILLER"
+    },
+    {
+        "label": "Tigre",
+        "value": "TIGRE"
+    },
+    {
+        "label": "Time travel",
+        "value": "TIME_TRAVEL"
+    },
+    {
+        "label": "Titre",
+        "value": "TITRE"
+    },
+    {
+        "label": "Tolérance",
+        "value": "TOLÉRANCE"
+    },
+    {
+        "label": "Tombe",
+        "value": "TOMBE"
+    },
+    {
+        "label": "Tortue",
+        "value": "TORTUE"
+    },
+    {
+        "label": "Torture",
+        "value": "TORTURE"
+    },
+    {
+        "label": "Totalitarisme",
+        "value": "TOTALITARISME"
+    },
+    {
+        "label": "Tour",
+        "value": "TOUR"
+    },
+    {
+        "label": "Tourisme",
+        "value": "TOURISME"
+    },
+    {
+        "label": "Tournage",
+        "value": "TOURNAGE"
+    },
+    {
+        "label": "Tournée",
+        "value": "TOURNÉE"
+    },
+    {
+        "label": "Toutou",
+        "value": "TOUTOU"
+    },
+    {
+        "label": "Tradition",
+        "value": "TRADITION"
+    },
+    {
+        "label": "Tragédie",
+        "value": "TRAGÉDIE"
+    },
+    {
+        "label": "Train",
+        "value": "TRAIN"
+    },
+    {
+        "label": "Traître",
+        "value": "TRAÎTRE"
+    },
+    {
+        "label": "Tranche de vie",
+        "value": "TRANCHE_DE_VIE"
+    },
+    {
+        "label": "Transformation",
+        "value": "TRANSFORMATION"
+    },
+    {
+        "label": "Transgenre",
+        "value": "TRANSGENRE"
+    },
+    {
+        "label": "Transhumanisme",
+        "value": "TRANSHUMANISME"
+    },
+    {
+        "label": "Transmutation",
+        "value": "TRANSMUTATION"
+    },
+    {
+        "label": "Transport",
+        "value": "TRANSPORT"
+    },
+    {
+        "label": "Travail",
+        "value": "TRAVAIL"
+    },
+    {
+        "label": "Trésor",
+        "value": "TRÉSOR"
+    },
+    {
+        "label": "Triangle",
+        "value": "TRIANGLE"
+    },
+    {
+        "label": "Tribu",
+        "value": "TRIBU"
+    },
+    {
+        "label": "Tribunal",
+        "value": "TRIBUNAL"
+    },
+    {
+        "label": "Triche",
+        "value": "TRICHE"
+    },
+    {
+        "label": "Tricot",
+        "value": "TRICOT"
+    },
+    {
+        "label": "Tristesse",
+        "value": "TRISTESSE"
+    },
+    {
+        "label": "Tromperie",
+        "value": "TROMPERIE"
+    },
+    {
+        "label": "Trophée",
+        "value": "TROPHÉE"
+    },
+    {
+        "label": "Tropical",
+        "value": "TROPICAL"
+    },
+    {
+        "label": "Trou",
+        "value": "TROU"
+    },
+    {
+        "label": "Tsundere",
+        "value": "TSUNDERE"
+    },
+    {
+        "label": "Tueur",
+        "value": "TUEUR"
+    },
+    {
+        "label": "Tunnel",
+        "value": "TUNNEL"
+    },
+    {
+        "label": "Tutelle",
+        "value": "TUTELLE"
+    },
+    {
+        "label": "Tutorat",
+        "value": "TUTORAT"
+    },
+    {
+        "label": "Sommeil",
+        "value": "SOMMEIL"
+    },
+    {
+        "label": "Sorcellerie",
+        "value": "SORCELLERIE"
+    },
+    {
+        "label": "Sort",
+        "value": "SORT"
+    },
+    {
+        "label": "Sosie",
+        "value": "SOSIE"
+    },
+    {
+        "label": "Soul",
+        "value": "SOUL"
+    },
+    {
+        "label": "Sous-marin",
+        "value": "SOUS-MARIN"
+    },
+    {
+        "label": "Souterrain",
+        "value": "SOUTERRAIN"
+    },
+    {
+        "label": "Spectacle",
+        "value": "SPECTACLE"
+    },
+    {
+        "label": "Spectateur",
+        "value": "SPECTATEUR"
+    },
+    {
+        "label": "Spectre",
+        "value": "SPECTRE"
+    },
+    {
+        "label": "Spéléologie",
+        "value": "SPÉLÉOLOGIE"
+    },
+    {
+        "label": "Sport",
+        "value": "SPORT"
+    },
+    {
+        "label": "Stade",
+        "value": "STADE"
+    },
+    {
+        "label": "Star",
+        "value": "STAR"
+    },
+    {
+        "label": "Statue",
+        "value": "STATUE"
+    },
+    {
+        "label": "Steampunk",
+        "value": "STEAMPUNK"
+    },
+    {
+        "label": "Stoïcisme",
+        "value": "STOÏCISME"
+    },
+    {
+        "label": "Stratégie",
+        "value": "STRATÉGIE"
+    },
+    {
+        "label": "Stress",
+        "value": "STRESS"
+    },
+    {
+        "label": "Structure",
+        "value": "STRUCTURE"
+    },
+    {
+        "label": "Styliste",
+        "value": "STYLISTE"
+    },
+    {
+        "label": "Subconscient",
+        "value": "SUBCONSCIENT"
+    },
+    {
+        "label": "Substance",
+        "value": "SUBSTANCE"
+    },
+    {
+        "label": "Succube",
+        "value": "SUCCUBE"
+    },
+    {
+        "label": "Suicide",
+        "value": "SUICIDE"
+    },
+    {
+        "label": "Super-héros",
+        "value": "SUPER-HÉROS"
+    },
+    {
+        "label": "Super-pouvoir",
+        "value": "SUPER-POUVOIR"
+    },
+    {
+        "label": "Superstition",
+        "value": "SUPERSTITION"
+    },
+    {
+        "label": "Superviseur",
+        "value": "SUPERVISEUR"
+    },
+    {
+        "label": "Supplice",
+        "value": "SUPPLICE"
+    },
+    {
+        "label": "Surf",
+        "value": "SURF"
+    },
+    {
+        "label": "Surnaturel",
+        "value": "SURNATUREL"
+    },
+    {
+        "label": "Surprise",
+        "value": "SURPRISE"
+    },
+    {
+        "label": "Survie",
+        "value": "SURVIE"
+    },
+    {
+        "label": "Suspense",
+        "value": "SUSPENSE"
+    },
+    {
+        "label": "Sweat",
+        "value": "SWEAT"
+    },
+    {
+        "label": "Symbole",
+        "value": "SYMBOLE"
+    },
+    {
+        "label": "Symphonie",
+        "value": "SYMPHONIE"
+    },
+    {
+        "label": "Syndicat",
+        "value": "SYNDICAT"
+    },
+    {
+        "label": "Système",
+        "value": "SYSTÈME"
+    },
+    {
+        "label": "Tabac",
+        "value": "TABAC"
+    },
+    {
+        "label": "Table",
+        "value": "TABLE"
+    },
+    {
+        "label": "Talent",
+        "value": "TALENT"
+    },
+    {
+        "label": "Talisman",
+        "value": "TALISMAN"
+    },
+    {
+        "label": "Tango",
+        "value": "TANGO"
+    },
+    {
+        "label": "Tank",
+        "value": "TANK"
+    },
+    {
+        "label": "Taoïsme",
+        "value": "TAOÏSME"
+    },
+    {
+        "label": "Tatouage",
+        "value": "TATOUAGE"
+    },
+    {
+        "label": "Taxi",
+        "value": "TAXI"
+    },
+    {
+        "label": "Technologie",
+        "value": "TECHNOLOGIE"
+    },
+    {
+        "label": "Télékinésie",
+        "value": "TÉLÉKINÉSIE"
+    },
+    {
+        "label": "Téléphone",
+        "value": "TÉLÉPHONE"
+    },
+    {
+        "label": "Téléportation",
+        "value": "TÉLÉPORTATION"
+    },
+    {
+        "label": "Télévision",
+        "value": "TÉLÉVISION"
+    },
+    {
+        "label": "Tempête",
+        "value": "TEMPÊTE"
+    },
+    {
+        "label": "Temple",
+        "value": "TEMPLE"
+    },
+    {
+        "label": "Ténèbres",
+        "value": "TÉNÈBRES"
+    },
+    {
+        "label": "Tennis",
+        "value": "TENNIS"
+    },
+    {
+        "label": "Tentation",
+        "value": "TENTATION"
+    },
+    {
+        "label": "Terminator",
+        "value": "TERMINATOR"
+    },
+    {
+        "label": "Terre",
+        "value": "TERRE"
+    },
+    {
+        "label": "Terrorisme",
+        "value": "TERRORISME"
+    },
+    {
+        "label": "Test",
+        "value": "TEST"
+    },
+    {
+        "label": "Thé",
+        "value": "THÉ"
+    },
+    {
+        "label": "Théâtre",
+        "value": "THÉÂTRE"
+    },
+    {
+        "label": "Théologie",
+        "value": "THÉOLOGIE"
+    },
+    {
+        "label": "Thermodynamique",
+        "value": "THERMODYNAMIQUE"
+    },
+    {
+        "label": "Thriller",
+        "value": "THRILLER"
+    },
+    {
+        "label": "Tigre",
+        "value": "TIGRE"
+    },
+    {
+        "label": "Time travel",
+        "value": "TIME_TRAVEL"
+    },
+    {
+        "label": "Titre",
+        "value": "TITRE"
+    },
+    {
+        "label": "Tolérance",
+        "value": "TOLÉRANCE"
+    },
+    {
+        "label": "Tombe",
+        "value": "TOMBE"
+    },
+    {
+        "label": "Tortue",
+        "value": "TORTUE"
+    },
+    {
+        "label": "Torture",
+        "value": "TORTURE"
+    },
+    {
+        "label": "Totalitarisme",
+        "value": "TOTALITARISME"
+    },
+    {
+        "label": "Tour",
+        "value": "TOUR"
+    },
+    {
+        "label": "Tourisme",
+        "value": "TOURISME"
+    },
+    {
+        "label": "Tournage",
+        "value": "TOURNAGE"
+    },
+    {
+        "label": "Tournée",
+        "value": "TOURNÉE"
+    },
+    {
+        "label": "Toutou",
+        "value": "TOUTOU"
+    },
+    {
+        "label": "Tradition",
+        "value": "TRADITION"
+    },
+    {
+        "label": "Tragédie",
+        "value": "TRAGÉDIE"
+    },
+    {
+        "label": "Train",
+        "value": "TRAIN"
+    },
+    {
+        "label": "Traître",
+        "value": "TRAÎTRE"
+    },
+    {
+        "label": "Tranche de vie",
+        "value": "TRANCHE_DE_VIE"
+    },
+    {
+        "label": "Transformation",
+        "value": "TRANSFORMATION"
+    },
+    {
+        "label": "Transgenre",
+        "value": "TRANSGENRE"
+    },
+    {
+        "label": "Transhumanisme",
+        "value": "TRANSHUMANISME"
+    },
+    {
+        "label": "Transmutation",
+        "value": "TRANSMUTATION"
+    },
+    {
+        "label": "Transport",
+        "value": "TRANSPORT"
+    },
+    {
+        "label": "Travail",
+        "value": "TRAVAIL"
+    },
+    {
+        "label": "Trésor",
+        "value": "TRÉSOR"
+    },
+    {
+        "label": "Triangle",
+        "value": "TRIANGLE"
+    },
+    {
+        "label": "Tribu",
+        "value": "TRIBU"
+    },
+    {
+        "label": "Tribunal",
+        "value": "TRIBUNAL"
+    },
+    {
+        "label": "Triche",
+        "value": "TRICHE"
+    },
+    {
+        "label": "Tricot",
+        "value": "TRICOT"
+    },
+    {
+        "label": "Tristesse",
+        "value": "TRISTESSE"
+    },
+    {
+        "label": "Tromperie",
+        "value": "TROMPERIE"
+    },
+    {
+        "label": "Trophée",
+        "value": "TROPHÉE"
+    },
+    {
+        "label": "Tropical",
+        "value": "TROPICAL"
+    },
+    {
+        "label": "Trou",
+        "value": "TROU"
+    },
+    {
+        "label": "Tsundere",
+        "value": "TSUNDERE"
+    },
+    {
+        "label": "Tueur",
+        "value": "TUEUR"
+    },
+    {
+        "label": "Tunnel",
+        "value": "TUNNEL"
+    },
+    {
+        "label": "Tutelle",
+        "value": "TUTELLE"
+    },
+    {
+        "label": "Tutorat",
+        "value": "TUTORAT"
+    },
+    {
+        "label": "Uchronie",
+        "value": "UCHRONIE"
+    },
+    {
+        "label": "Ufologie",
+        "value": "UFOLOGIE"
+    },
+    {
+        "label": "Ultime",
+        "value": "ULTIME"
+    },
+    {
+        "label": "Ultra",
+        "value": "ULTRA"
+    },
+    {
+        "label": "Uniforme",
+        "value": "UNIFORME"
+    },
+    {
+        "label": "Union",
+        "value": "UNION"
+    },
+    {
+        "label": "Univers",
+        "value": "UNIVERS"
+    },
+    {
+        "label": "Université",
+        "value": "UNIVERSITÉ"
+    },
+    {
+        "label": "Urbain",
+        "value": "URBAIN"
+    },
+    {
+        "label": "Urgence",
+        "value": "URGENCE"
+    },
+    {
+        "label": "Usine",
+        "value": "USINE"
+    },
+    {
+        "label": "Utopie",
+        "value": "UTOPIE"
+    },
+    {
+        "label": "Vacances",
+        "value": "VACANCES"
+    },
+    {
+        "label": "Vagabond",
+        "value": "VAGABOND"
+    },
+    {
+        "label": "Vaisseau",
+        "value": "VAISSEAU"
+    },
+    {
+        "label": "Valeur",
+        "value": "VALEUR"
+    },
+    {
+        "label": "Vampire",
+        "value": "VAMPIRE"
+    },
+    {
+        "label": "Vandalisme",
+        "value": "VANDALISME"
+    },
+    {
+        "label": "Vengeance",
+        "value": "VENGEANCE"
+    },
+    {
+        "label": "Venin",
+        "value": "VENIN"
+    },
+    {
+        "label": "Vent",
+        "value": "VENT"
+    },
+    {
+        "label": "Vérité",
+        "value": "VÉRITÉ"
+    },
+    {
+        "label": "Verre",
+        "value": "VERRE"
+    },
+    {
+        "label": "Vers",
+        "value": "VERS"
+    },
+    {
+        "label": "Vert",
+        "value": "VERT"
+    },
+    {
+        "label": "Vétéran",
+        "value": "VÉTÉRAN"
+    },
+    {
+        "label": "Vétérinaire",
+        "value": "VÉTÉRINAIRE"
+    },
+    {
+        "label": "Vice",
+        "value": "VICE"
+    },
+    {
+        "label": "Victoire",
+        "value": "VICTOIRE"
+    },
+    {
+        "label": "Vie",
+        "value": "VIE"
+    },
+    {
+        "label": "Vieillesse",
+        "value": "VIEILLESSE"
+    },
+    {
+        "label": "Vieillissement",
+        "value": "VIEILLISSEMENT"
+    },
+    {
+        "label": "Vierge",
+        "value": "VIERGE"
+    },
+    {
+        "label": "Viking",
+        "value": "VIKING"
+    },
+    {
+        "label": "Ville",
+        "value": "VILLE"
+    },
+    {
+        "label": "Vin",
+        "value": "VIN"
+    },
+    {
+        "label": "Viol",
+        "value": "VIOL"
+    },
+    {
+        "label": "Violence",
+        "value": "VIOLENCE"
+    },
+    {
+        "label": "Virus",
+        "value": "VIRUS"
+    },
+    {
+        "label": "Visage",
+        "value": "VISAGE"
+    },
+    {
+        "label": "Vision",
+        "value": "VISION"
+    },
+    {
+        "label": "Visite",
+        "value": "VISITE"
+    },
+    {
+        "label": "Vitesse",
+        "value": "VITESSE"
+    },
+    {
+        "label": "Vivant",
+        "value": "VIVANT"
+    },
+    {
+        "label": "Vocation",
+        "value": "VOCATION"
+    },
+    {
+        "label": "Voile",
+        "value": "VOILE"
+    },
+    {
+        "label": "Voisin",
+        "value": "VOISIN"
+    },
+    {
+        "label": "Voiture",
+        "value": "VOITURE"
+    },
+    {
+        "label": "Vol",
+        "value": "VOL"
+    },
+    {
+        "label": "Voleur",
+        "value": "VOLEUR"
+    },
+    {
+        "label": "Voyage",
+        "value": "VOYAGE"
+    },
+    {
+        "label": "Voyant",
+        "value": "VOYANT"
+    },
+    {
+        "label": "Voyou",
+        "value": "VOYOU"
+    },
+    {
+        "label": "Vrai",
+        "value": "VRAI"
+    },
+    {
+        "label": "Vulgaire",
+        "value": "VULGAIRE"
+    },
+    {
+        "label": "Vulnérabilité",
+        "value": "VULNÉRABILITÉ"
+    },
+    {
+        "label": "Wagon",
+        "value": "WAGON"
+    },
+    {
+        "label": "Western",
+        "value": "WESTERN"
+    },
+    {
+        "label": "Wifi",
+        "value": "WIFI"
+    },
+    {
+        "label": "Witch",
+        "value": "WITCH"
+    },
+    {
+        "label": "Wolf",
+        "value": "WOLF"
+    },
+    {
+        "label": "Xénophobie",
+        "value": "XÉNOPHOBIE"
+    },
+    {
+        "label": "Yakuza",
+        "value": "YAKUZA"
+    },
+    {
+        "label": "Yandere",
+        "value": "YANDERE"
+    },
+    {
+        "label": "Yaoi",
+        "value": "YAOI"
+    },
+    {
+        "label": "Yokai",
+        "value": "YOKAI"
+    },
+    {
+        "label": "Yuri",
+        "value": "YURI"
+    },
+    {
+        "label": "Zodiaque",
+        "value": "ZODIAQUE"
+    },
+    {
+        "label": "Zombie",
+        "value": "ZOMBIE"
+    },
+    {
+        "label": "Zoo",
+        "value": "ZOO"
+    }
+]

@@ -1,21 +1,21 @@
 // import { Arg, Mutation, Query, Resolver } from "type-graphql";
-// import { Company, CompanyMediaOutput, CompanyMediaPaginationOutput, CompanyModel, CompanyPaginationOutput, CompanySearchQuery } from "./_company.type";
-// import { CompanyInput } from "./_company.input";
+// import { Person, PersonMediaOutput, PersonMediaPaginationOutput, PersonModel, PersonPaginationOutput } from "./_person.type";
+// import { PersonInput, PersonSearchQuery } from "./_person.input";
 // import { Pagination } from "../../utils/_media.pagination";
 // import { IMediaUpdates, MediaUpdateOptionArg, MediaUpdateOutput } from "../../utils/_media.update";
 // import { MediaType } from "../../utils/_media.types";
 
-// @Resolver(Company)
-// export class CompanyResolver {
+// @Resolver(Person)
+// export class PersonResolver {
 
-//     @Query(_return => Company, { nullable: true })
-//     async getCompany(@Arg("id", () => String) id: string): Promise<Company | null> {
+//     @Query(_return => Person, { nullable: true })
+//     async getPerson(@Arg("id", () => String) id: string): Promise<Person | null> {
 
-//         const findCompany = await CompanyModel.findOne({ id }).select('data id');
+//         const findPerson = await PersonModel.findOne({ id }).select('data id');
 
-//         if (findCompany && findCompany.visible && findCompany.data) {
+//         if (findPerson && findPerson.visible && findPerson.data) {
 
-//             const { pubId: id, data } = findCompany;
+//             const { pubId: id, data } = findPerson;
 
 //             return { id, ...data };
 
@@ -25,16 +25,16 @@
 
 //     }
 
-//     @Query(_returns => CompanyPaginationOutput, { nullable: true })
-//     async searchCompanys(
+//     @Query(_returns => PersonPaginationOutput, { nullable: true })
+//     async searchPersons(
 //         @Arg("pagination", () => Pagination, { nullable: true }) pagination: Pagination | null,
-//         @Arg("searchQuery", () => CompanySearchQuery, { nullable: true }) searchQuery: CompanySearchQuery | null
-//     ): Promise<CompanyPaginationOutput> {
+//         @Arg("searchQuery", () => PersonSearchQuery, { nullable: true }) searchQuery: PersonSearchQuery | null
+//     ): Promise<PersonPaginationOutput> {
 //         let currentPage = pagination?.page || 1;
 //         let limitPerPage = pagination?.limit || 20;
 
 //         // Mise en place query
-//         let queryGen = CompanyModel.find({ data: { $ne: null } })
+//         let queryGen = PersonModel.find({ data: { $ne: null } })
 
 //         if (searchQuery) {
 
@@ -49,8 +49,8 @@
 //         // Mise en place pagination & résultats;
 
 //         const generatedQuery = queryGen.getQuery();
-//         const totalResults = await CompanyModel.countDocuments(generatedQuery);
-//         const searchResult = await CompanyModel.find(generatedQuery)
+//         const totalResults = await PersonModel.countDocuments(generatedQuery);
+//         const searchResult = await PersonModel.find(generatedQuery)
 //             .skip(limitPerPage * (currentPage - 1))
 //             .limit(limitPerPage);
 
@@ -64,27 +64,27 @@
 //             totalResults,
 //             hasNextPage: currentPage < totalPage,
 //             hasPrevPage: currentPage >= 1 && currentPage < totalPage,
-//             results: searchResult.map((x) => ({ id: x.pubId, ...x.data as Company }))
+//             results: searchResult.map((x) => ({ id: x.pubId, ...x.data as Person }))
 //         };
 //     }
 
-//     @Query(_returns => CompanyMediaOutput, { nullable: true })
-//     async getFullCompany(@Arg("id", () => Number) id: number): Promise<CompanyMediaOutput | null> {
+//     @Query(_returns => PersonMediaOutput, { nullable: true })
+//     async getFullPerson(@Arg("id", () => Number) id: number): Promise<PersonMediaOutput | null> {
 
-//         const findCompany = await CompanyModel.findOne({ id });
+//         const findPerson = await PersonModel.findOne({ id });
 
-//         if (findCompany) {
+//         if (findPerson) {
 
-//             function sortByCreatedAt(a: IMediaUpdates<Company>, b: IMediaUpdates<Company>) {
+//             function sortByCreatedAt(a: IMediaUpdates<Person>, b: IMediaUpdates<Person>) {
 //                 if (!b.createdAt || !a.createdAt) return 0;
 //                 return b.createdAt.getTime() - a.createdAt.getTime()
 //             }
-//             const sortedUpdate = findCompany.updates.sort(sortByCreatedAt);
-//             const sortedUpdateRequest = findCompany.requests.sort(sortByCreatedAt);
+//             const sortedUpdate = findPerson.updates.sort(sortByCreatedAt);
+//             const sortedUpdateRequest = findPerson.requests.sort(sortByCreatedAt);
 
 //             return {
-//                 ...findCompany.toJSON(),
-//                 data: findCompany.data,
+//                 ...findPerson.toJSON(),
+//                 data: findPerson.data,
 //                 lastRequestDate: sortedUpdateRequest[0].createdAt,
 //                 lastUpdateDate: sortedUpdate[0].createdAt
 //             }
@@ -94,17 +94,17 @@
 //         }
 //     }
 
-//     @Query(_returns => [CompanyMediaPaginationOutput], { nullable: true })
-//     async searchFullCompany(
+//     @Query(_returns => [PersonMediaPaginationOutput], { nullable: true })
+//     async searchFullPerson(
 //         @Arg("pagination", () => Pagination, { nullable: true }) pagination: Pagination | null,
-//         @Arg("searchQuery", () => CompanySearchQuery, { nullable: true }) searchQuery: CompanySearchQuery | null
-//     ): Promise<CompanyMediaPaginationOutput> {
+//         @Arg("searchQuery", () => PersonSearchQuery, { nullable: true }) searchQuery: PersonSearchQuery | null
+//     ): Promise<PersonMediaPaginationOutput> {
 
 //         let currentPage = pagination?.page || 1;
 //         let limitPerPage = pagination?.limit || 20;
 
 //         // Mise en place query
-//         let queryGen = CompanyModel.find()
+//         let queryGen = PersonModel.find()
 
 //         if (searchQuery) {
 
@@ -117,8 +117,8 @@
 //         // Mise en place pagination & résultats;
 
 //         const generatedQuery = queryGen.getQuery();
-//         const totalResults = await CompanyModel.countDocuments(generatedQuery);
-//         const searchResult = await CompanyModel.find(generatedQuery)
+//         const totalResults = await PersonModel.countDocuments(generatedQuery);
+//         const searchResult = await PersonModel.find(generatedQuery)
 //             .skip(limitPerPage * (currentPage - 1))
 //             .limit(limitPerPage);
 
@@ -126,10 +126,11 @@
 
 //         console.log('result', searchResult.map((x) => x.toJSON()))
 
-//         function sortByCreatedAt(a: IMediaUpdates<Company>, b: IMediaUpdates<Company>) {
+//         function sortByCreatedAt(a: IMediaUpdates<Person>, b: IMediaUpdates<Person>) {
 //             if (!b.createdAt || !a.createdAt) return 0;
 //             return b.createdAt.getTime() - a.createdAt.getTime()
 //         }
+        
 //         return {
 //             currentPage,
 //             totalPage,
@@ -149,86 +150,86 @@
 //         };
 //     }
 
-//     @Mutation(_ => MediaUpdateOutput, { description: "Ajouter une Company" })
-//     async createCompany(
-//         @Arg("data", _ => CompanyInput) dataInput: CompanyInput,
+//     @Mutation(_ => MediaUpdateOutput, { description: "Ajouter un nouveau Person" })
+//     async createPerson(
+//         @Arg("data", _ => PersonInput) dataInput: PersonInput,
 //         @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
 //     )
 //         : Promise<MediaUpdateOutput> {
 
 //         const author = undefined;
 
-//         const companyInput = await new CompanyInput().init(dataInput, "direct_update");
+//         const personInput = await new PersonInput().init(dataInput, "direct_update");
 
-//         const update = await companyInput.createUpdate({
-//             label: "Company",
-//             action: "Création d'un Company",
+//         const update = await personInput.createUpdate({
+//             label: "Person",
+//             action: "Création d'un Person",
 //             field: { author, moderator: author, visible: options.setUpdatePublic }
 //         });
 
 //         await update.model.validate();
 
 //         // Validation
-//         await Promise.all(companyInput.mediasToSave.map(({ model }) => {
+//         await Promise.all(personInput.mediasToSave.map(({ model }) => {
 //             return model.save({ validateBeforeSave: false });
 //         }))
 
 //         return {
-//             mediaType: MediaType.COMPANY,
-//             message: "Company a bien été crée.",
+//             mediaType: MediaType.CHARACTER,
+//             message: "Person a bien été crée.",
 //             pubId: update.model.pubId
 //         }
 //     }
 
 
-//     @Mutation(_ => MediaUpdateOutput, { description: "Demande d'ajout Company" })
-//     async createCompanyRequest(
-//         @Arg("data", _ => CompanyInput) dataInput: CompanyInput,
-//         // @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
-//     ): Promise<MediaUpdateOutput> {
-
-//         const author = undefined;
-
-//         const companyInput = await new CompanyInput().init(dataInput, "request");
-
-//         const request = await companyInput.createRequest({
-//             label: "Company",
-//             action: "Demande d'ajout Company",
-//             field: { author, moderator: author }
-//         });
-
-//         await request.model.validate();
-
-//         // Validation
-//         await Promise.all(companyInput.mediasToSave.map(({ model }) => {
-//             return model.save({ validateBeforeSave: false });
-//         }))
-
-//         return {
-//             mediaType: MediaType.COMPANY,
-//             message: "La demande a bien été crée.",
-//             pubId: request.model.pubId
-//         }
-//     }
-
-//     @Mutation(_ => MediaUpdateOutput, { description: "Modification d'un Company" })
-//     async updateCompany(
-//         @Arg('companyToUpdate') mediaToUpdate: string,
-//         @Arg('versionToUpdate', { nullable: true, description: "Modifier une précédente modification" }) versionToUpdate: number,
-//         @Arg("data", _ => CompanyInput) dataInput: CompanyInput,
+//     @Mutation(_ => MediaUpdateOutput, { description: "Demande d'ajout d'un nouveau Person" })
+//     async createPersonRequest(
+//         @Arg("data", _ => PersonInput) dataInput: PersonInput,
 //         @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
 //     ): Promise<MediaUpdateOutput> {
 
 //         const author = undefined;
 
-//         const companyInput = await new CompanyInput().init(dataInput, "direct_update");
+//         const personInput = await new PersonInput().init(dataInput, "request");
 
-//         const update = await companyInput.createUpdate({
+//         const request = await personInput.createRequest({
+//             label: "Person",
+//             action: "Demande d'ajout d'un Person",
+//             field: { author, moderator: author, visible: options.setUpdatePublic }
+//         });
+
+//         await request.model.validate();
+
+//         // Validation
+//         await Promise.all(personInput.mediasToSave.map(({ model }) => {
+//             return model.save({ validateBeforeSave: false });
+//         }))
+
+//         return {
+//             mediaType: MediaType.CHARACTER,
+//             message: "La demande a bien été crée.",
+//             pubId: request.model.pubId
+//         }
+//     }
+
+//     @Mutation(_ => MediaUpdateOutput, { description: "Modification d'un Person" })
+//     async updatePerson(
+//         @Arg('personToUpdate') mediaToUpdate: string,
+//         @Arg('versionToUpdate', { nullable: true, description: "Modifier une précédente modification" }) versionToUpdate: number,
+//         @Arg("data", _ => PersonInput) dataInput: PersonInput,
+//         @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
+//     ): Promise<MediaUpdateOutput> {
+
+//         const author = undefined;
+
+//         const personInput = await new PersonInput().init(dataInput, "direct_update");
+
+//         const update = await personInput.createUpdate({
 //             mediaToUpdate,
 //             versionToUpdate,
 //             public: options.setMediaPublic,
-//             label: "Company",
-//             action: "Modification d'un Company",
+//             label: "Person",
+//             action: "Modification d'un Person",
 //             field: {
 //                 author,
 //                 moderator: author,
@@ -239,37 +240,37 @@
 //         await update.model.validate();
 
 //         // Validation
-//         await Promise.all(companyInput.mediasToSave.map(({ model }) => {
+//         await Promise.all(personInput.mediasToSave.map(({ model }) => {
 //             return model.save({ validateBeforeSave: false });
 //         }))
 
 //         return {
-//             mediaType: MediaType.COMPANY,
-//             message: "Company a bien été crée.",
+//             mediaType: MediaType.CHARACTER,
+//             message: "Person a bien été crée.",
 //             pubId: update.model.pubId
 //         }
 //     }
 
 
 
-//     @Mutation(_ => MediaUpdateOutput, { description: "Demande de Modification d'un Company" })
-//     async requestCompanyUpdate(
-//         @Arg('companyToUpdate') mediaToUpdate: string,
+//     @Mutation(_ => MediaUpdateOutput, { description: "Demande de Modification d'un Person" })
+//     async requestPersonUpdate(
+//         @Arg('personToUpdate') mediaToUpdate: string,
 //         @Arg('versionToUpdate', { nullable: true, description: "Modifier une précédente modification" }) versionToUpdate: number,
-//         @Arg("data", _ => CompanyInput) dataInput: CompanyInput,
+//         @Arg("data", _ => PersonInput) dataInput: PersonInput,
 //         @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
 //     ): Promise<MediaUpdateOutput> {
 
 //         const author = undefined;
 
-//         const companyInput = await new CompanyInput().init(dataInput, "request");
+//         const personInput = await new PersonInput().init(dataInput, "request");
 
-//         const request = await companyInput.createRequest({
+//         const request = await personInput.createRequest({
 //             mediaToUpdate,
 //             versionToUpdate,
 //             public: options.setMediaPublic,
-//             label: "Company",
-//             action: "Demande de Modification d'un Company",
+//             label: "Person",
+//             action: "Demande de Modification d'un Person",
 //             field: {
 //                 author,
 //                 moderator: author,
@@ -280,13 +281,13 @@
 //         await request.model.validate();
 
 //         // Validation
-//         await Promise.all(companyInput.mediasToSave.map(({ model }) => {
+//         await Promise.all(personInput.mediasToSave.map(({ model }) => {
 //             return model.save({ validateBeforeSave: false });
 //         }))
 
 //         return {
-//             mediaType: MediaType.COMPANY,
-//             message: "La Company a bien été crée.",
+//             mediaType: MediaType.CHARACTER,
+//             message: "Person a bien été crée.",
 //             pubId: request.model.pubId
 //         }
 //     }

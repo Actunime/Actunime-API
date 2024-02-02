@@ -1,68 +1,150 @@
 
-import { CallbackWithoutResultAndOptionalError, PostMiddlewareFunction, Schema, model, Document, Error } from "mongoose";
-import { AnimeModel } from "./medias/animes/_anime.type";
-import { customAlphabet } from 'nanoid'
-import { mongoose } from "@typegoose/typegoose";
+import { AnimeInput } from './medias/animes/_anime.input';
+import { MediaPersonGender } from './utils/_media.types';
+import { CompanyLabel } from './medias/companys/_company.type';
+import { DefaultAnimeFormatEnum, DefaultSourceEnum, DefaultStatusEnum } from './medias/defaultData';
+
 
 export async function createFakeData() {
 
-    // const AnimeMongoDB = new AnimeModel({
-    //     id: "acy2j",
-    //     updatesRequests: [{
-    //         versionId: 1,
-    //         data: { title: { romaji: "test" } },
-    //         requestDate: new Date(),
-    //         status: 'UNVERIFIED',
-    //     }]
-    // });
-    await AnimeModel.syncIndexes()
-    let test = new AnimeModel({
-        public: true,
-        updates: [{
-            versionId: 1,
-            data: { title: { romaji: "test" } },
-            createdAt: new Date(),
-        }],
-        updatesRequests: [{
-            versionId: 1,
-            data: { title: { romaji: "test" } },
-            createdAt: new Date(),
-            status: 'UNVERIFIED',
-        }]
-    })
-    await test.save();
-    // console.log("Validé")
-    await AnimeModel.create(test).catch((err) => console.log("err", err.toString()));
+    // await AnimeModel.syncIndexes()
 
-    // await AnimeMongoDB.save();
-    // await [...Array(100000)].map(async () => {
-    //     const AnimeMongoDB = new AnimeModel({
-    //         updatesRequests: [{
-    //             versionId: 1,
-    //             data: { title: { romaji: "test" } },
-    //             requestDate: new Date(),
-    //             status: 'UNVERIFIED',
-    //         }]
-    //     });
-    //     return await AnimeMongoDB.save();
-    // })
+    try {
+        let FakeData = await AnimeInput.createUpdate({
+            title: {
+                romaji: "Kimetsu No Yaiba TEST",
+                native: "鬼滅の刃"
+            },
+            synopsis: "Tanjirō Kamado mène une vie paisible, quoique modeste, avec sa famille jusqu'au jour où les siens sont massacrés alors qu'il est descendu en ville vendre du charbon. Seule Nezuko, sa petite sœur, survit, mais elle est transformée en démon. Pour Tanjirō commence un long périple afin de trouver un remède permettant de faire retrouver une forme humaine à sa sœur.",
+            date: {
+                start: new Date('2021-04-06'),
+                end: new Date('2021-09-28')
+            },
+            image: {
+                poster: 'https://cdn.myanimelist.net/images/anime/1286/99889.jpg',
+                banner: 'https://laverdadnoticias.com/__export/1586230047171/sites/laverdad/img/2020/04/06/kimetsu_no_yaiba_anime_wallpapers.png_673822677.png'
+            },
+            status: DefaultStatusEnum['ENDED'],
+            source: {
+                origine: DefaultSourceEnum['MANGA'],
+            },
+            format: DefaultAnimeFormatEnum['SERIE'],
+            adult: false,
+            explicit: true,
+            episodes: {
+                airing: 26,
+                total: 26,
+                durationMinutePerEp: 23
+            },
+            companys: {
+                news: [
+                    {
+                        data: {
+                            name: 'Ufotable',
+                            label: CompanyLabel['STUDIO'],
+                            links: [
+                                {
+                                    name: 'Site officiel',
+                                    value: 'http://www.ufotable.com/index.html'
+                                },
+                                {
+                                    name: 'Wikipedia',
+                                    value: 'https://fr.wikipedia.org/wiki/Ufotable'
+                                }
+                            ]
+                        },
+                    }
+                ]
+            },
+            links: [
+                { name: "Site officiel", value: 'https://kimetsu.com/anime/risshihen/' }
+            ],
+            staffs: {
+                news: [{
+                    label: 'Producteur',
+                    data: {
+                        name: {
+                            first: 'Kondou',
+                            end: 'Hikaru'
+                        },
+                        birthDate: '1969-12-02',
+                        bio: "Hikaru Kondou est un producteur d'animation et le fondateur du studio d'animation ufotable.",
+                        image: "https://cdn.myanimelist.net/images/voiceactors/3/21563.jpg"
+                    }
+                }]
+            },
+            characters: {
+                news: [{
+                    data: {
+                        name: {
+                            first: 'Tanjirou',
+                            end: 'Kamado',
+                            alias: ['竈門 炭治郎']
+                        },
+                        gender: MediaPersonGender['HOMME'],
+                        bio: "Tanjirou Kamado est le protagoniste principale de Demon Slayer, il est devenu un chasseur de démon et a rejoint un groupe de chasseur de démon dans le but de venger sa famille et de pouvoir guérrir sa soeur.",
+                        image: "https://cdn.myanimelist.net/images/characters/6/386735.jpg",
+                        actors: {
+                            news: [
+                                {
+                                    label: 'Perso',
+                                    data: {
+                                        name: {
+                                            first: 'Hanae',
+                                            end: 'Natsuki'
+                                        },
+                                        birthDate: '1991-06-26',
+                                        image: "https://cdn.myanimelist.net/images/voiceactors/3/63380.jpg"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }],
+            },
+            tracks: {
+                news: [{
+                    data: {
+                        name: 'Gurenge',
+                        artists: {
+                            news: [{
+                                label: '',
+                                data: {
+                                    name: {
+                                        alias: ['LISA']
+                                    },
 
-    // await AnimeMongoDB.validate();
-    // console.log(AnimeMongoDB.toJSON())
+                                    links: [{ name: 'Wikipedia', value: 'https://fr.wikipedia.org/wiki/LiSA' }]
+                                }
+                            }]
+                        }
+                    }
+
+                }]
+            }
+        }, 'direct_update', true)
+
+        // let modifed = await FakeData
+        //     .save();
+
+        // await modifed.populate('data.characters.vData data.companys.vData data.staffs.vData data.tracks.vData');
+
+        // let start = Date.now();
+        // let t = await AnimeModel.find(
+        //     // { data: { date: { start: { $gte: new Date(2000, 0, 0), $lt: new Date(2025, 0, 0) } } } }
+        // ).lean()
+        // // .searchMediaByTitle('Kimetsu');
+        // let ms = Date.now() - start
+        // console.log('résults', t)
+        // console.warn(ms, 'ms')
+
+        // let x = themesAnime.map((n) => ({ label: n, value: n.toUpperCase().split(' ').join('_') }))
 
 
-    let data = await AnimeModel.find({ id: 'acy2j' });
-    // console.log(data?.toObject()
-    // .map(d => d.toObject())
-    // )
-    console.log(data.map(d => d.toObject())
-    )
-}
+        // console.log(x, x.map(a => `${a.value} = ${a.value}`))
 
-export function genPublicID() {
-    const alphabet = `${Date.now()}abcdefghijklmnopqrstuvwxyz`;
-    const nanoid = customAlphabet(alphabet, 5);
-    let generatedID = nanoid()
-    console.log(generatedID)
-    return generatedID
+    } catch (err) {
+        console.error(err)
+    }
+
 }

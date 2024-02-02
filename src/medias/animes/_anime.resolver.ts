@@ -1,23 +1,25 @@
-import { Arg, Mutation, Query, Resolver } from "type-graphql";
-import { Anime, AnimeMediaOutput, AnimeMediaPaginationOutput, AnimeModel, AnimePaginationOutput, AnimeSearchQuery } from "./_anime.type";
+import { Arg, Info, Mutation, Query, Resolver } from "type-graphql";
+import { MediaSearchLogic, MediaUpdateOptionArg, Pagination } from "../../utils";
+import { AnimeModel, AnimePaginationOutput, } from "./_anime.model";
+import { Anime, AnimeSearchQuery } from "./_anime.type";
+import { fieldsProjection } from 'graphql-fields-list'
+import { PaginationQuery } from "../../utils/_pagination";
 import { AnimeInput } from "./_anime.input";
-import { MediaType, MediaUpdateOutput, Pagination } from "../util.type";
 
 
 @Resolver(Anime)
 export class AnimeResolver {
 
     @Query(_return => Anime, { nullable: true })
-    async getAnime(@Arg("id", () => String) id: string): Promise<Anime | null> {
+    async getAnime(@Arg("id", () => String) id: string, @Info() info: any): Promise<Anime | null> {
 
-        const findAnime = await AnimeModel.findOne({ id }).select('data id');
+        const findAnime = await AnimeModel.findOne({ id }, fieldsProjection(info));
 
-        if (findAnime && findAnime.public) {
+        if (findAnime && findAnime.visible && findAnime.data) {
 
+            const { pubId, data } = findAnime;
 
-            const { pubId: id, data } = findAnime.toJSON();
-
-            return { id, ...data };
+            return { id: pubId, ...data };
 
         } else {
             return null;
@@ -27,583 +29,247 @@ export class AnimeResolver {
 
     @Query(_returns => AnimePaginationOutput, { nullable: true })
     async searchAnimes(
-        @Arg("pagination", () => Pagination, { nullable: true }) pagination: Pagination | null,
-        @Arg("searchQuery", () => AnimeSearchQuery, { nullable: true }) searchQuery: AnimeSearchQuery | null
-    ): Promise<AnimePaginationOutput> {
-        let currentPage = pagination?.page || 1;
-        let limitPerPage = pagination?.limit || 20;
 
-        // Mise en place query
-        let queryGen = AnimeModel.find()
+        @Arg("pagination", () => Pagination, { nullable: true })
+        pagination: Pagination | null,
 
-        if (searchQuery) {
+        @Arg("searchQuery", () => AnimeSearchQuery, { nullable: true })
+        searchQuery: AnimeSearchQuery | null,
 
-            if (searchQuery.title)
-                queryGen
-                    .searchMediaByTitle(searchQuery.title)
+        @Arg("searchLogic", () => MediaSearchLogic, { nullable: true, defaultValue: 'OR' })
+        searchLogic: MediaSearchLogic,
 
-        }
+        @Info()
+        info: any
 
-        queryGen.select('pubId data');
+    ): Promise<AnimePaginationOutput | null> {
 
-        // Mise en place pagination & résultats;
+        const queryGen = AnimeModel
+            .find({ data: { $ne: null } });
 
-        const generatedQuery = queryGen.getQuery();
-        const totalResults = await AnimeModel.countDocuments(generatedQuery);
-        const searchResult = await AnimeModel.find(generatedQuery)
-            .skip(limitPerPage * (currentPage - 1))
-            .limit(limitPerPage);
+        if (searchQuery)
+            queryGen.genQuery(searchQuery, searchLogic)
 
-        const totalPage = Math.round(totalResults / limitPerPage) < 1 ? 1 : Math.round(totalResults / limitPerPage);
 
-        console.log('result', searchResult.map((x) => x.toJSON()))
+        return PaginationQuery({
+            model: AnimeModel,
+            paginationQuery: pagination,
+            filter: queryGen.getQuery(),
+            info,
+            customProjection: searchQuery ? AnimeSearchQuery.genProjection(searchQuery) : {}
+        });
+    }
+
+    // @Authorized("")
+    // @Query(_returns => AnimeMediaOutput, { nullable: true })
+    // async getFullAnime(@Arg("id", () => Number) id: number): Promise<AnimeMediaOutput | null> {
+
+    //     const findAnime = await AnimeModel.findOne({ id });
+
+    //     if (findAnime) {
+
+
+    //         function sortByCreatedAt(a: IMediaUpdates<any>, b: IMediaUpdates<any>) {
+    //             if (!b.createdAt || !a.createdAt) return 0;
+    //             return b.createdAt.getTime() - a.createdAt.getTime()
+    //         }
+
+    //         const sortedUpdate = findAnime.updates.sort(sortByCreatedAt);
+    //         const sortedUpdateRequest = findAnime.requests.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+    //         return {
+    //             ...findAnime.toJSON(),
+    //             data: findAnime.data,
+    //             lastRequestDate: sortedUpdateRequest[0].createdAt,
+    //             lastUpdateDate: sortedUpdate[0].createdAt
+    //         }
+
+    //     } else {
+    //         return null;
+    //     }
+    // }
+
+    // @Query(_returns => AnimeMediaPaginationOutput, { nullable: true })
+    // async searchFullAnime(
+    //     @Arg("pagination", () => Pagination, { nullable: true }) pagination: Pagination | null,
+    //     @Arg("searchQuery", () => AnimeSearchQuery, { nullable: true }) searchQuery: AnimeSearchQuery | null,
+    //     @Info() info: any
+    // ): Promise<AnimeMediaPaginationOutput> {
+    //     let currentPage = pagination?.page || 1;
+    //     let limitPerPage = pagination?.limit || 20;
+
+    //     // Mise en place query
+    //     let queryGen = AnimeModel.find()
+
+    //     if (searchQuery) {
+
+    //         if (searchQuery.title)
+    //             queryGen
+    //                 .searchMediaByTitle(searchQuery.title)
+
+    //     }
+
+    //     const generatedQuery = queryGen.getQuery();
+
+    //     const totalResults = await AnimeModel.countDocuments(generatedQuery);
+    //     const searchResult = await AnimeModel.find(generatedQuery)
+    //         .select(Object.keys(fieldsProjection(info)).map((s) => s.replace('results.', '')))
+    //         .skip(limitPerPage * (currentPage - 1))
+    //         .limit(limitPerPage);
+
+    //     const totalPage = Math.round(totalResults / limitPerPage) < 1 ? 1 : Math.round(totalResults / limitPerPage);
+
+    //     function sortByCreatedAt(a: IMediaUpdates<any>, b: IMediaUpdates<any>) {
+    //         if (!b.createdAt || !a.createdAt) return 0;
+    //         return b.createdAt.getTime() - a.createdAt.getTime()
+    //     }
+
+    //     return {
+    //         currentPage,
+    //         totalPage,
+    //         limitPerPage,
+    //         totalResults,
+    //         hasNextPage: currentPage < totalPage,
+    //         hasPrevPage: currentPage >= 1 && currentPage < totalPage,
+    //         results: searchResult.map((animeMedia) => {
+    //             const sortedUpdate = animeMedia.updates?.sort(sortByCreatedAt);
+    //             const sortedUpdateRequest = animeMedia.requests?.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    //             return {
+    //                 ...animeMedia.toJSON(),
+    //                 lastRequestDate: sortedUpdateRequest?.[0]?.createdAt || null,
+    //                 lastUpdateDate: sortedUpdate?.[0]?.createdAt || null,
+    //             }
+    //         })
+    //     };
+    // }
+
+    @Mutation(_ => Anime, { description: "Ajouter un (nouvel) anime (staff)" })
+    async createAnime(
+        @Arg("data", _ => AnimeInput) dataInput: AnimeInput,
+        @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
+    ): Promise<Anime> {
+
+        const update = await AnimeInput.createUpdate(dataInput, 'direct_update', options.visible || false);
+
+        let model = await update.save();
+
+        let json = model.toJSON();
+
         return {
-            currentPage,
-            totalPage,
-            limitPerPage,
-            totalResults,
-            hasNextPage: currentPage < totalPage,
-            hasPrevPage: currentPage >= 1 && currentPage < totalPage,
-            results: searchResult.map((x) => ({ id: x.pubId, ...x.data }))
-        };
-    }
-
-    @Query(_returns => AnimeMediaOutput, { nullable: true })
-    async getFullAnime(@Arg("id", () => Number) id: number): Promise<AnimeMediaOutput | null> {
-
-        const findAnime = await AnimeModel.findOne({ id });
-
-        if (findAnime) {
-
-            const sortedUpdate = findAnime.updates.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-            const sortedUpdateRequest = findAnime.updatesRequests.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-
-            return {
-                ...findAnime.toJSON(),
-                data: findAnime.data,
-                lastRequestDate: sortedUpdateRequest[0].createdAt,
-                lastUpdateDate: sortedUpdate[0].createdAt
-            }
-
-        } else {
-            return null;
-        }
-    }
-
-    @Query(_returns => [AnimeMediaPaginationOutput], { nullable: true })
-    async searchFullAnime(
-        @Arg("pagination", () => Pagination, { nullable: true }) pagination: Pagination | null,
-        @Arg("searchQuery", () => AnimeSearchQuery, { nullable: true }) searchQuery: AnimeSearchQuery | null
-    ): Promise<AnimeMediaPaginationOutput> {
-
-        let currentPage = pagination?.page || 1;
-        let limitPerPage = pagination?.limit || 20;
-
-        // Mise en place query
-        let queryGen = AnimeModel.find()
-
-        if (searchQuery) {
-
-            if (searchQuery.title)
-                queryGen
-                    .searchMediaByTitle(searchQuery.title)
-
+            id: json.pubId,
+            ...json.data,
         }
 
-        // Mise en place pagination & résultats;
-
-        const generatedQuery = queryGen.getQuery();
-        const totalResults = await AnimeModel.countDocuments(generatedQuery);
-        const searchResult = await AnimeModel.find(generatedQuery)
-            .skip(limitPerPage * (currentPage - 1))
-            .limit(limitPerPage);
-
-        const totalPage = Math.round(totalResults / limitPerPage) < 1 ? 1 : Math.round(totalResults / limitPerPage);
-
-        console.log('result', searchResult.map((x) => x.toJSON()))
-
-        return {
-            currentPage,
-            totalPage,
-            limitPerPage,
-            totalResults,
-            hasNextPage: currentPage < totalPage,
-            hasPrevPage: currentPage >= 1 && currentPage < totalPage,
-            results: searchResult.map((animeMedia) => {
-                const sortedUpdate = animeMedia.updates.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-                const sortedUpdateRequest = animeMedia.updatesRequests.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-                return {
-                    ...animeMedia.toJSON(),
-                    lastRequestDate: sortedUpdateRequest[0].createdAt,
-                    lastUpdateDate: sortedUpdate[0].createdAt
-                }
-            })
-        };
-    }
-
-    @Mutation(_ => MediaUpdateOutput, { description: "Ajouter un (nouvel) anime (staff)" })
-    async addAnime(@Arg("data") dataInput: AnimeInput, @Arg("public") visible: boolean): Promise<MediaUpdateOutput> {
-        // if (user.roles.includes("STAFF")) {
-        //     return {
-        //         mediaType: MediaType.ANIME,
-        //         message: "Une erreur s'est produite.",
-        //         error: "Vous n'êtes pas autorisé.",
-        //     };
-        // }
-
-        try {
-            const animeInput = await new AnimeInput().init(dataInput);
-
-            const media = new AnimeModel({
-                updates: [{
-                    versionId: 1,
-                    data: animeInput,
-                    createdAt: new Date(),
-                    author: null,
-                    moderator: null
-                }],
-                updatesRequests: [],
-                public: visible
-            });
-
-            try { // Mettre la validation des médias supplémentaires ici persons, characters, etc...
-                await media.validate();
-            } catch (err: any) {
-                console.error(err);
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Les données saisies sont incorrectes.",
-                    error: err.toString()
-                };
-            }
-
-            try {
-                const savedMedia = await media.save();
-
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Votre ajout a bien été pris en compte.",
-                    id: savedMedia.pubId
-                };
-
-
-            } catch (err: any) {
-                console.error(err);
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Une erreur innatendu s'est produite.",
-                    error: "Un problème est survenue lors de la sauvegarde."
-                };
-            }
-
-        } catch (err: any) {
-            console.error(err);
-            return {
-                mediaType: MediaType.ANIME,
-                message: "Une erreur s'est produite",
-                error: err.toString(),
-            };
-        }
-    }
-
-    @Mutation(_ => MediaUpdateOutput, { description: "Modifier un Anime (staff)" })
-    async addAnimeUpdate(@Arg('animeId') id: number, @Arg("data") dataInput: AnimeInput): Promise<MediaUpdateOutput> {
-        // if (user.roles.includes("STAFF")) {
-        //     return {
-        //         mediaType: MediaType.ANIME,
-        //         message: "Une erreur s'est produite.",
-        //         error: "Vous n'êtes pas autorisé.",
-        //     };
-        // } 
-
-        try {
-
-
-
-            const findAnime = await AnimeModel.findOne({ id });
-
-            if (!findAnime) {
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Une erreur s'est produite.",
-                    error: "L'anime que vous voulez modifier n'existe pas.",
-                };
-            }
-
-            const animeInput = await new AnimeInput().init(dataInput);
-
-            findAnime?.updates?.push({
-                versionId: findAnime.updates.length + 1,
-                data: animeInput,
-                createdAt: new Date(),
-                author: 0,
-                moderator: 0,
-                public: false,
-            })
-
-            try {
-                await findAnime.validate();
-            } catch (err: any) {
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Les données saisies sont incorrectes.",
-                    error: err.toString()
-                };
-            }
-
-
-            try {
-                const savedMedia = await findAnime.save();
-
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Votre modification a bien été pris en compte.",
-                    id: savedMedia.pubId
-                };
-            } catch (err: any) {
-                console.error(err);
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Une erreur innatendu s'est produite.",
-                    error: "Une erreur est survenue lors de la sauvegarde."
-                };
-            }
-        } catch (err: any) {
-            console.error(err);
-            return {
-                mediaType: MediaType.ANIME,
-                message: "Il y a un problème...",
-                error: err.toString()
-            };
-        }
-    }
-
-    @Mutation(_ => MediaUpdateOutput, { description: "Faire une modification sur une demande de modification (existante)" })
-    async editAnimeUpdate(@Arg('animeId') id: number, @Arg('updateId') versionId: number, @Arg("data") dataInput: AnimeInput): Promise<MediaUpdateOutput> {
-        try {
-
-            // if (user.roles.includes("STAFF")) {
-            //     return {
-            //         mediaType: MediaType.ANIME,
-            //         message: "Une erreur s'est produite.",
-            //         error: "Vous n'êtes pas autorisé.",
-            //     };
-            // }
-
-            const findAnime = await AnimeModel.findOne({ id });
-
-            if (!findAnime) {
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Une erreur s'est produite.",
-                    error: "L'anime que vous voulez modifier n'existe pas.",
-                };
-            }
-
-            if (!findAnime.updatesRequests) {
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Une erreur s'est produite.",
-                    error: "Vous n'êtes pas autorisé.",
-                }
-            }
-
-            const findVersion = findAnime.updatesRequests?.find(r => r.versionId === versionId);
-
-            if (!findVersion) {
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Une erreur s'est produite.",
-                    error: "La version que vous voulez modifier n'existe pas.",
-                };
-            }
-
-            if (!findVersion.acceptNewUpdateFromAuthor) {
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Une erreur s'est produite.",
-                    error: "Vous n'êtes pas autorisé.",
-                };
-            }
-
-
-            // if (findVersion.author !== user.pubId) {
-            //     return {
-            //         mediaType: MediaType.ANIME,
-            //         message: "Une erreur s'est produite.",
-            //         error: "Vous n'êtes pas autorisé.",
-            //     };
-            // }
-
-
-            const versionUpdate = await new AnimeInput().init(dataInput);
-
-            findVersion.createdAt = new Date();
-            findVersion.status = "NEW_UPDATE_FROM_AUTHOR";
-            findVersion.data = {
-                ...versionUpdate
-            }
-
-            findVersion.acceptNewUpdateFromAuthor = false;
-
-            findAnime.updatesRequests = [
-                findVersion,
-                ...findAnime.updatesRequests.filter(u => u.versionId !== versionId)
-            ]
-
-            try {
-                await findAnime.validate();
-            } catch (err: any) {
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Les données saisies sont incorrectes.",
-                    error: err.toString()
-                };
-            }
-
-            try {
-                const savedMedia = await findAnime.save();
-
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Votre modification sur la précédente demande de modification a bien été pris en compte.",
-                    id: savedMedia.pubId
-                };
-            } catch (err: any) {
-                console.error(err);
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Une erreur innatendu s'est produite.",
-                    error: "Contactez le support si cette erreur ce repproduit a plusieurs reprise - S: editAnimeUpdateRequest"
-                };
-            }
-        } catch (err: any) {
-            console.error(err);
-            return {
-                mediaType: MediaType.ANIME,
-                message: "Il y a un problème...",
-                error: err.toString()
-            };
-        }
     }
 
 
+    // @Mutation(_ => MediaUpdateOutput, { description: "Demande d'ajout d'un (nouvel) anime" })
+    // async createAnimeRequest(
+    //     @Arg("data", _ => AnimeInput) dataInput: AnimeInput,
+    //     @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
+    // ): Promise<MediaUpdateOutput> {
 
-    @Mutation(_ => MediaUpdateOutput, { description: "Faire une demande (d'ajout) d'un (nouvel) anime" })
-    async addAnimeRequest(@Arg("data") dataInput: AnimeInput): Promise<MediaUpdateOutput> {
-        try {
-            const animeInput = await new AnimeInput()
-                .init(dataInput);
+    //     const author = undefined;
 
-            const media = new AnimeModel({
-                updatesRequests: [{
-                    versionId: 1,
-                    data: animeInput,
-                    createdAt: new Date(),
-                    author: 0,
-                    status: 'UNVERIFIED',
-                    acceptNewUpdateFromAuthor: false
-                }],
-                updates: [],
-                public: false
-            }, { validateBeforeSave: true })
+    //     const animeInput = await new AnimeInput().init(dataInput, "request");
 
-            try {
-                await media.validate();
-            } catch (err: any) {
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Les données saisies sont incorrectes.",
-                    error: err.toString()
-                };
-            }
+    //     const request = await animeInput.createRequest({
+    //         label: "Anime",
+    //         action: "Demande d'ajout d'un Anime",
+    //         field: { author, moderator: author, visible: options.setUpdatePublic }
+    //     });
 
-            try {
-                const savedMedia = await media.save();
+    //     await request.model.validate();
 
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Votre demande a bien été pris en compte.",
-                    id: savedMedia.pubId
-                };
+    //     // Validation
+    //     await Promise.all(animeInput.mediasToSave.map(({ model }) => {
+    //         return model.save({ validateBeforeSave: false });
+    //     }))
 
-            } catch (err: any) {
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Une erreur innatendu s'est produite.",
-                    error: "Contactez le support si cette erreur ce repproduit a plusieurs reprise - S: addAnimeRequest"
-                };
-            }
+    //     return {
+    //         mediaType: MediaType.ANIME,
+    //         message: "La demande a bien été crée.",
+    //         pubId: request.model.pubId
+    //     }
+    // }
 
-        } catch (err: any) {
-            console.error(err);
-            return {
-                mediaType: MediaType.ANIME,
-                message: "Il y a un problème...",
-                error: err.toString()
-            };
-        }
-    }
+    // @Mutation(_ => MediaUpdateOutput, { description: "Modification d'un Anime" })
+    // async updateAnime(
+    //     @Arg('animeToUpdate') mediaToUpdate: string,
+    //     @Arg('versionToUpdate', { nullable: true, description: "Modifier une précédente modification" }) versionToUpdate: number,
+    //     @Arg("data", _ => AnimeInput) dataInput: AnimeInput,
+    //     @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
+    // ): Promise<MediaUpdateOutput> {
 
-    @Mutation(_ => MediaUpdateOutput, { description: "Faire une modification sur une demande de modification (existante)" })
-    async editAnimeUpdateRequest(@Arg('animeId') id: number, @Arg('updateRequestId') versionId: number, @Arg("data") dataInput: AnimeInput): Promise<MediaUpdateOutput> {
-        try {
-            const findAnime = await AnimeModel.findOne({ id });
+    //     const author = undefined;
 
-            if (!findAnime) {
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Une erreur s'est produite.",
-                    error: "L'anime que vous voulez modifier n'existe pas.",
-                };
-            }
+    //     const animeInput = await new AnimeInput().init(dataInput, "direct_update");
 
-            if (!findAnime.updatesRequests) {
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Une erreur s'est produite.",
-                    error: "Vous n'êtes pas autorisé.",
-                }
-            }
+    //     const update = await animeInput.createUpdate({
+    //         mediaToUpdate,
+    //         versionToUpdate,
+    //         public: options.setMediaPublic,
+    //         label: "Anime",
+    //         action: "Modification d'un Anime",
+    //         field: {
+    //             author,
+    //             moderator: author,
+    //             visible: options.setUpdatePublic
+    //         }
+    //     });
 
-            const findVersion = findAnime.updatesRequests?.find(r => r.versionId === versionId);
+    //     await update.model.validate();
 
-            if (!findVersion) {
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Une erreur s'est produite.",
-                    error: "La version que vous voulez modifier n'existe pas.",
-                };
-            }
+    //     // Validation
+    //     await Promise.all(animeInput.mediasToSave.map(({ model }) => {
+    //         return model.save({ validateBeforeSave: false });
+    //     }))
 
-            if (!findVersion.acceptNewUpdateFromAuthor) {
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Une erreur s'est produite.",
-                    error: "Vous n'êtes pas autorisé.",
-                };
-            }
+    //     return {
+    //         mediaType: MediaType.ANIME,
+    //         message: "L'anime a bien été crée.",
+    //         pubId: update.model.pubId
+    //     }
+    // }
 
 
-            // if (findVersion.author !== user.pubId) {
-            //     return {
-            //         mediaType: MediaType.ANIME,
-            //         message: "Une erreur s'est produite.",
-            //         error: "Vous n'êtes pas autorisé.",
-            //     };
-            // }
 
+    // @Mutation(_ => MediaUpdateOutput, { description: "Demande de Modification d'un Anime" })
+    // async requestAnimeUpdate(
+    //     @Arg('animeToUpdate') mediaToUpdate: string,
+    //     @Arg('versionToUpdate', { nullable: true, description: "Modifier une précédente modification" }) versionToUpdate: number,
+    //     @Arg("data", _ => AnimeInput) dataInput: AnimeInput,
+    //     @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
+    // ): Promise<MediaUpdateOutput> {
 
-            const versionUpdate = await new AnimeInput().init(dataInput);
+    //     const author = undefined;
 
-            findVersion.createdAt = new Date();
-            findVersion.status = "NEW_UPDATE_FROM_AUTHOR";
-            findVersion.data = {
-                ...versionUpdate
-            }
+    //     const animeInput = await new AnimeInput().init(dataInput, "request");
 
-            findVersion.acceptNewUpdateFromAuthor = false;
+    //     const request = await animeInput.createRequest({
+    //         mediaToUpdate,
+    //         versionToUpdate,
+    //         public: options.setMediaPublic,
+    //         label: "Anime",
+    //         action: "Demande de Modification d'un Anime",
+    //         field: {
+    //             author,
+    //             moderator: author,
+    //             visible: options.setUpdatePublic
+    //         }
+    //     });
 
-            findAnime.updatesRequests = [
-                findVersion,
-                ...findAnime.updatesRequests.filter(u => u.versionId !== versionId)
-            ]
+    //     await request.model.validate();
 
-            try {
-                await findAnime.validate();
-            } catch (err: any) {
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Les données saisies sont incorrectes.",
-                    error: err.toString()
-                };
-            }
+    //     // Validation
+    //     await Promise.all(animeInput.mediasToSave.map(({ model }) => {
+    //         return model.save({ validateBeforeSave: false });
+    //     }))
 
-            try {
-                const savedMedia = await findAnime.save();
-
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Votre modification sur la précédente demande de modification a bien été pris en compte.",
-                    id: savedMedia.pubId
-                };
-            } catch (err: any) {
-                console.error(err);
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Une erreur innatendu s'est produite.",
-                    error: "Contactez le support si cette erreur ce repproduit a plusieurs reprise - S: editAnimeUpdateRequest"
-                };
-            }
-        } catch (err: any) {
-            console.error(err);
-            return {
-                mediaType: MediaType.ANIME,
-                message: "Il y a un problème...",
-                error: err.toString()
-            };
-        }
-    }
-
-    @Mutation(_ => MediaUpdateOutput, { description: "Faire une demande de (modification) sur un Anime (existant)" })
-    async addAnimeUpdateRequest(@Arg('animeId') id: number, @Arg("data") dataInput: AnimeInput): Promise<MediaUpdateOutput> {
-        try {
-            const findAnime = await AnimeModel.findOne({ id });
-
-            if (!findAnime) {
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Une erreur s'est produite.",
-                    error: "L'anime que vous voulez modifier n'existe pas.",
-                };
-            }
-
-            const animeInput = await new AnimeInput().init(dataInput);
-
-            findAnime?.updatesRequests?.push({
-                versionId: findAnime.updatesRequests.length + 1,
-                data: animeInput,
-                createdAt: new Date(),
-                status: 'UNVERIFIED',
-                acceptNewUpdateFromAuthor: false,
-                author: 0
-            })
-
-            try {
-                await findAnime.validate();
-            } catch (err: any) {
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Les données saisies sont incorrectes.",
-                    error: err.toString()
-                };
-            }
-
-            try {
-                const savedMedia = await findAnime.save();
-
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Votre demande de modification a bien été pris en compte.",
-                    id: savedMedia.pubId
-                };
-            } catch (err: any) {
-                console.error(err);
-                return {
-                    mediaType: MediaType.ANIME,
-                    message: "Une erreur innatendu s'est produite.",
-                    error: "Contactez le support si cette erreur ce repproduit a plusieurs reprise - S: addAnimeUpdateRequest"
-                };
-            }
-
-        } catch (err: any) {
-            console.error(err);
-            return {
-                mediaType: MediaType.ANIME,
-                message: "Il y a un problème...",
-                error: err.toString()
-            };
-        }
-    }
-
+    //     return {
+    //         mediaType: MediaType.ANIME,
+    //         message: "L'anime a bien été crée.",
+    //         pubId: request.model.pubId
+    //     }
+    // }
 }

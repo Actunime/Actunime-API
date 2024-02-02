@@ -1,0 +1,32 @@
+[
+    {
+        "label": "En cours",
+        "value": "AIRING",
+        "description": "L'anime est actuellement en cours de diffusion."
+    },
+    {
+        "label": "En pause",
+        "value": "PAUSED",
+        "description": "La diffusion de l'anime est temporairement interrompue."
+    },
+    {
+        "label": "Terminé",
+        "value": "ENDED",
+        "description": "L'anime a terminé sa diffusion."
+    },
+    {
+        "label": "Arrêté",
+        "value": "STOPPED",
+        "description": "La diffusion de l'anime a été arrêtée avant la fin prévue."
+    },
+    {
+        "label": "Reporté",
+        "value": "POSTONED",
+        "description": "La diffusion de l'anime a été reportée à une date ultérieure."
+    },
+    {
+        "label": "Bientôt",
+        "value": "COMMING_SOON",
+        "description": "L'anime commencera à être diffusé prochainement."
+    }
+]
