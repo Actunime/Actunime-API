@@ -1,18 +1,18 @@
 import { Arg, Authorized, Info, Mutation, Query, Resolver } from "type-graphql";
 import { MediaSearchLogic, Pagination } from "../../utils";
-import { AnimeMedia, AnimeModel, AnimePaginationOutput } from "./_anime.model";
-import { Anime, AnimeSearchQuery } from "./_anime.type";
+import { MangaMedia, MangaModel, MangaPaginationOutput } from "./_manga.model";
+import { Manga, MangaSearchQuery } from "./_manga.type";
 import { fieldsProjection } from 'graphql-fields-list'
 import { PaginationQuery } from "../../utils/_pagination";
-import { AnimeInput } from "./_anime.input";
+import { MangaInput } from "./_manga.input";
 import { IUserRoles } from "../users/_user.type";
 
 
-@Resolver(Anime)
-export class AnimeResolver {
+@Resolver(Manga)
+export class MangaResolver {
 
-    @Query(_return => Anime, { nullable: true })
-    async getAnime(@Arg("id", () => String) id: string, @Info() info: any) {
+    @Query(_return => Manga, { nullable: true })
+    async getManga(@Arg("id", () => String) id: string, @Info() info: any) {
 
         const projection = info ?
             Object.fromEntries(
@@ -22,14 +22,14 @@ export class AnimeResolver {
 
         console.log(projection)
 
-        const findAnime = await AnimeModel.findOne({ id }, { id: 1, ...projection }).lean();
+        const findManga = await MangaModel.findOne({ id }, { id: 1, ...projection }).lean();
 
-        console.log('getAnime', findAnime);
+        console.log('getManga', findManga);
         // TODO: check le statut (public ou non etc...)
-        if (findAnime && findAnime.data) {
+        if (findManga && findManga.data) {
 
             console.log("CA RETOURNE")
-            const { id, data } = findAnime;
+            const { id, data } = findManga;
 
             return data;
 
@@ -39,14 +39,14 @@ export class AnimeResolver {
 
     }
 
-    @Query(_returns => AnimePaginationOutput, { nullable: true })
-    async searchAnimes(
+    @Query(_returns => MangaPaginationOutput, { nullable: true })
+    async searchMangas(
 
         @Arg("pagination", () => Pagination, { nullable: true })
         pagination: Pagination | null,
 
-        @Arg("searchQuery", () => AnimeSearchQuery, { nullable: true })
-        searchQuery: AnimeSearchQuery | null,
+        @Arg("searchQuery", () => MangaSearchQuery, { nullable: true })
+        searchQuery: MangaSearchQuery | null,
 
         @Arg("searchLogic", () => MediaSearchLogic, { nullable: true, defaultValue: 'OR' })
         searchLogic: MediaSearchLogic,
@@ -54,11 +54,11 @@ export class AnimeResolver {
         @Info()
         info: any
 
-    ): Promise<AnimePaginationOutput | null> {
+    ): Promise<MangaPaginationOutput | null> {
 
-        console.log('searchAnimes');
+        console.log('searchMangas');
 
-        const queryGen = AnimeModel.find();
+        const queryGen = MangaModel.find();
         // .find({ data: { $ne: null } });
 
         console.log('searchQuery', searchQuery)
@@ -68,35 +68,35 @@ export class AnimeResolver {
 
 
         return PaginationQuery({
-            model: AnimeModel,
+            model: MangaModel,
             paginationQuery: pagination,
             filter: queryGen.getQuery(),
             info,
-            customProjection: searchQuery ? AnimeSearchQuery.genProjection(searchQuery) : {}
+            customProjection: searchQuery ? MangaSearchQuery.genProjection(searchQuery) : {}
         });
     }
 
-    @Query(_returns => AnimeMedia, { nullable: true })
-    async getFullAnime(@Arg("id", () => String) id: String) {
+    @Query(_returns => MangaMedia, { nullable: true })
+    async getFullManga(@Arg("id", () => String) id: String) {
 
-        const findAnime = await AnimeModel.findOne({ id }).lean();
+        const findManga = await MangaModel.findOne({ id }).lean();
 
-        console.log('getFullAnime', findAnime, id);
+        console.log('getFullManga', findManga, id);
 
-        if (findAnime) {
-            const sortedUpdate = findAnime.updates?.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-            // const sortedUpdateRequest = findAnime.requests?.sort(sortByCreatedAt);
+        if (findManga) {
+            const sortedUpdate = findManga.updates?.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+            // const sortedUpdateRequest = findManga.requests?.sort(sortByCreatedAt);
 
-            return findAnime
+            return findManga
         } else {
             return null;
         }
     }
 
-    @Mutation(_ => Anime, { description: "Ajouter un (nouvel) anime (staff)" })
-    async createAnime(@Arg("data", _ => AnimeInput) dataInput: AnimeInput) {
+    @Mutation(_ => Manga, { description: "Ajouter un (nouvel) manga (staff)" })
+    async createManga(@Arg("data", _ => MangaInput) dataInput: MangaInput) {
 
-        const update = await AnimeInput.createUpdate(
+        const update = await MangaInput.createUpdate(
             dataInput, 'direct_update', {
             author: '',
             verifiedBy: ''
@@ -111,12 +111,12 @@ export class AnimeResolver {
     }
 
     @Authorized<IUserRoles>(IUserRoles['ADMIN'])
-    async updateAnime(
+    async updateManga(
         @Arg("id", () => String) id: string,
-        @Arg("data", _ => AnimeInput) dataInput: AnimeInput
+        @Arg("data", _ => MangaInput) dataInput: MangaInput
     ) {
 
-        const update = await AnimeInput.createUpdate(dataInput, 'direct_update', {
+        const update = await MangaInput.createUpdate(dataInput, 'direct_update', {
             author: '',
             verifiedBy: ''
         });

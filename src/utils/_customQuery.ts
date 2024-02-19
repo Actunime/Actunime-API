@@ -12,7 +12,7 @@ export function searchMediaByTitle<T extends ClassType>(this: types.QueryHelperT
             { "data.title.default": searchIncludesName },
             { "data.title.romaji": searchIncludesName },
             { "data.title.native": searchIncludesName },
-            { "data.title.alias": searchIncludesName },
+            { "data.title.alias": { $in: [searchIncludesName] } },
         ]
     })
 }

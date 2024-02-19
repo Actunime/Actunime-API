@@ -3,6 +3,9 @@ import { AnimeInput } from './medias/animes/_anime.input';
 import { MediaPersonGender } from './utils/_media.types';
 import { CompanyLabel } from './medias/companys/_company.type';
 import { DefaultAnimeFormatEnum, DefaultSourceEnum, DefaultStatusEnum } from './medias/defaultData';
+import { AnimeModel } from './medias/animes';
+import { PersonrRoleRelationLabel } from './medias/persons/_person.type';
+import { CharacterRelationLabel, TrackLabelRelation } from './medias';
 
 
 export async function createFakeData() {
@@ -11,9 +14,18 @@ export async function createFakeData() {
 
     try {
         let FakeData = await AnimeInput.createUpdate({
+            groupe: {
+                // exist: {
+                //     id: "2d2vq",
+                // }
+                new: {
+                    name: "Kimetsu no Yaiba"
+                }
+            },
             title: {
-                romaji: "Kimetsu No Yaiba TEST",
-                native: "鬼滅の刃"
+                romaji: "Kimetsu no Yaiba",
+                native: "鬼滅の刃",
+                alias: ['kny']
             },
             synopsis: "Tanjirō Kamado mène une vie paisible, quoique modeste, avec sa famille jusqu'au jour où les siens sont massacrés alors qu'il est descendu en ville vendre du charbon. Seule Nezuko, sa petite sœur, survit, mais elle est transformée en démon. Pour Tanjirō commence un long périple afin de trouver un remède permettant de faire retrouver une forme humaine à sa sœur.",
             date: {
@@ -61,7 +73,7 @@ export async function createFakeData() {
             ],
             staffs: {
                 news: [{
-                    label: 'Producteur',
+                    label: PersonrRoleRelationLabel.PRODUCTEUR,
                     data: {
                         name: {
                             first: 'Kondou',
@@ -75,19 +87,20 @@ export async function createFakeData() {
             },
             characters: {
                 news: [{
+                    label: CharacterRelationLabel.Principal,
                     data: {
                         name: {
                             first: 'Tanjirou',
                             end: 'Kamado',
                             alias: ['竈門 炭治郎']
                         },
-                        gender: MediaPersonGender['HOMME'],
+                        gender: MediaPersonGender['MAN'],
                         bio: "Tanjirou Kamado est le protagoniste principale de Demon Slayer, il est devenu un chasseur de démon et a rejoint un groupe de chasseur de démon dans le but de venger sa famille et de pouvoir guérrir sa soeur.",
                         image: "https://cdn.myanimelist.net/images/characters/6/386735.jpg",
                         actors: {
                             news: [
                                 {
-                                    label: 'Perso',
+                                    label: PersonrRoleRelationLabel.DOUBLAGE_SEIYU,
                                     data: {
                                         name: {
                                             first: 'Hanae',
@@ -104,11 +117,12 @@ export async function createFakeData() {
             },
             tracks: {
                 news: [{
+                    label: TrackLabelRelation.OPENING,
                     data: {
                         name: 'Gurenge',
                         artists: {
                             news: [{
-                                label: '',
+                                label: PersonrRoleRelationLabel.CHANTEUSE,
                                 data: {
                                     name: {
                                         alias: ['LISA']
@@ -122,11 +136,17 @@ export async function createFakeData() {
 
                 }]
             }
-        }, 'direct_update', true)
+        }, 'direct_update', {
+            author: '2cpw6'
+        })
 
-        // let modifed = await FakeData
-        //     .save();
+        let modifed = await FakeData
+            .save();
 
+        let test = await AnimeModel.find()
+        console.log(test.map(t => t.toJSON().rawData))
+
+        // await AnimeModel.deleteMany({"data.source.origine": "Manga"})
         // await modifed.populate('data.characters.vData data.companys.vData data.staffs.vData data.tracks.vData');
 
         // let start = Date.now();

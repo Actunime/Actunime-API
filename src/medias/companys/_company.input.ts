@@ -1,10 +1,10 @@
 
 import { Field, InputType } from "type-graphql";
 import { MediaLinkInput } from "../../utils/_media.types";
-import { MediaUpdateOptionArg } from "../../utils/_media.update";
 import { Company, CompanyLabel, CompanyRelation } from "./_company.type";
 import { CompanyModel } from "./_company.model";
-import { MediaDoc, createUpdate } from "../../utils/_createUpdate";
+import { MediaDoc, UpdateParams, createUpdate } from "../../utils/_createUpdate";
+import { MediaRequiredFields } from "../../utils/_media.base";
 
 
 
@@ -22,30 +22,33 @@ export class CompanyInput implements Partial<Company> {
     @Field()
     createdDate?: Date
 
-    static createUpdate(props: CompanyInput, action: "request" | "direct_update", visible: boolean) {
+    static createUpdate(props: CompanyInput, action: "request" | "direct_update", params: Omit<UpdateParams<Company>, 'db' | 'changes'>) {
 
         const db = CompanyModel;
-        let docToSaveWith: MediaDoc[] = [];
+        let docToSaveWith: MediaDoc<any>[] = [];
 
-        let media: Company = { ...props };
+        let changes: Omit<Company, MediaRequiredFields> = { ...props };
 
         if (action === 'direct_update') {
-            return createUpdate<Company>({ media, db, visible, docToSaveWith })
+            return createUpdate<Omit<Company, MediaRequiredFields>>({ changes, db, docToSaveWith, ...params })
         } else {
-            return createUpdate<Company>({ media, db, visible, docToSaveWith })
+            return createUpdate<Omit<Company, MediaRequiredFields>>({ changes, db, docToSaveWith, ...params })
         }
     }
 
-    static InitFromRelation(props: CompanyRelationFields, action: "request" | "direct_update", addModel: (m: MediaDoc[]) => void) {
+    static InitFromRelation(props: CompanyRelationFields, action: "request" | "direct_update", addModel: (m: MediaDoc<any>[]) => void, params: Omit<UpdateParams<Company>, 'db' | 'changes'>) {
 
         let relationOutput: CompanyRelation[] = [];
 
         if (props.news) {
             for (const relation of props.news) {
-                const update = this.createUpdate(relation.data, action, relation.options?.visible === undefined ? true : false);
+                const update = this.createUpdate(relation.data, action, {
+                    author: '',
+                    verifiedBy: ''
+                });
                 let model = update.returnModels()
                 relationOutput.push({
-                    pubId: model[0].pubId,
+                    id: model[0].id,
                     data: null
                 })
                 addModel(model)
@@ -55,7 +58,7 @@ export class CompanyInput implements Partial<Company> {
         if (props.exists) {
             for (const relation of props.exists) {
                 relationOutput.push({
-                    pubId: relation.pubId,
+                    id: relation.id,
                     data: null
                 })
             }
@@ -69,14 +72,12 @@ export class CompanyInput implements Partial<Company> {
 class CompanyRelationAddInput {
     @Field(_ => CompanyInput)
     data!: CompanyInput;
-    @Field(_ => MediaUpdateOptionArg, { nullable: true })
-    options?: MediaUpdateOptionArg
 }
 
 @InputType({ description: "Relation Company, ajouter une société a un nouveau media." })
 class CompanyRelationExistInput {
     @Field(_ => String)
-    pubId!: string;
+    id!: string;
 }
 
 @InputType()

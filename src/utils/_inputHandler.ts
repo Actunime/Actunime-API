@@ -43,7 +43,7 @@
 //         let model: MediaDoc<IMediaFormat<TMedia, IMediaUpdates<TMedia>, IMediaRequests<TMedia>>>;
 
 //         if (options.mediaToUpdate) {
-//             const findAnime = await this.db.findOne({ pubId: options.mediaToUpdate });
+//             const findAnime = await this.db.findOne({ id: options.mediaToUpdate });
 //             if (!findAnime) throw `L'anime avec l'identifiant ${options.mediaToUpdate} que vous voulez modifié n'existe pas.`;
 //             model = findAnime;
 //         } else {
@@ -102,14 +102,14 @@
 //             this.mediasToSave.push({
 //                 label: options.label,
 //                 action: options.action,
-//                 id: model.pubId,
+//                 id: model.id,
 //                 model
 //             })
 
 //             return {
 //                 label: options.label,
 //                 action: options.action,
-//                 id: model.pubId,
+//                 id: model.id,
 //                 model
 //             };
 
@@ -125,7 +125,7 @@
 //         let model: MediaDoc<IMediaFormat<TMedia, IMediaUpdates<TMedia>, IMediaRequests<TMedia>>>;
 
 //         if (options.mediaToUpdate) {
-//             const findAnime = await this.db.findOne({ pubId: options.mediaToUpdate });
+//             const findAnime = await this.db.findOne({ id: options.mediaToUpdate });
 //             if (!findAnime) throw `L'anime avec l'identifiant ${options.mediaToUpdate} que vous voulez modifié n'existe pas.`;
 //             model = findAnime;
 //         } else {
@@ -188,14 +188,14 @@
 //             this.mediasToSave.push({
 //                 label: options.label,
 //                 action: options.action,
-//                 id: model.pubId,
+//                 id: model.id,
 //                 model
 //             })
 
 //             return {
 //                 label: options.label,
 //                 action: options.action,
-//                 id: model.pubId,
+//                 id: model.id,
 //                 model
 //             };
 

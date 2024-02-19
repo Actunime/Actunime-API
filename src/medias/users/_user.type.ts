@@ -1,14 +1,19 @@
-
-import { Field, InputType, ObjectType } from "type-graphql";
-import { Prop, modelOptions, getModelForClass } from "@typegoose/typegoose";
-// import { PaginationOutput } from "../../utils/_media.pagination";
+import { Authorized, ClassType, Field, InputType, ObjectType, registerEnumType } from "type-graphql";
+import { MediaSearchLogic } from "../../utils/_media.types";
+import { FilterQuery } from "mongoose";
+import { ModelOptions, Prop, QueryMethod, types } from "@typegoose/typegoose";
 
 export enum IUserRoles {
     ACTUNIME = "ACTUNIME",
-    ADMINISTRATEUR = "ADMINISTRATEUR",
+    ADMIN = "ADMIN",
     MODERATEUR = "MODERATEUR",
     MEMBRE = "MEMBRE"
 }
+
+registerEnumType(IUserRoles, {
+    name: "IUserRoles",
+    description: "Type d'utilisateur"
+})
 
 @ObjectType()
 class IUserImages {
@@ -22,109 +27,148 @@ class IUserImages {
 }
 
 
-@ObjectType({ description: "Format Media dans la base de données" })
-@modelOptions({ options: { customName: "User" } })
+@InputType()
+export class UserSearchQuery {
+
+    @Field({ nullable: true })
+    username!: string;
+
+    @Field({ nullable: true })
+    displayName?: string;
+
+    @Field(_ => [IUserRoles], { nullable: true })
+    roles!: IUserRoles[];
+
+    @Field(_ => Number, { nullable: true })
+    lastActivitySinceSeconds!: number;
+
+    static queryParse(this: types.QueryHelperThis<ClassType<User>, CustomQuery>, props: UserSearchQuery, logic: MediaSearchLogic) {
+
+        console.log('qprops', props);
+
+        let query: FilterQuery<User>[] = [];
+        const excludesKeyFromAuto: (keyof typeof props)[] = ['lastActivitySinceSeconds']
+
+        for (const key in props) {
+            if (excludesKeyFromAuto.includes(key as any))
+                continue;
+            if (Object.prototype.hasOwnProperty.call(props, key)) {
+                const value = props[key as keyof typeof props];
+                if (Array.isArray(value))
+                    for (let i = 0; i < value.length; i++)
+                        query.push({ [key]: { $regex: value[i], $options: 'i' } })
+                else
+                    query.push({ [key]: { $regex: value, $options: 'i' } })
+            }
+        }
+
+        if (props.lastActivitySinceSeconds) {
+            const lastSince = new Date(Date.now() - props.lastActivitySinceSeconds * 1000)
+            query.push({ 'lastActivity': { $gte: lastSince } })
+        }
+
+        switch (logic) {
+            case MediaSearchLogic.OR:
+                if (query.length) this.or(query)
+                break;
+
+            case MediaSearchLogic.AND:
+                if (query.length) this.and(query)
+                break;
+
+            default:
+                if (query.length) this.or(query)
+                break;
+        }
+
+        console.log('query', this.getQuery())
+
+        return this;
+    }
+
+    static genProjection(props: UserSearchQuery) {
+        let projections: { [key: string]: any } = {};
+
+        return projections;
+    }
+
+}
+
+export interface CustomQuery {
+    queryParse: types.AsQueryMethod<typeof UserSearchQuery.queryParse>;
+}
+
+@ObjectType({ description: "User" })
+@ModelOptions({ schemaOptions: { _id: false } })
+class UserAccount {
+    @Prop()
+    providerAccountId!: string
+    @Prop()
+    provider!: string
+    @Prop()
+    type!: string
+}
+
+class UserSession {
+    @Prop()
+    sessionToken!: string
+    @Prop()
+    expires!: Date
+    @Prop()
+    device?: string
+}
+
+
+/** User type */
+@QueryMethod(UserSearchQuery.queryParse)
+@ObjectType({ description: "User" })
+@ModelOptions({ schemaOptions: { _id: false, id: false, toJSON: { virtuals: true }, timestamps: true } })
 export class User {
 
     @Field()
     @Prop()
     id!: string;
 
-    @Field()
-    @Prop()
-    pubId!: string;
-
-    @Field()
+    //! Privé non servi par gql
     @Prop()
     email!: string;
 
-    @Field()
+    @Field({ nullable: true })
     @Prop()
     username!: string;
 
-    @Field()
-    @Prop()
-    discordID?: string;
-
-    @Field()
+    @Field({ nullable: true })
     @Prop()
     displayName?: string;
 
-    @Field()
+    @Field({ nullable: true })
     @Prop()
     bio?: string;
 
-    @Field(type => [IUserRoles])
+    @Field(type => [IUserRoles], { nullable: true })
     @Prop({ type: [String] })
     roles!: IUserRoles[];
 
-    @Field(type => IUserImages)
+    @Field(type => IUserImages, { nullable: true })
     @Prop({ type: IUserImages })
     image?: IUserImages;
 
-    @Field()
+    //! Privé non servi par gql
+    @Prop({ type: [UserAccount], default: undefined })
+    accounts?: UserAccount[]
+
+    //! Privé non servi par gql
+    @Prop({ type: [UserSession], default: undefined })
+    sessions?: UserSession[]
+
+    @Authorized(["admin", "moderateur"])
+    @Field({ nullable: true })
     @Prop()
-    updatedAt?: Date;
+    verified!: Date
 
-    @Field()
-    @Prop()
-    createdAt!: Date;
+    @Authorized(["admin", "moderateur"])
+    @Field(type => Date, { nullable: true })
+    @Prop({ type: Date })
+    // TODO: LastActivityAt ? c'est pas mieux ?
+    lastActivity?: Date;
 }
-
-
-// @ObjectType()
-// export class UserPaginationOutput extends PaginationOutput<User>(User) { }
-
-@InputType()
-export class UserSearchQuery {
-    @Field()
-    name!: string;
-}
-
-// @ObjectType()
-// export class UserRelation {
-//     @Field()
-//     @Prop()
-//     label!: string;
-//     @Field(_ => User)
-//     @Prop({ type: () => User, refPath: 'pubId', ref: 'User' })
-//     data?: string | User;
-// }
-
-// @InputType({ description: "Relation User, ajouter une nouvelle société en même temps qu'un nouveau media." })
-// class UserRelationAddInput {
-//     @Field(_ => UserInput)
-//     data!: UserInput;
-//     @Field()
-//     label!: string;
-//     @Field(_ => MediaUpdateOptionArg, { nullable: true })
-//     options!: MediaUpdateOptionArg
-// }
-
-// @InputType({ description: "Relation User, ajouter une société a un nouveau media." })
-// class UserRelationExistInput {
-//     @Field(_ => String)
-//     pubId!: string;
-//     @Field()
-//     label!: string;
-// }
-
-// @InputType()
-// export class UserRelationFields {
-//     @Field(_ => [UserRelationAddInput])
-//     news!: UserRelationAddInput[]
-//     @Field(_ => [UserRelationExistInput])
-//     exists!: UserRelationExistInput[]
-// }
-
-
-// @Pre<UserMedia>('save', function (next) {
-//     this.data = genMediaFromUpdate<User>(this.updates.filter(u => u.visible));
-//     next()
-// })
-
-// @ObjectType({ description: "Format Media dans la base de données" })
-// @modelOptions({ options: { customName: "User" } })
-// export class UserMedia extends MediaFormat<User>(User, UserUpdates, UserRequests) { }
-
-export const UserModel = getModelForClass<typeof User>(User, { schemaOptions: { toJSON: { virtuals: true } } });

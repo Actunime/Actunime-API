@@ -67,9 +67,9 @@
 //         await Promise.all(updatesAndRequests.map(({ model }) => model.validate()))
 
 //         const checkExistCompanyRelation: Promise<CompanyRelation>[] = props.exists?.map(async (rel) => {
-//             const company = await CompanyModel.findOne({ pubId: rel.pubId });
-//             if (!company) throw `L'identifiant ${rel.pubId} n'existe pas.`;
-//             return { data: company.pubId }
+//             const company = await CompanyModel.findOne({ id: rel.id });
+//             if (!company) throw `L'identifiant ${rel.id} n'existe pas.`;
+//             return { data: company.id }
 //         }) || []
 
 //         const existPersonsIds: CompanyRelation[] = await Promise.all(checkExistCompanyRelation);
@@ -128,9 +128,9 @@
 //         await Promise.all(updatesAndRequests.map(({ model }) => model.validate()))
 
 //         const checkExistCharacterRelation: Promise<CharacterRelation>[] = props.exists?.map(async (rel) => {
-//             const character = await CharacterModel.findOne({ pubId: rel.pubId });
-//             if (!character) throw `L'identifiant ${rel.pubId} n'existe pas.`;
-//             return { data: character.pubId, label: rel.label }
+//             const character = await CharacterModel.findOne({ id: rel.id });
+//             if (!character) throw `L'identifiant ${rel.id} n'existe pas.`;
+//             return { data: character.id, label: rel.label }
 //         }) || []
 
 //         const existCharactersIds: CharacterRelation[] = await Promise.all(checkExistCharacterRelation);
@@ -190,9 +190,9 @@
 //         await Promise.all(updatesAndRequests.map(({ model }) => model.validate()))
 
 //         const checkExistTrackRelation: Promise<TrackRelation>[] = props.exists?.map(async (rel) => {
-//             const track = await TrackModel.findOne({ pubId: rel.pubId });
-//             if (!track) throw `L'identifiant ${rel.pubId} n'existe pas.`;
-//             return { data: track.pubId, label: rel.label, episodes: rel.episodes }
+//             const track = await TrackModel.findOne({ id: rel.id });
+//             if (!track) throw `L'identifiant ${rel.id} n'existe pas.`;
+//             return { data: track.id, label: rel.label, episodes: rel.episodes }
 //         }) || []
 
 //         const existTracksIds: TrackRelation[] = await Promise.all(checkExistTrackRelation);
@@ -250,9 +250,9 @@
 //         await Promise.all(updatesAndRequests.map(({ model }) => model.validate()))
 
 //         const checkExistPersonRelation: Promise<PersonRelation>[] = props.exists?.map(async (rel) => {
-//             const person = await PersonModel.findOne({ pubId: rel.pubId });
-//             if (!person) throw `L'identifiant ${rel.pubId} n'existe pas.`;
-//             return { data: person.pubId, label: rel.label }
+//             const person = await PersonModel.findOne({ id: rel.id });
+//             if (!person) throw `L'identifiant ${rel.id} n'existe pas.`;
+//             return { data: person.id, label: rel.label }
 //         }) || []
 
 //         const existPersonsIds: PersonRelation[] = await Promise.all(checkExistPersonRelation);

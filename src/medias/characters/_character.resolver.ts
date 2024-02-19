@@ -1,295 +1,130 @@
-// import { Arg, Mutation, Query, Resolver } from "type-graphql";
-// import { Character, CharacterMediaOutput, CharacterMediaPaginationOutput, CharacterModel, CharacterPaginationOutput, CharacterSearchQuery } from "./_character.type";
-// import { CharacterInput } from "./_character.input";
-// import { Pagination } from "../../utils/_media.pagination";
-// import { IMediaUpdates, MediaUpdateOptionArg, MediaUpdateOutput } from "../../utils/_media.update";
-// import { MediaType } from "../../utils/_media.types";
+import { Arg, Authorized, Info, Mutation, Query, Resolver } from "type-graphql";
+import { MediaSearchLogic, Pagination } from "../../utils";
+import { CharacterMedia, CharacterModel, CharacterPaginationOutput } from "./_character.model";
+import { Character, CharacterSearchQuery } from "./_character.type";
+import { fieldsProjection } from 'graphql-fields-list'
+import { PaginationQuery } from "../../utils/_pagination";
+import { CharacterInput } from "./_character.input";
+import { IUserRoles } from "../users/_user.type";
 
-// @Resolver(Character)
-// export class CharacterResolver {
 
-//     @Query(_return => Character, { nullable: true })
-//     async getCharacter(@Arg("id", () => String) id: string): Promise<Character | null> {
+@Resolver(Character)
+export class CharacterResolver {
 
-//         const findCharacter = await CharacterModel.findOne({ id }).select('data id');
+    @Query(_return => Character, { nullable: true })
+    async getCharacter(@Arg("id", () => String) id: string, @Info() info: any) {
 
-//         if (findCharacter && findCharacter.visible && findCharacter.data) {
+        const projection = info ?
+            Object.fromEntries(
+                Object.keys(
+                    Object.assign(fieldsProjection(info), { id: 1 })
+                ).map(key => [key.replace(key, 'data.' + key), 1])) : {};
 
-//             const { pubId: id, data } = findCharacter;
+        console.log(projection)
 
-//             return { id, ...data };
+        const findCharacter = await CharacterModel.findOne({ id }, { id: 1, ...projection }).lean();
 
-//         } else {
-//             return null;
-//         }
+        console.log('getCharacter', findCharacter);
+        // TODO: check le statut (public ou non etc...)
+        if (findCharacter && findCharacter.data) {
 
-//     }
+            console.log("CA RETOURNE")
+            const { id, data } = findCharacter;
 
-//     @Query(_returns => CharacterPaginationOutput, { nullable: true })
-//     async searchCharacters(
-//         @Arg("pagination", () => Pagination, { nullable: true }) pagination: Pagination | null,
-//         @Arg("searchQuery", () => CharacterSearchQuery, { nullable: true }) searchQuery: CharacterSearchQuery | null
-//     ): Promise<CharacterPaginationOutput> {
-//         let currentPage = pagination?.page || 1;
-//         let limitPerPage = pagination?.limit || 20;
+            return data;
 
-//         // Mise en place query
-//         let queryGen = CharacterModel.find({ data: { $ne: null } })
+        } else {
+            return null;
+        }
 
-//         if (searchQuery) {
+    }
 
-//             if (searchQuery.title)
-//                 queryGen
-//                     .searchMediaByTitle(searchQuery.title)
+    @Query(_returns => CharacterPaginationOutput, { nullable: true })
+    async searchCharacters(
 
-//         }
+        @Arg("pagination", () => Pagination, { nullable: true })
+        pagination: Pagination | null,
 
-//         queryGen.select('pubId data');
+        @Arg("searchQuery", () => CharacterSearchQuery, { nullable: true })
+        searchQuery: CharacterSearchQuery | null,
 
-//         // Mise en place pagination & résultats;
-
-//         const generatedQuery = queryGen.getQuery();
-//         const totalResults = await CharacterModel.countDocuments(generatedQuery);
-//         const searchResult = await CharacterModel.find(generatedQuery)
-//             .skip(limitPerPage * (currentPage - 1))
-//             .limit(limitPerPage);
-
-//         const totalPage = Math.round(totalResults / limitPerPage) < 1 ? 1 : Math.round(totalResults / limitPerPage);
-
-//         console.log('result', searchResult.map((x) => x.toJSON()))
-//         return {
-//             currentPage,
-//             totalPage,
-//             limitPerPage,
-//             totalResults,
-//             hasNextPage: currentPage < totalPage,
-//             hasPrevPage: currentPage >= 1 && currentPage < totalPage,
-//             results: searchResult.map((x) => ({ id: x.pubId, ...x.data as Character }))
-//         };
-//     }
-
-//     @Query(_returns => CharacterMediaOutput, { nullable: true })
-//     async getFullCharacter(@Arg("id", () => Number) id: number): Promise<CharacterMediaOutput | null> {
+        @Arg("searchLogic", () => MediaSearchLogic, { nullable: true, defaultValue: 'OR' })
+        searchLogic: MediaSearchLogic,
 
-//         const findCharacter = await CharacterModel.findOne({ id });
-
-//         if (findCharacter) {
-
-//             function sortByCreatedAt(a: IMediaUpdates<Character>, b: IMediaUpdates<Character>) {
-//                 if (!b.createdAt || !a.createdAt) return 0;
-//                 return b.createdAt.getTime() - a.createdAt.getTime()
-//             }
-
-//             const sortedUpdate = findCharacter.updates.sort(sortByCreatedAt);
-//             const sortedUpdateRequest = findCharacter.requests.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-
-//             return {
-//                 ...findCharacter.toJSON(),
-//                 data: findCharacter.data,
-//                 lastRequestDate: sortedUpdateRequest[0].createdAt,
-//                 lastUpdateDate: sortedUpdate[0].createdAt
-//             }
-
-//         } else {
-//             return null;
-//         }
-//     }
+        @Info()
+        info: any
 
-//     @Query(_returns => [CharacterMediaPaginationOutput], { nullable: true })
-//     async searchFullCharacter(
-//         @Arg("pagination", () => Pagination, { nullable: true }) pagination: Pagination | null,
-//         @Arg("searchQuery", () => CharacterSearchQuery, { nullable: true }) searchQuery: CharacterSearchQuery | null
-//     ): Promise<CharacterMediaPaginationOutput> {
-
-//         let currentPage = pagination?.page || 1;
-//         let limitPerPage = pagination?.limit || 20;
-
-//         // Mise en place query
-//         let queryGen = CharacterModel.find()
-
-//         if (searchQuery) {
-
-//             if (searchQuery.title)
-//                 queryGen
-//                     .searchMediaByTitle(searchQuery.title)
-
-//         }
-
-//         // Mise en place pagination & résultats;
-
-//         const generatedQuery = queryGen.getQuery();
-//         const totalResults = await CharacterModel.countDocuments(generatedQuery);
-//         const searchResult = await CharacterModel.find(generatedQuery)
-//             .skip(limitPerPage * (currentPage - 1))
-//             .limit(limitPerPage);
-
-//         const totalPage = Math.round(totalResults / limitPerPage) < 1 ? 1 : Math.round(totalResults / limitPerPage);
-
-//         console.log('result', searchResult.map((x) => x.toJSON()))
-
-//         function sortByCreatedAt(a: IMediaUpdates<Character>, b: IMediaUpdates<Character>) {
-//             if (!b.createdAt || !a.createdAt) return 0;
-//             return b.createdAt.getTime() - a.createdAt.getTime()
-//         }
-
-//         return {
-//             currentPage,
-//             totalPage,
-//             limitPerPage,
-//             totalResults,
-//             hasNextPage: currentPage < totalPage,
-//             hasPrevPage: currentPage >= 1 && currentPage < totalPage,
-//             results: searchResult.map((animeMedia) => {
-//                 const sortedUpdate = animeMedia.updates.sort(sortByCreatedAt);
-//                 const sortedUpdateRequest = animeMedia.requests.sort(sortByCreatedAt);
-//                 return {
-//                     ...animeMedia.toJSON(),
-//                     lastRequestDate: sortedUpdateRequest[0].createdAt,
-//                     lastUpdateDate: sortedUpdate[0].createdAt
-//                 }
-//             })
-//         };
-//     }
-
-//     @Mutation(_ => MediaUpdateOutput, { description: "Ajouter un nouveau Character" })
-//     async createCharacter(
-//         @Arg("data", _ => CharacterInput) dataInput: CharacterInput,
-//         @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
-//     )
-//         : Promise<MediaUpdateOutput> {
-
-//         const author = undefined;
-
-//         const characterInput = await new CharacterInput().init(dataInput, "direct_update");
-
-//         const update = await characterInput.createUpdate({
-//             label: "Character",
-//             action: "Création d'un Character",
-//             field: { author, moderator: author, visible: options.setUpdatePublic }
-//         });
-
-//         await update.model.validate();
-
-//         // Validation
-//         await Promise.all(characterInput.mediasToSave.map(({ model }) => {
-//             return model.save({ validateBeforeSave: false });
-//         }))
-
-//         return {
-//             mediaType: MediaType.CHARACTER,
-//             message: "Character a bien été crée.",
-//             pubId: update.model.pubId
-//         }
-//     }
-
-
-//     @Mutation(_ => MediaUpdateOutput, { description: "Demande d'ajout d'un nouveau Character" })
-//     async createCharacterRequest(
-//         @Arg("data", _ => CharacterInput) dataInput: CharacterInput,
-//         @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
-//     ): Promise<MediaUpdateOutput> {
-
-//         const author = undefined;
-
-//         const characterInput = await new CharacterInput().init(dataInput, "request");
-
-//         const request = await characterInput.createRequest({
-//             label: "Character",
-//             action: "Demande d'ajout d'un Character",
-//             field: { author, moderator: author, visible: options.setUpdatePublic }
-//         });
-
-//         await request.model.validate();
-
-//         // Validation
-//         await Promise.all(characterInput.mediasToSave.map(({ model }) => {
-//             return model.save({ validateBeforeSave: false });
-//         }))
-
-//         return {
-//             mediaType: MediaType.CHARACTER,
-//             message: "La demande a bien été crée.",
-//             pubId: request.model.pubId
-//         }
-//     }
-
-//     @Mutation(_ => MediaUpdateOutput, { description: "Modification d'un Character" })
-//     async updateCharacter(
-//         @Arg('characterToUpdate') mediaToUpdate: string,
-//         @Arg('versionToUpdate', { nullable: true, description: "Modifier une précédente modification" }) versionToUpdate: number,
-//         @Arg("data", _ => CharacterInput) dataInput: CharacterInput,
-//         @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
-//     ): Promise<MediaUpdateOutput> {
-
-//         const author = undefined;
-
-//         const characterInput = await new CharacterInput().init(dataInput, "direct_update");
-
-//         const update = await characterInput.createUpdate({
-//             mediaToUpdate,
-//             versionToUpdate,
-//             public: options.setMediaPublic,
-//             label: "Character",
-//             action: "Modification d'un Character",
-//             field: {
-//                 author,
-//                 moderator: author,
-//                 visible: options.setUpdatePublic
-//             }
-//         });
-
-//         await update.model.validate();
-
-//         // Validation
-//         await Promise.all(characterInput.mediasToSave.map(({ model }) => {
-//             return model.save({ validateBeforeSave: false });
-//         }))
-
-//         return {
-//             mediaType: MediaType.CHARACTER,
-//             message: "Character a bien été crée.",
-//             pubId: update.model.pubId
-//         }
-//     }
-
-
-
-//     @Mutation(_ => MediaUpdateOutput, { description: "Demande de Modification d'un Character" })
-//     async requestCharacterUpdate(
-//         @Arg('characterToUpdate') mediaToUpdate: string,
-//         @Arg('versionToUpdate', { nullable: true, description: "Modifier une précédente modification" }) versionToUpdate: number,
-//         @Arg("data", _ => CharacterInput) dataInput: CharacterInput,
-//         @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
-//     ): Promise<MediaUpdateOutput> {
-
-//         const author = undefined;
-
-//         const characterInput = await new CharacterInput().init(dataInput, "request");
-
-//         const request = await characterInput.createRequest({
-//             mediaToUpdate,
-//             versionToUpdate,
-//             public: options.setMediaPublic,
-//             label: "Character",
-//             action: "Demande de Modification d'un Character",
-//             field: {
-//                 author,
-//                 moderator: author,
-//                 visible: options.setUpdatePublic
-//             }
-//         });
-
-//         await request.model.validate();
-
-//         // Validation
-//         await Promise.all(characterInput.mediasToSave.map(({ model }) => {
-//             return model.save({ validateBeforeSave: false });
-//         }))
-
-//         return {
-//             mediaType: MediaType.CHARACTER,
-//             message: "Character a bien été crée.",
-//             pubId: request.model.pubId
-//         }
-//     }
-// }
+    ): Promise<CharacterPaginationOutput | null> {
+
+        console.log('searchCharacters');
+
+        const queryGen = CharacterModel.find();
+        // .find({ data: { $ne: null } });
+
+        console.log('searchQuery', searchQuery)
+
+        if (searchQuery)
+            queryGen.queryParse(searchQuery, searchLogic)
+
+
+        return PaginationQuery({
+            model: CharacterModel,
+            paginationQuery: pagination,
+            filter: queryGen.getQuery(),
+            info,
+            customProjection: searchQuery ? CharacterSearchQuery.genProjection(searchQuery) : {}
+        });
+    }
+
+    @Query(_returns => CharacterMedia, { nullable: true })
+    async getFullCharacter(@Arg("id", () => String) id: String) {
+
+        const findCharacter = await CharacterModel.findOne({ id }).lean();
+
+        console.log('getFullCharacter', findCharacter, id);
+
+        if (findCharacter) {
+            const sortedUpdate = findCharacter.updates?.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+            // const sortedUpdateRequest = findCharacter.requests?.sort(sortByCreatedAt);
+
+            return findCharacter
+        } else {
+            return null;
+        }
+    }
+
+    @Mutation(_ => Character, { description: "Ajouter un (nouvel) character (staff)" })
+    async createCharacter(@Arg("data", _ => CharacterInput) dataInput: CharacterInput) {
+
+        const update = await CharacterInput.createUpdate(
+            dataInput, 'direct_update', {
+            author: '',
+            verifiedBy: ''
+        }
+        );
+
+        let model = await update.save();
+
+        let json = model.toJSON();
+
+        return json.data
+    }
+
+    @Authorized<IUserRoles>(IUserRoles['ADMIN'])
+    async updateCharacter(
+        @Arg("id", () => String) id: string,
+        @Arg("data", _ => CharacterInput) dataInput: CharacterInput
+    ) {
+
+        const update = await CharacterInput.createUpdate(dataInput, 'direct_update', {
+            author: '',
+            verifiedBy: ''
+        });
+
+        let data = await update.addTo(id);
+
+        if (!data) return null;
+
+        return data.data;
+    }
+}

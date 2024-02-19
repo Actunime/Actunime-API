@@ -1,294 +1,130 @@
-// import { Arg, Mutation, Query, Resolver } from "type-graphql";
-// import { Person, PersonMediaOutput, PersonMediaPaginationOutput, PersonModel, PersonPaginationOutput } from "./_person.type";
-// import { PersonInput, PersonSearchQuery } from "./_person.input";
-// import { Pagination } from "../../utils/_media.pagination";
-// import { IMediaUpdates, MediaUpdateOptionArg, MediaUpdateOutput } from "../../utils/_media.update";
-// import { MediaType } from "../../utils/_media.types";
+import { Arg, Authorized, Info, Mutation, Query, Resolver } from "type-graphql";
+import { MediaSearchLogic, Pagination } from "../../utils";
+import { PersonMedia, PersonModel, PersonPaginationOutput } from "./_person.model";
+import { Person, PersonSearchQuery } from "./_person.type";
+import { fieldsProjection } from 'graphql-fields-list'
+import { PaginationQuery } from "../../utils/_pagination";
+import { PersonInput } from "./_person.input";
+import { IUserRoles } from "../users/_user.type";
 
-// @Resolver(Person)
-// export class PersonResolver {
 
-//     @Query(_return => Person, { nullable: true })
-//     async getPerson(@Arg("id", () => String) id: string): Promise<Person | null> {
+@Resolver(Person)
+export class PersonResolver {
 
-//         const findPerson = await PersonModel.findOne({ id }).select('data id');
+    @Query(_return => Person, { nullable: true })
+    async getPerson(@Arg("id", () => String) id: string, @Info() info: any) {
 
-//         if (findPerson && findPerson.visible && findPerson.data) {
+        const projection = info ?
+            Object.fromEntries(
+                Object.keys(
+                    Object.assign(fieldsProjection(info), { id: 1 })
+                ).map(key => [key.replace(key, 'data.' + key), 1])) : {};
 
-//             const { pubId: id, data } = findPerson;
+        console.log(projection)
 
-//             return { id, ...data };
+        const findPerson = await PersonModel.findOne({ id }, { id: 1, ...projection }).lean();
 
-//         } else {
-//             return null;
-//         }
+        console.log('getPerson', findPerson);
+        // TODO: check le statut (public ou non etc...)
+        if (findPerson && findPerson.data) {
 
-//     }
+            console.log("CA RETOURNE")
+            const { id, data } = findPerson;
 
-//     @Query(_returns => PersonPaginationOutput, { nullable: true })
-//     async searchPersons(
-//         @Arg("pagination", () => Pagination, { nullable: true }) pagination: Pagination | null,
-//         @Arg("searchQuery", () => PersonSearchQuery, { nullable: true }) searchQuery: PersonSearchQuery | null
-//     ): Promise<PersonPaginationOutput> {
-//         let currentPage = pagination?.page || 1;
-//         let limitPerPage = pagination?.limit || 20;
+            return data;
 
-//         // Mise en place query
-//         let queryGen = PersonModel.find({ data: { $ne: null } })
+        } else {
+            return null;
+        }
 
-//         if (searchQuery) {
+    }
 
-//             if (searchQuery.title)
-//                 queryGen
-//                     .searchMediaByTitle(searchQuery.title)
-
-//         }
-
-//         queryGen.select('pubId data');
-
-//         // Mise en place pagination & résultats;
-
-//         const generatedQuery = queryGen.getQuery();
-//         const totalResults = await PersonModel.countDocuments(generatedQuery);
-//         const searchResult = await PersonModel.find(generatedQuery)
-//             .skip(limitPerPage * (currentPage - 1))
-//             .limit(limitPerPage);
-
-//         const totalPage = Math.round(totalResults / limitPerPage) < 1 ? 1 : Math.round(totalResults / limitPerPage);
-
-//         console.log('result', searchResult.map((x) => x.toJSON()))
-//         return {
-//             currentPage,
-//             totalPage,
-//             limitPerPage,
-//             totalResults,
-//             hasNextPage: currentPage < totalPage,
-//             hasPrevPage: currentPage >= 1 && currentPage < totalPage,
-//             results: searchResult.map((x) => ({ id: x.pubId, ...x.data as Person }))
-//         };
-//     }
-
-//     @Query(_returns => PersonMediaOutput, { nullable: true })
-//     async getFullPerson(@Arg("id", () => Number) id: number): Promise<PersonMediaOutput | null> {
-
-//         const findPerson = await PersonModel.findOne({ id });
-
-//         if (findPerson) {
-
-//             function sortByCreatedAt(a: IMediaUpdates<Person>, b: IMediaUpdates<Person>) {
-//                 if (!b.createdAt || !a.createdAt) return 0;
-//                 return b.createdAt.getTime() - a.createdAt.getTime()
-//             }
-//             const sortedUpdate = findPerson.updates.sort(sortByCreatedAt);
-//             const sortedUpdateRequest = findPerson.requests.sort(sortByCreatedAt);
-
-//             return {
-//                 ...findPerson.toJSON(),
-//                 data: findPerson.data,
-//                 lastRequestDate: sortedUpdateRequest[0].createdAt,
-//                 lastUpdateDate: sortedUpdate[0].createdAt
-//             }
-
-//         } else {
-//             return null;
-//         }
-//     }
-
-//     @Query(_returns => [PersonMediaPaginationOutput], { nullable: true })
-//     async searchFullPerson(
-//         @Arg("pagination", () => Pagination, { nullable: true }) pagination: Pagination | null,
-//         @Arg("searchQuery", () => PersonSearchQuery, { nullable: true }) searchQuery: PersonSearchQuery | null
-//     ): Promise<PersonMediaPaginationOutput> {
-
-//         let currentPage = pagination?.page || 1;
-//         let limitPerPage = pagination?.limit || 20;
-
-//         // Mise en place query
-//         let queryGen = PersonModel.find()
-
-//         if (searchQuery) {
-
-//             if (searchQuery.title)
-//                 queryGen
-//                     .searchMediaByTitle(searchQuery.title)
-
-//         }
-
-//         // Mise en place pagination & résultats;
-
-//         const generatedQuery = queryGen.getQuery();
-//         const totalResults = await PersonModel.countDocuments(generatedQuery);
-//         const searchResult = await PersonModel.find(generatedQuery)
-//             .skip(limitPerPage * (currentPage - 1))
-//             .limit(limitPerPage);
-
-//         const totalPage = Math.round(totalResults / limitPerPage) < 1 ? 1 : Math.round(totalResults / limitPerPage);
-
-//         console.log('result', searchResult.map((x) => x.toJSON()))
-
-//         function sortByCreatedAt(a: IMediaUpdates<Person>, b: IMediaUpdates<Person>) {
-//             if (!b.createdAt || !a.createdAt) return 0;
-//             return b.createdAt.getTime() - a.createdAt.getTime()
-//         }
-        
-//         return {
-//             currentPage,
-//             totalPage,
-//             limitPerPage,
-//             totalResults,
-//             hasNextPage: currentPage < totalPage,
-//             hasPrevPage: currentPage >= 1 && currentPage < totalPage,
-//             results: searchResult.map((animeMedia) => {
-//                 const sortedUpdate = animeMedia.updates.sort(sortByCreatedAt);
-//                 const sortedUpdateRequest = animeMedia.requests.sort(sortByCreatedAt);
-//                 return {
-//                     ...animeMedia.toJSON(),
-//                     lastRequestDate: sortedUpdateRequest[0].createdAt,
-//                     lastUpdateDate: sortedUpdate[0].createdAt
-//                 }
-//             })
-//         };
-//     }
-
-//     @Mutation(_ => MediaUpdateOutput, { description: "Ajouter un nouveau Person" })
-//     async createPerson(
-//         @Arg("data", _ => PersonInput) dataInput: PersonInput,
-//         @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
-//     )
-//         : Promise<MediaUpdateOutput> {
-
-//         const author = undefined;
-
-//         const personInput = await new PersonInput().init(dataInput, "direct_update");
-
-//         const update = await personInput.createUpdate({
-//             label: "Person",
-//             action: "Création d'un Person",
-//             field: { author, moderator: author, visible: options.setUpdatePublic }
-//         });
-
-//         await update.model.validate();
-
-//         // Validation
-//         await Promise.all(personInput.mediasToSave.map(({ model }) => {
-//             return model.save({ validateBeforeSave: false });
-//         }))
-
-//         return {
-//             mediaType: MediaType.CHARACTER,
-//             message: "Person a bien été crée.",
-//             pubId: update.model.pubId
-//         }
-//     }
-
-
-//     @Mutation(_ => MediaUpdateOutput, { description: "Demande d'ajout d'un nouveau Person" })
-//     async createPersonRequest(
-//         @Arg("data", _ => PersonInput) dataInput: PersonInput,
-//         @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
-//     ): Promise<MediaUpdateOutput> {
-
-//         const author = undefined;
-
-//         const personInput = await new PersonInput().init(dataInput, "request");
-
-//         const request = await personInput.createRequest({
-//             label: "Person",
-//             action: "Demande d'ajout d'un Person",
-//             field: { author, moderator: author, visible: options.setUpdatePublic }
-//         });
-
-//         await request.model.validate();
-
-//         // Validation
-//         await Promise.all(personInput.mediasToSave.map(({ model }) => {
-//             return model.save({ validateBeforeSave: false });
-//         }))
-
-//         return {
-//             mediaType: MediaType.CHARACTER,
-//             message: "La demande a bien été crée.",
-//             pubId: request.model.pubId
-//         }
-//     }
-
-//     @Mutation(_ => MediaUpdateOutput, { description: "Modification d'un Person" })
-//     async updatePerson(
-//         @Arg('personToUpdate') mediaToUpdate: string,
-//         @Arg('versionToUpdate', { nullable: true, description: "Modifier une précédente modification" }) versionToUpdate: number,
-//         @Arg("data", _ => PersonInput) dataInput: PersonInput,
-//         @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
-//     ): Promise<MediaUpdateOutput> {
-
-//         const author = undefined;
-
-//         const personInput = await new PersonInput().init(dataInput, "direct_update");
-
-//         const update = await personInput.createUpdate({
-//             mediaToUpdate,
-//             versionToUpdate,
-//             public: options.setMediaPublic,
-//             label: "Person",
-//             action: "Modification d'un Person",
-//             field: {
-//                 author,
-//                 moderator: author,
-//                 visible: options.setUpdatePublic
-//             }
-//         });
-
-//         await update.model.validate();
-
-//         // Validation
-//         await Promise.all(personInput.mediasToSave.map(({ model }) => {
-//             return model.save({ validateBeforeSave: false });
-//         }))
-
-//         return {
-//             mediaType: MediaType.CHARACTER,
-//             message: "Person a bien été crée.",
-//             pubId: update.model.pubId
-//         }
-//     }
-
-
-
-//     @Mutation(_ => MediaUpdateOutput, { description: "Demande de Modification d'un Person" })
-//     async requestPersonUpdate(
-//         @Arg('personToUpdate') mediaToUpdate: string,
-//         @Arg('versionToUpdate', { nullable: true, description: "Modifier une précédente modification" }) versionToUpdate: number,
-//         @Arg("data", _ => PersonInput) dataInput: PersonInput,
-//         @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
-//     ): Promise<MediaUpdateOutput> {
-
-//         const author = undefined;
-
-//         const personInput = await new PersonInput().init(dataInput, "request");
-
-//         const request = await personInput.createRequest({
-//             mediaToUpdate,
-//             versionToUpdate,
-//             public: options.setMediaPublic,
-//             label: "Person",
-//             action: "Demande de Modification d'un Person",
-//             field: {
-//                 author,
-//                 moderator: author,
-//                 visible: options.setUpdatePublic
-//             }
-//         });
-
-//         await request.model.validate();
-
-//         // Validation
-//         await Promise.all(personInput.mediasToSave.map(({ model }) => {
-//             return model.save({ validateBeforeSave: false });
-//         }))
-
-//         return {
-//             mediaType: MediaType.CHARACTER,
-//             message: "Person a bien été crée.",
-//             pubId: request.model.pubId
-//         }
-//     }
-// }
+    @Query(_returns => PersonPaginationOutput, { nullable: true })
+    async searchPersons(
+
+        @Arg("pagination", () => Pagination, { nullable: true })
+        pagination: Pagination | null,
+
+        @Arg("searchQuery", () => PersonSearchQuery, { nullable: true })
+        searchQuery: PersonSearchQuery | null,
+
+        @Arg("searchLogic", () => MediaSearchLogic, { nullable: true, defaultValue: 'OR' })
+        searchLogic: MediaSearchLogic,
+
+        @Info()
+        info: any
+
+    ): Promise<PersonPaginationOutput | null> {
+
+        console.log('searchPersons');
+
+        const queryGen = PersonModel.find();
+        // .find({ data: { $ne: null } });
+
+        console.log('searchQuery', searchQuery)
+
+        if (searchQuery)
+            queryGen.queryParse(searchQuery, searchLogic)
+
+
+        return PaginationQuery({
+            model: PersonModel,
+            paginationQuery: pagination,
+            filter: queryGen.getQuery(),
+            info,
+            customProjection: searchQuery ? PersonSearchQuery.genProjection(searchQuery) : {}
+        });
+    }
+
+    @Query(_returns => PersonMedia, { nullable: true })
+    async getFullPerson(@Arg("id", () => String) id: String) {
+
+        const findPerson = await PersonModel.findOne({ id }).lean();
+
+        console.log('getFullPerson', findPerson, id);
+
+        if (findPerson) {
+            const sortedUpdate = findPerson.updates?.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+            // const sortedUpdateRequest = findPerson.requests?.sort(sortByCreatedAt);
+
+            return findPerson
+        } else {
+            return null;
+        }
+    }
+
+    @Mutation(_ => Person, { description: "Ajouter un (nouvel) person (staff)" })
+    async createPerson(@Arg("data", _ => PersonInput) dataInput: PersonInput) {
+
+        const update = await PersonInput.createUpdate(
+            dataInput, 'direct_update', {
+            author: '',
+            verifiedBy: ''
+        }
+        );
+
+        let model = await update.save();
+
+        let json = model.toJSON();
+
+        return json.data
+    }
+
+    @Authorized<IUserRoles>(IUserRoles['ADMIN'])
+    async updatePerson(
+        @Arg("id", () => String) id: string,
+        @Arg("data", _ => PersonInput) dataInput: PersonInput
+    ) {
+
+        const update = await PersonInput.createUpdate(dataInput, 'direct_update', {
+            author: '',
+            verifiedBy: ''
+        });
+
+        let data = await update.addTo(id);
+
+        if (!data) return null;
+
+        return data.data;
+    }
+}

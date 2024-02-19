@@ -1,36 +1,12 @@
-import { Field, ObjectType, registerEnumType } from "type-graphql";
-import { Prop, Pre, modelOptions, getModelForClass } from "@typegoose/typegoose";
-import { MediaLink, MediaPersonGender, MediaPersonOrCharacterName } from "../../utils/_media.types";
-
-// import { MediaUpdateFormat } from "../../utils/_media.update";
-// import { MediaRequestFormat } from "../../utils/_media.request";
-// import { MediaFormat, MediaFormatOutput } from "../../utils/_media.format";
-
-// import { PaginationOutput } from "../../utils/_media.pagination";
-import { genMediaFromUpdate } from "../../utils/_genMediaFromUpdate";
+import { ClassType, Field, InputType, ObjectType, registerEnumType } from "type-graphql";
+import { Prop, modelOptions, types } from "@typegoose/typegoose";
+import { MediaLink, MediaPersonGender, MediaPersonOrCharacterName, MediaSearchLogic } from "../../utils/_media.types";
 import { DataVirtual } from "../../utils";
-
-// export enum PersonLabel {
-//     ARTIST = "ARTIST",
-//     ACTEUR = "ACTEUR",
-//     STAFF = "STAFF"
-// }
-
-// registerEnumType(PersonLabel, {
-//     name: "PersonLabel",
-//     description: "Type de personne"
-// })
+import { FilterQuery } from "mongoose";
+import { Base } from "../../utils/_media.base";
 
 @ObjectType()
-export class Person {
-
-    @Field()
-    @Prop()
-    id?: string;
-
-    // @Field(type => PersonLabel)
-    // @Prop({type: PersonLabel})
-    // label!: PersonLabel
+export class Person extends Base('Person') {
 
     @Field(type => MediaPersonOrCharacterName)
     @Prop(({ type: MediaPersonOrCharacterName }))
@@ -60,12 +36,12 @@ export class Person {
     @Prop({ type: MediaLink })
     links?: MediaLink[]
 
-    constructor(props: Person) {
-        Object.assign(this, props);
-    }
 }
 
-export enum PersonRelationLabel {
+export enum PersonrRoleRelationLabel {
+    // Voix
+    DOUBLAGE_SEIYU = "DOUBLAGE_SEIYU",
+    // Production Anime
     EDITEUR = "EDITEUR",
     PRODUCTEUR = "PRODUCTEUR",
     REALISATEUR = "REALISATEUR",
@@ -89,15 +65,29 @@ export enum PersonRelationLabel {
     DIFFUSEUR = "DIFFUSEUR",
     STORYBOARDER = "STORYBOARDER",
     ARTISTE_VFX = "ARTISTE_VFX",
-    // COMITEPRODUCTION = "COMITEPRODUCTION",
     INGENIEUR_SON = "INGENIEUR_SON",
     DIRECTEUR_DOUBLAGE = "DIRECTEUR_DOUBLAGE",
     TRADUCTEUR = "TRADUCTEUR",
+    // Production Manga
+    MANGAKA = "MANGAKA",
+    CHARACTER_DESIGNER = "CHARACTER_DESIGNER",
+    DESSINATEUR_DECORS = "DESSINATEUR_DECORS",
+    REALISATEUR_MISE_EN_PAGE = "REALISATEUR_MISE_EN_PAGE",
+    // Production Musique
+    COMPOSITEUR = "COMPOSITEUR",
+    PAROLIER = "PAROLIER",
+    ARRANGEUR = "ARRANGEUR",
+    MUSICIEN = "MUSICIEN",
+    CHANTEUR = "CHANTEUR",
+    CHANTEUSE = "CHANTEUSE",
+    CHEF_ORCHESTRE = "CHEF_ORCHESTRE",
+    PRODUCTEUR_MUSICAL = "PRODUCTEUR_MUSICAL",
+    DESIGNER_SONORE = "DESIGNER_SONORE",
+    MIXEUR = "MIXEUR"
 }
 
 
-
-registerEnumType(PersonRelationLabel, {
+registerEnumType(PersonrRoleRelationLabel, {
     name: 'PersonRelationLabel'
 })
 
@@ -107,8 +97,50 @@ registerEnumType(PersonRelationLabel, {
 export class PersonRelation extends DataVirtual(Person) {
     @Field()
     @Prop()
-    pubId!: string;
+    id!: string;
     @Field()
     @Prop()
-    label?: string;;
+    label?: PersonrRoleRelationLabel;;
+}
+
+
+@InputType()
+export class PersonSearchQuery {
+    @Field({ nullable: true })
+    name?: string;
+
+    static queryParse(this: types.QueryHelperThis<ClassType<Person>, PersonCustomQuery>, props: PersonSearchQuery, logic: MediaSearchLogic) {
+        let query: FilterQuery<Person>[] = [];
+
+        if (props.name)
+            query.push({ "data.name": { "$regex": props.name, "$options": "i" } })
+
+        switch (logic) {
+            case MediaSearchLogic.OR:
+                if (query.length) this.or(query)
+                break;
+
+            case MediaSearchLogic.AND:
+                if (query.length) this.and(query)
+                break;
+
+            default:
+                if (query.length) this.or(query)
+                break;
+        }
+
+        console.log('query', this.getQuery())
+
+        return this;
+    }
+
+    static genProjection(props: PersonSearchQuery) {
+        let projections: { [key: string]: any } = {};
+
+        return projections;
+    }
+}
+
+export interface PersonCustomQuery {
+    queryParse: types.AsQueryMethod<typeof PersonSearchQuery.queryParse>;
 }

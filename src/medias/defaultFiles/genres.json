@@ -2,72 +2,72 @@
     {
         "label": "Action",
         "value": "ACTION",
-        "description": "L'anime d'action se concentre généralement sur des personnages qui utilisent des capacités physiques ou surnaturelles pour lutter contre de puissants adversaires. Des exemples d'anime d'action incluent Dragon Ball Z, Naruto, et One Piece."
+        "description": "Un genre qui se concentre généralement sur des personnages qui utilisent des capacités physiques ou surnaturelles pour lutter contre de puissants adversaires."
     },
     {
         "label": "Aventure",
         "value": "AVENTURE",
-        "description": "L'anime d'aventure suit le protagoniste dans un voyage, souvent avec un groupe de compagnons. Des exemples d'anime d'aventure incluent Fullmetal Alchemist, One Piece, et Sword Art Online."
+        "description": "Un genre qui se concentre sur le protagoniste dans un voyage, souvent avec un groupe de compagnons."
     },
     {
         "label": "Comédie",
         "value": "COMEDIE",
-        "description": "L'anime comique se concentre souvent sur des situations et des personnages humoristiques. Des exemples d'anime comique incluent Gintama, K-On!, et Nichijou."
+        "description": "Un genre qui se concentre souvent sur des situations et des personnages humoristiques."
     },
     {
         "label": "Drame",
         "value": "DRAME",
-        "description": "L'anime dramatique se concentre sur le développement du personnage et les relations."
+        "description": "Un genre qui se concentre sur le développement du personnage et les relations."
     },
     {
         "label": "Fantaisie",
         "value": "FANTAISIE",
-        "description": "L'anime fantastique comporte souvent des éléments magiques et des créatures mythiques."
+        "description": "Un genre qui comporte souvent des éléments magiques et des créatures mythiques."
     },
     {
         "label": "Horreur",
         "value": "HORREUR",
-        "description": "L'anime d'horreur se concentre sur la peur et le suspense."
+        "description": "Un genre qui se concentre sur la peur et le suspense."
     },
     {
         "label": "Romance",
         "value": "ROMANCE",
-        "description": "L'anime romantique se concentre sur les relations entre les personnages."
+        "description": "Un genre qui se concentre sur les relations entre les personnages."
     },
     {
         "label": "Sci-Fi",
         "value": "SCI_FI",
-        "description": "L'anime de science-fiction explore des idées futuristes et des thèmes technologiques."
+        "description": "La science-fiction explore des idées futuristes et des thèmes technologiques."
     },
     {
         "label": "Tranche de vie",
         "value": "TRANCHE_DE_VIE",
-        "description": "L'anime Tranche de vie est une représentation réaliste de la vie quotidienne."
+        "description": "Une représentation réaliste de la vie quotidienne."
     },
     {
         "label": "Sports",
         "value": "SPORTS",
-        "description": "L'anime de sports se concentre sur les personnages pratiquant un sport."
+        "description": "Un genre qui se concentre sur les personnages pratiquant un sport."
     },
     {
         "label": "Mécha",
         "value": "MECHA",
-        "description": "L'anime Mécha se concentre sur les robots et implique souvent des batailles entre machines."
+        "description": "Un genre qui se concentre sur les robots et implique souvent des batailles entre machines."
     },
     {
         "label": "Mystère",
         "value": "MYSTERE",
-        "description": "L'anime mystère a des intrigues qui sont résolues par la déduction ou la résolution de puzzles."
+        "description": "Contient des intrigues qui sont résolues par la déduction ou la résolution de puzzles."
     },
     {
         "label": "Psychologique",
         "value": "PSYCHOLOGIQUE",
-        "description": "L'anime psychologique explore les processus mentaux et explore souvent des thèmes complexes de la psyché humaine."
+        "description": "Explore les processus mentaux et explore souvent des thèmes complexes de la psyché humaine."
     },
     {
         "label": "Polar",
         "value": "POLAR",
-        "description": "L'anime Polar est un genre qui se concentre sur les crimes, leur détection, les criminels et leur motivation."
+        "description": "Polar est un genre qui se concentre sur les crimes, leur détection, les criminels et leur motivation."
     },
     {
         "label": "Isekai",

@@ -8,10 +8,10 @@ export function DataVirtual<TMedia extends object>(Media: ClassType<TMedia>) {
     @ObjectType()
     abstract class DataVirtual {
         // @Field(_ => Media)
-        @Prop({ ref: () => Media, foreignField: 'pubId', localField: 'pubId', justOne: true })
+        @Prop({ ref: () => Media, foreignField: 'id', localField: 'id', justOne: true, default: undefined })
         vData?: Ref<TMedia>;
 
-        @Field(_ => Media)
+        @Field(_ => Media, { nullable: true })
         public get data() {
             if (this.vData) {
                 let data = (this.vData as unknown as any).data;
@@ -19,6 +19,10 @@ export function DataVirtual<TMedia extends object>(Media: ClassType<TMedia>) {
                 return data;
             }
             return null;
+        }
+
+        public set data(data: TMedia | null) {
+            // this.data = data;
         }
     }
 

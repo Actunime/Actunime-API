@@ -3,9 +3,9 @@ import { Field, InputType } from "type-graphql";
 import { CharacterSpecies, Character, CharacterRelation, CharacterRelationLabel } from './_character.type';
 import { MediaPersonOrCharacterNameInput, MediaPersonGender } from "../../utils/_media.types";
 import { PersonInput, PersonRelationFields } from "../persons/_person.input";
-import { MediaDoc, createUpdate } from "../../utils/_createUpdate";
+import { MediaDoc, UpdateParams, createUpdate } from "../../utils/_createUpdate";
 import { CharacterModel } from "./_character.model";
-import { MediaUpdateOptionArg } from "../../utils/_media.update";
+import { MediaRequiredFields } from "../../utils/_media.base";
 
 
 @InputType()
@@ -35,36 +35,36 @@ export class CharacterInput {
     @Field(type => PersonRelationFields)
     actors?: PersonRelationFields;
 
-    static createUpdate(props: CharacterInput, action: "request" | "direct_update", visible: boolean) {
+    static createUpdate(props: CharacterInput, action: "request" | "direct_update", params: Omit<UpdateParams<Character>, 'db' | 'changes'>) {
 
         const db = CharacterModel;
-        let docToSaveWith: MediaDoc[] = [];
+        let docToSaveWith: MediaDoc<any>[] = [];
 
-        let media: Character = {
+        let changes: Omit<Character, MediaRequiredFields> = {
             ...props,
-            actors: props.actors ? PersonInput.InitFromRelation(props.actors, action, (m) => docToSaveWith = docToSaveWith.concat(m)) : undefined
+            actors: props.actors ? PersonInput.InitFromRelation(props.actors, action, (m) => docToSaveWith = docToSaveWith.concat(m), params) : undefined
         };
 
         if (action === 'direct_update') {
-            return createUpdate<Character>({ media, db, visible, docToSaveWith })
+            return createUpdate<Omit<Character, MediaRequiredFields>>({ changes, db, docToSaveWith, ...params })
         } else {
-            return createUpdate<Character>({ media, db, visible, docToSaveWith })
+            return createUpdate<Omit<Character, MediaRequiredFields>>({ changes, db, docToSaveWith, ...params })
         }
     }
 
     static InitFromRelation(
         props: CharacterRelationFields,
         action: "request" | "direct_update",
-        addModel: (m: MediaDoc[]) => void) {
+        addModel: (m: MediaDoc<any>[]) => void, params: Omit<UpdateParams<Character>, 'db' | 'changes'>) {
 
         let relationOutput: CharacterRelation[] = [];
 
         if (props.news) {
             for (const relation of props.news) {
-                const update = this.createUpdate(relation.data, action, relation.options?.visible === undefined ? true : false);
+                const update = this.createUpdate(relation.data, action, params);
                 let model = update.returnModels()
                 relationOutput.push({
-                    pubId: model[0].pubId,
+                    id: model[0].id,
                     label: relation.label,
                     data: null
                 })
@@ -75,7 +75,7 @@ export class CharacterInput {
         if (props.exists) {
             for (const relation of props.exists) {
                 relationOutput.push({
-                    pubId: relation.pubId, label: relation.label,
+                    id: relation.id, label: relation.label,
                     data: null
                 })
             }
@@ -91,14 +91,12 @@ class CharacterRelationAddInput {
     data!: CharacterInput;
     @Field(_ => CharacterRelationLabel, { nullable: true })
     label?: CharacterRelationLabel;
-    @Field(_ => MediaUpdateOptionArg, { nullable: true })
-    options?: MediaUpdateOptionArg
 }
 
 @InputType({ description: "Relation Character" })
 class CharacterRelationExistInput {
     @Field(_ => String)
-    pubId!: string;
+    id!: string;
     @Field(_ => CharacterRelationLabel, { nullable: true })
     label?: CharacterRelationLabel;
 }
@@ -109,273 +107,4 @@ export class CharacterRelationFields {
     news?: CharacterRelationAddInput[]
     @Field(_ => [CharacterRelationExistInput])
     exists?: CharacterRelationExistInput[]
-}
-
-
-
-const a = {
-    "searchQuery": {
-        "season": "PRINTEMPS",
-        "year": 2019
-    },
-    "searchLogic": "AND",
-    "pagination": {
-        "page": 1,
-        "limit": 20
-    },
-    "createAnimeOptions2": {
-        "visible": true
-    },
-    "createAnimeData2": {
-        "title": {
-            "romaji": null,
-            "native": null
-        },
-        "date": {
-            "start": null,
-            "end": null
-        },
-        "image": {
-            "poster": null,
-            "banner": null
-        },
-        "synopsis": null,
-        "source": {
-            "origine": null
-        },
-        "format": null,
-        "vf": null,
-        "genres": null,
-        "themes": null,
-        "status": null,
-        "episodes": {
-            "airing": null,
-            "nextAiringDate": null,
-            "total": null,
-            "durationMinutePerEp": null
-        },
-        "adult": null,
-        "explicit": null,
-        "links": {
-            "name": null,
-            "value": null
-        },
-
-
-        "companys": {
-            "news": [
-                {
-                    "data": {
-                        "label": null,
-                        "name": null,
-                        "links": [
-                            {
-                                "name": null,
-                                "value": null
-                            }
-                        ],
-                        "createdDate": null
-                    },
-                    "options": {
-                        "visible": null
-                    }
-                }
-            ],
-            "exists": [
-                {
-                    "pubId": null
-                }
-            ]
-        },
-
-
-
-
-        "staffs": {
-            "news": [
-                {
-                    "label": null,
-                    "data": {
-                        "pubId": null,
-                        "links": [
-                            {
-                                "name": null,
-                                "value": null
-                            }
-                        ],
-                        "name": {
-                            "first": null,
-                            "end": null,
-                            "alias": null
-                        },
-                        "image": null,
-                        "id": null,
-                        "gender": null,
-                        "birthDate": null,
-                        "bio": null,
-                        "age": null
-                    },
-                    "options": {
-                        "visible": null
-                    }
-                }
-            ],
-            "exists": [
-                {
-                    "pubId": null,
-                    "label": null
-                }
-            ]
-        },
-
-
-
-
-
-        "tracks": {
-            "news": [
-                {
-                    "options": {
-                        "visible": null
-                    },
-                    "label": null,
-                    "episodes": null,
-                    "data": {
-                        "pubId": null,
-                        "outDate": null,
-                        "name": null,
-                        "links": [
-                            {
-                                "value": null,
-                                "name": null
-                            }
-                        ],
-                        "image": null,
-                        "id": null,
-
-
-                        "artists": {
-                            "news": [
-                                {
-                                    "options": {
-                                        "visible": null
-                                    },
-                                    "label": null,
-                                    "data": {
-                                        "pubId": null,
-                                        "name": {
-                                            "end": null,
-                                            "alias": null,
-                                            "first": null
-                                        },
-                                        "links": [
-                                            {
-                                                "name": null,
-                                                "value": null
-                                            }
-                                        ],
-                                        "image": null,
-                                        "id": null,
-                                        "gender": null,
-                                        "birthDate": null,
-                                        "bio": null,
-                                        "age": null
-                                    }
-                                }
-                            ],
-                            "exists": [
-                                {
-                                    "pubId": null,
-                                    "label": null
-                                }
-                            ]
-                        }
-
-
-                    }
-                }
-            ],
-            "exists": [
-                {
-                    "pubId": null,
-                    "label": null,
-                    "episodes": null
-                }
-            ]
-        },
-
-
-
-
-
-        "characters": {
-            "news": [
-                {
-                    "options": {
-                        "visible": null
-                    },
-                    "label": null,
-                    "data": {
-                        "species": null,
-                        "pubId": null,
-                        "image": null,
-                        "name": {
-                            "alias": null,
-                            "end": null,
-                            "first": null
-                        },
-                        "id": null,
-                        "gender": null,
-                        "birthDate": null,
-                        "bio": null,
-                        "age": null,
-
-
-                        "actors": {
-                            "news": [
-                                {
-                                    "options": {
-                                        "visible": null
-                                    },
-                                    "label": null,
-                                    "data": {
-                                        "pubId": null,
-                                        "name": null,
-                                        "links": [
-                                            {
-                                                "value": null,
-                                                "name": null
-                                            }
-                                        ],
-                                        "image": null,
-                                        "gender": null,
-                                        "birthDate": null,
-                                        "bio": null,
-                                        "age": null
-                                    }
-                                }
-                            ],
-                            "exists": [
-                                {
-                                    "pubId": null,
-                                    "label": null
-                                }
-                            ]
-                        }
-
-
-                    }
-                }
-            ],
-            "exists": [
-                {
-                    "pubId": null,
-                    "label": null
-                }
-            ]
-        }
-
-
-    }
-
 }

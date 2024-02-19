@@ -5,15 +5,11 @@ import { Field, InputType, ObjectType, registerEnumType } from "type-graphql";
 @ObjectType()
 export class MediaTitle {
     @Field({ nullable: true })
-    @Prop()
-    default?: string;
-
-    @Field({ nullable: true })
-    @Prop()
+    @Prop({ unique: true })
     romaji!: string;
 
     @Field({ nullable: true })
-    @Prop()
+    @Prop({ unique: true })
     native!: string;
 
     @Field(_ => [String], { nullable: true })
@@ -72,9 +68,9 @@ registerEnumType(MediaType, {
 })
 
 export enum MediaPersonGender {
-    HOMME = "HOMME",
-    FEMME = "FEMME",
-    NON_BINAIRE = "NON BINAIRE"
+    MAN = "MAN",
+    GIRL = "GIRL",
+    NON_BINARY = "NON_BINARY"
 }
 
 registerEnumType(MediaPersonGender, {

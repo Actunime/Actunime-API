@@ -7,14 +7,14 @@ import path from "path";
 import { TypegooseMiddleware } from "./typegoose.middleware";
 import { ApolloFastifyContextFunction, fastifyApolloDrainPlugin, fastifyApolloHandler } from "@as-integrations/fastify";
 import cors from "@fastify/cors";
-// import { AnimeResolver, CharacterResolver, CompanyResolver, TrackResolver, PersonResolver, GroupeResolver } from "./medias";
-import { IUserRoles, UserModel } from "./medias/users/_user.type";
+import { AnimeResolver, CharacterResolver, CompanyResolver, TrackResolver, PersonResolver, GroupeResolver, UserResolver } from "./medias";
+import { IUserRoles } from "./medias/users/_user.type";
 import JWT from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
 import { authChecker } from "./auth/AuthChecker";
 import { DefaultDataResolver } from "./medias/defaultData";
-import { AnimeResolver } from "./medias/animes";
 import { createFakeData } from "./helpers.db";
+import { UserModel } from "./medias/users/_user.model";
 
 dotenv.config();
 // import cache from 'ts-cache-mongoose'
@@ -33,7 +33,7 @@ mongoose.connection.on('disconnected', () => {
 });
 
 async function connectDB() {
-    await mongoose.connect('mongodb://192.168.1.37:27017', {
+    await mongoose.connect('mongodb://192.168.1.49:27017', {
         user: 'API_ACCES',
         pass: '8#tM*^J&K%T!*N',
         dbName: 'Actunime',
@@ -41,7 +41,7 @@ async function connectDB() {
         autoCreate: true
     });
 
-    // await mongoose.connection.db.dropDatabase();
+    await mongoose.connection.db.dropDatabase();
 }
 
 export interface ActunimeAuthContext {
@@ -65,13 +65,14 @@ try {
         // let indexes = await mongoose.connection.db.collection('animes').indexInformation();
         // console.log(indexes);
 
+        // TODO! https://github.com/MichalLytek/type-graphql/tree/v2.0.0-beta.6/examples/apollo-cache
         const schema = await buildSchema({
-            // resolvers: [AnimeResolver, GroupeResolver, DefaultDataResolver],
-            resolvers: [AnimeResolver, DefaultDataResolver],
+            resolvers: [AnimeResolver, CharacterResolver, CompanyResolver, TrackResolver, PersonResolver, GroupeResolver, UserResolver ],
             emitSchemaFile: path.resolve(__dirname, "schema.graphql"),
             globalMiddlewares: [TypegooseMiddleware],
             validate: false,
-            authChecker
+            authChecker,
+
         });
 
         const fastify = Fastify({
@@ -85,9 +86,10 @@ try {
             schema,
             plugins: [fastifyApolloDrainPlugin(fastify)],
             introspection: true,
+            allowBatchedHttpRequests: true
         });
 
-        const contextFunc: ApolloFastifyContextFunction<ActunimeAuthContext> = async (req) => {
+        const contextFunc: ApolloFastifyContextFunction<ActunimeAuthContext> = async (req, res) => {
 
             try {
 
@@ -102,39 +104,38 @@ try {
                     }
                 }
 
-                const checkedToken = JWT.verify(authorization, process.env.TCODE as string) as { userId: string, expires_at: string };
+                const checkedToken = JWT.verify(authorization, process.env.APIAUTH_SECRET as string) as { userId: string, expires_at: string };
 
                 if (!checkedToken) {
                     return {
                         logged,
-                        authorization,
                         roles: []
                     }
                 }
 
-                const user = await UserModel.findById(checkedToken.userId);
+                const user = await UserModel.findOne({ id: checkedToken.userId, sessions: { $elemMatch: { accessToken: authorization } } });
 
                 if (!user) {
                     return {
                         logged,
-                        authorization,
                         roles: []
                     }
                 }
+
+                console.log('Authentificated User', user.username, user.id);
 
                 logged = true;
 
                 return {
                     logged,
-                    authorization: req.headers.authorization,
                     userId: user.id,
-                    userPubId: user.pubId,
+                    userPubId: user.id,
                     username: user.username,
                     roles: user.roles || []
                 }
 
             } catch (err: any) {
-                console.log("contextFunc", err.toString());
+                console.error("contextFunc", err.toString());
                 return {
                     roles: []
                 }
@@ -150,7 +151,7 @@ try {
         });
 
         try {
-            fastify.listen({ port: 3000 }).then(() => console.log('API En ligne sur le port 3000'))
+            fastify.listen({ port: 3001 }).then(() => console.log('API En ligne sur le port 3001'))
         } catch (err) {
             fastify.log.error(err)
             process.exit(1)
@@ -163,3 +164,13 @@ try {
 }
 
 process.on('uncaughtException', (err) => console.error(err.message, err));
+
+
+
+
+/**
+ * ? Pour la V2
+ * Possibilité de simplifié la structure des médias car on peut précisiser le nom
+ * Des Model/Schema pour les types de données dans ex: @ObjectType(Media.name + "Request")
+ * 
+ */

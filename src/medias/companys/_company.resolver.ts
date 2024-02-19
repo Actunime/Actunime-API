@@ -1,293 +1,130 @@
-// import { Arg, Mutation, Query, Resolver } from "type-graphql";
-// import { Company, CompanyMediaOutput, CompanyMediaPaginationOutput, CompanyModel, CompanyPaginationOutput, CompanySearchQuery } from "./_company.type";
-// import { CompanyInput } from "./_company.input";
-// import { Pagination } from "../../utils/_media.pagination";
-// import { IMediaUpdates, MediaUpdateOptionArg, MediaUpdateOutput } from "../../utils/_media.update";
-// import { MediaType } from "../../utils/_media.types";
+import { Arg, Authorized, Info, Mutation, Query, Resolver } from "type-graphql";
+import { MediaSearchLogic, Pagination } from "../../utils";
+import { CompanyMedia, CompanyModel, CompanyPaginationOutput } from "./_company.model";
+import { Company, CompanySearchQuery } from "./_company.type";
+import { fieldsProjection } from 'graphql-fields-list'
+import { PaginationQuery } from "../../utils/_pagination";
+import { CompanyInput } from "./_company.input";
+import { IUserRoles } from "../users/_user.type";
 
-// @Resolver(Company)
-// export class CompanyResolver {
 
-//     @Query(_return => Company, { nullable: true })
-//     async getCompany(@Arg("id", () => String) id: string): Promise<Company | null> {
+@Resolver(Company)
+export class CompanyResolver {
 
-//         const findCompany = await CompanyModel.findOne({ id }).select('data id');
+    @Query(_return => Company, { nullable: true })
+    async getCompany(@Arg("id", () => String) id: string, @Info() info: any) {
 
-//         if (findCompany && findCompany.visible && findCompany.data) {
+        const projection = info ?
+            Object.fromEntries(
+                Object.keys(
+                    Object.assign(fieldsProjection(info), { id: 1 })
+                ).map(key => [key.replace(key, 'data.' + key), 1])) : {};
 
-//             const { pubId: id, data } = findCompany;
+        console.log(projection)
 
-//             return { id, ...data };
+        const findCompany = await CompanyModel.findOne({ id }, { id: 1, ...projection }).lean();
 
-//         } else {
-//             return null;
-//         }
+        console.log('getCompany', findCompany);
+        // TODO: check le statut (public ou non etc...)
+        if (findCompany && findCompany.data) {
 
-//     }
+            console.log("CA RETOURNE")
+            const { id, data } = findCompany;
 
-//     @Query(_returns => CompanyPaginationOutput, { nullable: true })
-//     async searchCompanys(
-//         @Arg("pagination", () => Pagination, { nullable: true }) pagination: Pagination | null,
-//         @Arg("searchQuery", () => CompanySearchQuery, { nullable: true }) searchQuery: CompanySearchQuery | null
-//     ): Promise<CompanyPaginationOutput> {
-//         let currentPage = pagination?.page || 1;
-//         let limitPerPage = pagination?.limit || 20;
+            return data;
 
-//         // Mise en place query
-//         let queryGen = CompanyModel.find({ data: { $ne: null } })
+        } else {
+            return null;
+        }
 
-//         if (searchQuery) {
+    }
 
-//             if (searchQuery.title)
-//                 queryGen
-//                     .searchMediaByTitle(searchQuery.title)
-
-//         }
-
-//         queryGen.select('pubId data');
-
-//         // Mise en place pagination & résultats;
-
-//         const generatedQuery = queryGen.getQuery();
-//         const totalResults = await CompanyModel.countDocuments(generatedQuery);
-//         const searchResult = await CompanyModel.find(generatedQuery)
-//             .skip(limitPerPage * (currentPage - 1))
-//             .limit(limitPerPage);
-
-//         const totalPage = Math.round(totalResults / limitPerPage) < 1 ? 1 : Math.round(totalResults / limitPerPage);
-
-//         console.log('result', searchResult.map((x) => x.toJSON()))
-//         return {
-//             currentPage,
-//             totalPage,
-//             limitPerPage,
-//             totalResults,
-//             hasNextPage: currentPage < totalPage,
-//             hasPrevPage: currentPage >= 1 && currentPage < totalPage,
-//             results: searchResult.map((x) => ({ id: x.pubId, ...x.data as Company }))
-//         };
-//     }
-
-//     @Query(_returns => CompanyMediaOutput, { nullable: true })
-//     async getFullCompany(@Arg("id", () => Number) id: number): Promise<CompanyMediaOutput | null> {
-
-//         const findCompany = await CompanyModel.findOne({ id });
-
-//         if (findCompany) {
-
-//             function sortByCreatedAt(a: IMediaUpdates<Company>, b: IMediaUpdates<Company>) {
-//                 if (!b.createdAt || !a.createdAt) return 0;
-//                 return b.createdAt.getTime() - a.createdAt.getTime()
-//             }
-//             const sortedUpdate = findCompany.updates.sort(sortByCreatedAt);
-//             const sortedUpdateRequest = findCompany.requests.sort(sortByCreatedAt);
-
-//             return {
-//                 ...findCompany.toJSON(),
-//                 data: findCompany.data,
-//                 lastRequestDate: sortedUpdateRequest[0].createdAt,
-//                 lastUpdateDate: sortedUpdate[0].createdAt
-//             }
-
-//         } else {
-//             return null;
-//         }
-//     }
-
-//     @Query(_returns => [CompanyMediaPaginationOutput], { nullable: true })
-//     async searchFullCompany(
-//         @Arg("pagination", () => Pagination, { nullable: true }) pagination: Pagination | null,
-//         @Arg("searchQuery", () => CompanySearchQuery, { nullable: true }) searchQuery: CompanySearchQuery | null
-//     ): Promise<CompanyMediaPaginationOutput> {
-
-//         let currentPage = pagination?.page || 1;
-//         let limitPerPage = pagination?.limit || 20;
-
-//         // Mise en place query
-//         let queryGen = CompanyModel.find()
-
-//         if (searchQuery) {
-
-//             if (searchQuery.title)
-//                 queryGen
-//                     .searchMediaByTitle(searchQuery.title)
-
-//         }
-
-//         // Mise en place pagination & résultats;
-
-//         const generatedQuery = queryGen.getQuery();
-//         const totalResults = await CompanyModel.countDocuments(generatedQuery);
-//         const searchResult = await CompanyModel.find(generatedQuery)
-//             .skip(limitPerPage * (currentPage - 1))
-//             .limit(limitPerPage);
-
-//         const totalPage = Math.round(totalResults / limitPerPage) < 1 ? 1 : Math.round(totalResults / limitPerPage);
-
-//         console.log('result', searchResult.map((x) => x.toJSON()))
-
-//         function sortByCreatedAt(a: IMediaUpdates<Company>, b: IMediaUpdates<Company>) {
-//             if (!b.createdAt || !a.createdAt) return 0;
-//             return b.createdAt.getTime() - a.createdAt.getTime()
-//         }
-//         return {
-//             currentPage,
-//             totalPage,
-//             limitPerPage,
-//             totalResults,
-//             hasNextPage: currentPage < totalPage,
-//             hasPrevPage: currentPage >= 1 && currentPage < totalPage,
-//             results: searchResult.map((animeMedia) => {
-//                 const sortedUpdate = animeMedia.updates.sort(sortByCreatedAt);
-//                 const sortedUpdateRequest = animeMedia.requests.sort(sortByCreatedAt);
-//                 return {
-//                     ...animeMedia.toJSON(),
-//                     lastRequestDate: sortedUpdateRequest[0].createdAt,
-//                     lastUpdateDate: sortedUpdate[0].createdAt
-//                 }
-//             })
-//         };
-//     }
-
-//     @Mutation(_ => MediaUpdateOutput, { description: "Ajouter une Company" })
-//     async createCompany(
-//         @Arg("data", _ => CompanyInput) dataInput: CompanyInput,
-//         @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
-//     )
-//         : Promise<MediaUpdateOutput> {
-
-//         const author = undefined;
-
-//         const companyInput = await new CompanyInput().init(dataInput, "direct_update");
-
-//         const update = await companyInput.createUpdate({
-//             label: "Company",
-//             action: "Création d'un Company",
-//             field: { author, moderator: author, visible: options.setUpdatePublic }
-//         });
-
-//         await update.model.validate();
-
-//         // Validation
-//         await Promise.all(companyInput.mediasToSave.map(({ model }) => {
-//             return model.save({ validateBeforeSave: false });
-//         }))
-
-//         return {
-//             mediaType: MediaType.COMPANY,
-//             message: "Company a bien été crée.",
-//             pubId: update.model.pubId
-//         }
-//     }
-
-
-//     @Mutation(_ => MediaUpdateOutput, { description: "Demande d'ajout Company" })
-//     async createCompanyRequest(
-//         @Arg("data", _ => CompanyInput) dataInput: CompanyInput,
-//         // @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
-//     ): Promise<MediaUpdateOutput> {
-
-//         const author = undefined;
-
-//         const companyInput = await new CompanyInput().init(dataInput, "request");
-
-//         const request = await companyInput.createRequest({
-//             label: "Company",
-//             action: "Demande d'ajout Company",
-//             field: { author, moderator: author }
-//         });
-
-//         await request.model.validate();
-
-//         // Validation
-//         await Promise.all(companyInput.mediasToSave.map(({ model }) => {
-//             return model.save({ validateBeforeSave: false });
-//         }))
-
-//         return {
-//             mediaType: MediaType.COMPANY,
-//             message: "La demande a bien été crée.",
-//             pubId: request.model.pubId
-//         }
-//     }
-
-//     @Mutation(_ => MediaUpdateOutput, { description: "Modification d'un Company" })
-//     async updateCompany(
-//         @Arg('companyToUpdate') mediaToUpdate: string,
-//         @Arg('versionToUpdate', { nullable: true, description: "Modifier une précédente modification" }) versionToUpdate: number,
-//         @Arg("data", _ => CompanyInput) dataInput: CompanyInput,
-//         @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
-//     ): Promise<MediaUpdateOutput> {
-
-//         const author = undefined;
-
-//         const companyInput = await new CompanyInput().init(dataInput, "direct_update");
-
-//         const update = await companyInput.createUpdate({
-//             mediaToUpdate,
-//             versionToUpdate,
-//             public: options.setMediaPublic,
-//             label: "Company",
-//             action: "Modification d'un Company",
-//             field: {
-//                 author,
-//                 moderator: author,
-//                 visible: options.setUpdatePublic
-//             }
-//         });
-
-//         await update.model.validate();
-
-//         // Validation
-//         await Promise.all(companyInput.mediasToSave.map(({ model }) => {
-//             return model.save({ validateBeforeSave: false });
-//         }))
-
-//         return {
-//             mediaType: MediaType.COMPANY,
-//             message: "Company a bien été crée.",
-//             pubId: update.model.pubId
-//         }
-//     }
-
-
-
-//     @Mutation(_ => MediaUpdateOutput, { description: "Demande de Modification d'un Company" })
-//     async requestCompanyUpdate(
-//         @Arg('companyToUpdate') mediaToUpdate: string,
-//         @Arg('versionToUpdate', { nullable: true, description: "Modifier une précédente modification" }) versionToUpdate: number,
-//         @Arg("data", _ => CompanyInput) dataInput: CompanyInput,
-//         @Arg("options", _ => MediaUpdateOptionArg) options: MediaUpdateOptionArg
-//     ): Promise<MediaUpdateOutput> {
-
-//         const author = undefined;
-
-//         const companyInput = await new CompanyInput().init(dataInput, "request");
-
-//         const request = await companyInput.createRequest({
-//             mediaToUpdate,
-//             versionToUpdate,
-//             public: options.setMediaPublic,
-//             label: "Company",
-//             action: "Demande de Modification d'un Company",
-//             field: {
-//                 author,
-//                 moderator: author,
-//                 visible: options.setUpdatePublic
-//             }
-//         });
-
-//         await request.model.validate();
-
-//         // Validation
-//         await Promise.all(companyInput.mediasToSave.map(({ model }) => {
-//             return model.save({ validateBeforeSave: false });
-//         }))
-
-//         return {
-//             mediaType: MediaType.COMPANY,
-//             message: "La Company a bien été crée.",
-//             pubId: request.model.pubId
-//         }
-//     }
-// }
+    @Query(_returns => CompanyPaginationOutput, { nullable: true })
+    async searchCompanys(
+
+        @Arg("pagination", () => Pagination, { nullable: true })
+        pagination: Pagination | null,
+
+        @Arg("searchQuery", () => CompanySearchQuery, { nullable: true })
+        searchQuery: CompanySearchQuery | null,
+
+        @Arg("searchLogic", () => MediaSearchLogic, { nullable: true, defaultValue: 'OR' })
+        searchLogic: MediaSearchLogic,
+
+        @Info()
+        info: any
+
+    ): Promise<CompanyPaginationOutput | null> {
+
+        console.log('searchCompanys');
+
+        const queryGen = CompanyModel.find();
+        // .find({ data: { $ne: null } });
+
+        console.log('searchQuery', searchQuery)
+
+        if (searchQuery)
+            queryGen.queryParse(searchQuery, searchLogic)
+
+
+        return PaginationQuery({
+            model: CompanyModel,
+            paginationQuery: pagination,
+            filter: queryGen.getQuery(),
+            info,
+            customProjection: searchQuery ? CompanySearchQuery.genProjection(searchQuery) : {}
+        });
+    }
+
+    @Query(_returns => CompanyMedia, { nullable: true })
+    async getFullCompany(@Arg("id", () => String) id: String) {
+
+        const findCompany = await CompanyModel.findOne({ id }).lean();
+
+        console.log('getFullCompany', findCompany, id);
+
+        if (findCompany) {
+            const sortedUpdate = findCompany.updates?.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+            // const sortedUpdateRequest = findCompany.requests?.sort(sortByCreatedAt);
+
+            return findCompany
+        } else {
+            return null;
+        }
+    }
+
+    @Mutation(_ => Company, { description: "Ajouter un (nouvel) company (staff)" })
+    async createCompany(@Arg("data", _ => CompanyInput) dataInput: CompanyInput) {
+
+        const update = await CompanyInput.createUpdate(
+            dataInput, 'direct_update', {
+            author: '',
+            verifiedBy: ''
+        }
+        );
+
+        let model = await update.save();
+
+        let json = model.toJSON();
+
+        return json.data
+    }
+
+    @Authorized<IUserRoles>(IUserRoles['ADMIN'])
+    async updateCompany(
+        @Arg("id", () => String) id: string,
+        @Arg("data", _ => CompanyInput) dataInput: CompanyInput
+    ) {
+
+        const update = await CompanyInput.createUpdate(dataInput, 'direct_update', {
+            author: '',
+            verifiedBy: ''
+        });
+
+        let data = await update.addTo(id);
+
+        if (!data) return null;
+
+        return data.data;
+    }
+}

@@ -1,13 +1,12 @@
 
 
-import { Field, InputType, ObjectType, registerEnumType } from "type-graphql";
-import { Prop, ModelOptions, modelOptions, Ref } from "@typegoose/typegoose";
-import { MediaPersonOrCharacterName, MediaPersonGender } from "../../utils/_media.types";
+import { ClassType, Field, InputType, ObjectType, registerEnumType } from "type-graphql";
+import { Prop, ModelOptions, modelOptions, types } from "@typegoose/typegoose";
+import { MediaPersonOrCharacterName, MediaPersonGender, MediaSearchLogic } from "../../utils/_media.types";
 import { PersonRelation } from "../persons/_person.type";
 import { DataVirtual } from "../../utils/_media.virtual";
-import { MediaFormatOutput } from "../../utils/_media.format";
-// import { PaginationOutput } from "../../utils/_media.pagination";
-
+import { FilterQuery } from "mongoose";
+import { Base } from "../../utils/_media.base";
 
 export enum CharacterSpecies {
     ELFE = "ELFE",
@@ -24,59 +23,47 @@ registerEnumType(CharacterSpecies, {
 
 @ObjectType()
 @ModelOptions({ schemaOptions: { _id: false, toJSON: { virtuals: true } } })
-export class Character {
+export class Character extends Base('Character') {
 
-    @Field()
-    @Prop()
-    id?: string;
-
-    @Field()
-    @Prop()
-    pubId?: string;
-
-    @Field(type => MediaPersonOrCharacterName)
+    @Field(type => MediaPersonOrCharacterName, { nullable: true })
     @Prop(({ type: MediaPersonOrCharacterName }))
     name!: MediaPersonOrCharacterName
 
-    @Field()
+    @Field({ nullable: true })
     @Prop()
     age?: number;
 
-    @Field()
+    @Field({ nullable: true })
     @Prop()
     birthDate?: string;
 
-    @Field(type => MediaPersonGender)
+    @Field(type => MediaPersonGender, { nullable: true })
     @Prop({ enum: MediaPersonGender })
     gender?: MediaPersonGender;
 
-    @Field(type => CharacterSpecies)
+    @Field(type => CharacterSpecies, { nullable: true })
     @Prop({ enum: CharacterSpecies })
     species?: CharacterSpecies;
 
-    @Field()
+    @Field({ nullable: true })
     @Prop()
     bio?: string;
 
-    @Field()
+    @Field({ nullable: true })
     @Prop()
     image?: string;
 
-    @Field(type => [PersonRelation])
+    @Field(type => [PersonRelation], { nullable: true })
     @Prop({ type: [PersonRelation] })
     actors?: PersonRelation[];
-
-    constructor(props: Character) {
-        Object.assign(this, props);
-    }
 }
 
 export enum CharacterRelationLabel {
-    Principal,
-    Secondaire,
-    Figurant,
-    Antagoniste,
-    Soutien
+    Principal = 'PRINCIPAL',
+    Secondaire = "SECONDAIRE",
+    Figurant = "FIGURANT",
+    Antagoniste = "ANTAGONISTE",
+    Soutien = "SOUTIEN"
 }
 
 registerEnumType(CharacterRelationLabel, {
@@ -102,18 +89,53 @@ registerEnumType(CharacterRelationLabel, {
 export class CharacterRelation extends DataVirtual(Character) {
     @Field(_ => String)
     @Prop({ type: () => String, required: true })
-    pubId!: string;
+    id!: string;
 
     @Field(_ => CharacterRelationLabel, { nullable: true })
     @Prop({ enum: CharacterRelationLabel, default: undefined })
     label?: CharacterRelationLabel;
 }
 
-// @ObjectType()
-// export class CharacterPaginationOutput extends PaginationOutput<Character>(Character) { }
-
 @InputType()
 export class CharacterSearchQuery {
-    @Field()
-    title!: string;
+    @Field({ nullable: true })
+    name?: string;
+
+    static queryParse(this: types.QueryHelperThis<ClassType<Character>, CharacterCustomQuery>, props: CharacterSearchQuery, logic: MediaSearchLogic) {
+        let query: FilterQuery<Character>[] = [];
+        if (props.name)
+            query = query.concat([
+                { "data.name.first": { "$regex": props.name, "$options": "i" } },
+                { "data.name.end": { "$regex": props.name, "$options": "i" } },
+                { "data.name.alias": { "$regex": props.name, "$options": "i" } },
+            ])
+
+        switch (logic) {
+            case MediaSearchLogic.OR:
+                if (query.length) this.or(query)
+                break;
+
+            case MediaSearchLogic.AND:
+                if (query.length) this.and(query)
+                break;
+
+            default:
+                if (query.length) this.or(query)
+                break;
+        }
+
+        console.log('query', this.getQuery())
+
+        return this;
+    }
+
+    static genProjection(props: CharacterSearchQuery) {
+        let projections: { [key: string]: any } = {};
+
+        return projections;
+    }
+}
+
+export interface CharacterCustomQuery {
+    queryParse: types.AsQueryMethod<typeof CharacterSearchQuery.queryParse>;
 }

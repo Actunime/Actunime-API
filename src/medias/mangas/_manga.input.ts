@@ -1,38 +1,47 @@
 
-import { Field, InputType, ObjectType } from 'type-graphql';
+import { Field, InputType } from 'type-graphql';
 import { MediaRequiredFields } from '../../utils/_media.base';
-import { AnimeModel } from './_anime.model';
-import { Anime } from './_anime.type';
+import { MangaModel } from './_manga.model';
+import { Manga } from './_manga.type';
 import { MediaTitleInput, MediaDateInput, MediaImageInput, MediaLinkInput, MediaDoc, createUpdate, UpdateParams } from '../../utils';
-import { DefaultAnimeFormatEnum, DefaultSourceEnum, DefaultStatusEnum, GenresEnum } from '../defaultData';
+import { DefaultMangaFormatEnum, DefaultSourceEnum, DefaultStatusEnum, GenresEnum } from '../defaultData';
 import { CharacterInput, CharacterRelationFields } from '../characters/_character.input';
 import { CompanyInput, CompanyRelationFields } from '../companys/_company.input';
 import { PersonInput, PersonRelationFields } from '../persons/_person.input';
 import { GroupeInput, GroupeRelationFields } from '../groupe/_groupe.input';
-import { TrackInput, TrackRelationFields } from '../tracks/_track.input';
 
 @InputType()
-class AnimeEpisodeInput {
+class MangaChapterInput {
     @Field({ nullable: true })
     airing!: number;
     @Field({ nullable: true })
     nextAiringDate?: Date;
     @Field({ nullable: true })
     total!: number;
-    @Field({ nullable: true })
-    durationMinutePerEp?: number;
 }
 
 @InputType()
-class AnimeSourceRelationInput {
-    @Field(() => DefaultSourceEnum)
-    origine!: DefaultSourceEnum
+class MangaVolumeInput {
     @Field({ nullable: true })
-    id?: string
+    name!: string;
+    @Field({ nullable: true })
+    num?: number;
+    @Field({ nullable: true })
+    pubDate!: Date;
+    @Field({ nullable: true })
+    image!: string;
 }
 
-@InputType({ description: "Anime" })
-export class AnimeInput {
+@InputType()
+class MangaSourceRelationInput {
+    @Field(() => DefaultSourceEnum)
+    origine!: DefaultSourceEnum
+    // @Field({ nullable: true }) // Euh cas de figure a voir...
+    // id?: string
+}
+
+@InputType({ description: "Manga" })
+export class MangaInput {
     @Field(() => GroupeRelationFields)
     groupe?: GroupeRelationFields
 
@@ -51,14 +60,11 @@ export class AnimeInput {
     @Field({ nullable: true })
     synopsis?: string;
 
-    @Field(() => AnimeSourceRelationInput)
-    source?: AnimeSourceRelationInput;
+    @Field(() => MangaSourceRelationInput)
+    source?: MangaSourceRelationInput;
 
-    @Field(() => DefaultAnimeFormatEnum, { nullable: true })
-    format?: DefaultAnimeFormatEnum;
-
-    @Field({ nullable: true })
-    vf?: boolean
+    @Field(() => DefaultMangaFormatEnum, { nullable: true })
+    format?: DefaultMangaFormatEnum;
 
     @Field(() => [GenresEnum], { nullable: true })
     genres?: GenresEnum[];
@@ -69,8 +75,11 @@ export class AnimeInput {
     @Field(() => DefaultStatusEnum)
     status!: DefaultStatusEnum;
 
-    @Field(() => AnimeEpisodeInput, { nullable: true })
-    episodes?: AnimeEpisodeInput;
+    @Field(() => MangaChapterInput, { nullable: true })
+    chapters?: MangaChapterInput;
+
+    @Field(() => [MangaVolumeInput], { nullable: true })
+    volumes?: MangaVolumeInput[]
 
     @Field({ defaultValue: false, nullable: true })
     adult?: boolean;
@@ -90,28 +99,24 @@ export class AnimeInput {
     @Field(_ => CharacterRelationFields)
     characters?: CharacterRelationFields
 
-    @Field(_ => TrackRelationFields)
-    tracks?: TrackRelationFields
+    static async createUpdate(props: MangaInput, action: "request" | "direct_update", params: Omit<UpdateParams<Manga>, 'db' | 'changes'>) {
 
-    static async createUpdate(props: AnimeInput, action: "request" | "direct_update", params: Omit<UpdateParams<Anime>, 'db' | 'changes'>) {
-
-        const db = AnimeModel;
+        const db = MangaModel;
         let docToSaveWith: MediaDoc<any>[] = [];
 
-        let changes: Omit<Anime, MediaRequiredFields> = {
+        let changes: Omit<Manga, MediaRequiredFields> = {
             ...props,
             parent: props.parent ? { id: props.parent } : undefined,
             groupe: props.groupe ? GroupeInput.InitFromRelation(props.groupe, action, (m) => docToSaveWith = docToSaveWith.concat(m), params) : undefined,
             companys: props.companys ? CompanyInput.InitFromRelation(props.companys, action, (m) => docToSaveWith = docToSaveWith.concat(m), params) : undefined,
             staffs: props.staffs ? PersonInput.InitFromRelation(props.staffs, action, (m) => docToSaveWith = docToSaveWith.concat(m), params) : undefined,
             characters: props.characters ? CharacterInput.InitFromRelation(props.characters, action, (m) => docToSaveWith = docToSaveWith.concat(m), params) : undefined,
-            tracks: props.tracks ? TrackInput.InitFromRelation(props.tracks, action, (m) => docToSaveWith = docToSaveWith.concat(m), params) : undefined,
         };
 
         if (action === 'direct_update') {
-            return createUpdate<Omit<Anime, MediaRequiredFields>>({ changes, db, docToSaveWith, ...params })
+            return createUpdate<Omit<Manga, MediaRequiredFields>>({ changes, db, docToSaveWith, ...params })
         } else {
-            return createUpdate<Omit<Anime, MediaRequiredFields>>({ changes, db, docToSaveWith, ...params })
+            return createUpdate<Omit<Manga, MediaRequiredFields>>({ changes, db, docToSaveWith, ...params })
         }
     }
 }

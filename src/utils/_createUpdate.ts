@@ -1,114 +1,112 @@
 import { BeAnObject, IObjectWithTypegooseFunction, ReturnModelType } from "@typegoose/typegoose/lib/types";
 import { Document, Types } from 'mongoose';
-import { IMediaFormat } from "./_media.format";
-import { IMediaUpdates } from "./_media.update";
 import { ClassType } from "type-graphql";
-import { genMediaFromUpdate } from "./_genMediaFromUpdate";
+import { createDataFromUpdate } from "./_genMediaFromUpdate";
+import { IMedia } from "./_media.base";
 
-export type MediaDoc<T = any> = Document<unknown, BeAnObject, T> & Omit<T & { _id: Types.ObjectId; }, "typegooseName"> & IObjectWithTypegooseFunction
+export type MediaDoc<TMedia extends object, T = IMedia<TMedia>> = Document<T, BeAnObject, T> & Omit<T & { _id: Types.ObjectId; }, "typegooseName"> & IObjectWithTypegooseFunction
 
-export function createUpdate<TMedia extends object, TDB extends ReturnModelType<ClassType<IMediaFormat<TMedia, any, any>>, TMedia> = ReturnModelType<any, any>>(
-    options: {
-        /** Les données a modifier */
-        media: TMedia,
-        /** Model base de données */
-        db: TDB,
-        /** Public */
-        visible: boolean;
-        /** Document a sauvegarder avec cette mise a jour */
-        docToSaveWith?: MediaDoc[]
-    }) {
+export interface UpdateParams<TMedia extends object, TDB = ReturnModelType<any, any>> {
+    changes: TMedia,
+    db: TDB,
+    author: string,
+    verifiedBy?: string,
+    docToSaveWith?: MediaDoc<any>[]
+}
 
-    const { media, visible, db, docToSaveWith } = options;
+export function createUpdate<
+    TMedia extends object, TDB extends ReturnModelType<ClassType<IMedia<TMedia>>, TMedia> = ReturnModelType<any, any>>(
+        options: UpdateParams<TMedia, TDB>
+    ) {
 
-    const update: IMediaUpdates<TMedia> = {
-        // versionId: genPublicID(),
-        data: media,
-        // createdAt: new Date(),
-        updatedAt: new Date(),
-        visible
+    const { changes, author, verifiedBy, db, docToSaveWith } = options;
+
+    const update = {
+        changes,
+        author,
+        verifiedBy,
     }
 
     return {
-        returnModels: () => {
-            const model: MediaDoc = new db();
+        returnModels: (): MediaDoc<any>[] => {
+            const model = new db() as MediaDoc<any>;
+
             model.updates.push(update);
             return docToSaveWith ? [model, ...docToSaveWith] : [model];
         },
         save: async () => {
+            try {
+                if (docToSaveWith)
+                    for await (let doc of docToSaveWith) {
+                        await doc.validate();
+                    }
 
-            if (docToSaveWith)
-                for await (let doc of docToSaveWith) {
-                    await doc.validate();
-                }
+                const model = new db();
+                model.updates.push(update);
+                await model.validate();
 
+                if (docToSaveWith)
+                    for await (let doc of docToSaveWith) {
+                        await doc.save();
+                        console.log('relation doc saved')
+                    }
 
-            const model = new db();
-            model.updates.push(update);
-            await model.validate();
+                await model.save({ validateBeforeSave: false });
+                console.log('main doc saved')
 
-            if (docToSaveWith)
-                for await (let doc of docToSaveWith) {
-                    await doc.save();
-                    console.log('relation doc saved')
-                }
-
-            await model.save({ validateBeforeSave: false });
-            console.log('main doc saved')
-            return model;
+                return model;
+            } catch (err) {
+                console.error('ON SAVE', err)
+                throw "Une erreur s'est produire lors de la sauvegarde"
+            }
         },
-        addTo: async (pubId: string) => {
-            const query = await db.findOne({
-                pubId
-            })
+        addTo: async (id: string) => {
+
+            const query = await db.findOne({ id });
+
             if (!query) return null;
 
-            update.createdAt = new Date();
-
-            let modified = await query.updateOne({
-                $set: {
-                    'data': genMediaFromUpdate([...query.updates.map(x => x.toJSON()), update])
-                },
+            const modified = await query.updateOne({
+                $set: { 'data': createDataFromUpdate([...query.updates, update]) },
                 $push: { 'updates': update }
-            },
-                { runValidators: true }
-            )
+            }, { runValidators: true, new: true }).lean();
 
-            return modified;
+            if (!modified)
+                return null
+
+            return modified as IMedia<TMedia>;
         },
-        edit: async (pubId: string, versionId: string, moderator: string) => {
+        edit: async (id: string, updateId: string) => {
 
-            let keys = Object.keys(update.data);
+            let keys = Object.keys(update.changes);
             let setData: any = {};
             for (let i = 0; i < keys.length; i++)
-                setData[`updates.$.data.${keys[i]}`] = update.data[keys[i] as keyof typeof update.data]
+                setData[`updates.$.changes.${keys[i]}`] = update.changes[keys[i] as keyof typeof update.changes]
 
             const query = await db.findOne({
-                pubId,
+                id,
                 $and: [
-                    { updates: { $elemMatch: { versionId } } },
-                    { 'updates.moderator': moderator }
+                    { updates: { $elemMatch: { id: updateId } } },
+                    { 'updates.verifiedBy': update.verifiedBy }
                 ]
             })
 
             if (!query) return null;
 
-            let oldVersion = query.updates.find((u) => u.versionId === versionId);
-        
+            let oldVersion = query.updates.find((u) => u.id === updateId);
+
             let modified = await db.updateOne(
                 {
-                    pubId,
+                    id,
                     $and: [
-                        { updates: { $elemMatch: { versionId } } },
-                        { 'updates.moderator': moderator }
+                        { updates: { $elemMatch: { id: updateId } } },
+                        { 'updates.verifiedBy': update.verifiedBy }
                     ]
                 },
                 {
                     $set: {
-                        'data': genMediaFromUpdate([...query.updates.map(x => x.toJSON()), { ...oldVersion.toJSON(), ...update }]),
-                        ...setData,
-                        'updates.$.updatedAt': update.updatedAt,
-                        'updates.$.visible': update.visible
+                        'data': createDataFromUpdate([...query.updates, { ...oldVersion, ...update }]),
+                        ...setData
                     }
                 },
                 { runValidators: true }

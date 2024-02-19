@@ -1,13 +1,10 @@
 
-import { Field, InputType, ObjectType, registerEnumType } from "type-graphql";
-import { Prop, Pre, modelOptions, getModelForClass, Ref } from "@typegoose/typegoose";
-import { genMediaFromUpdate } from "../../utils/_genMediaFromUpdate";
-import { MediaFormatOutput, MediaFormat } from "../../utils/_media.format";
-// import { PaginationOutput } from "../../utils/_media.pagination";
-import { MediaRequestFormat } from "../../utils/_media.request";
-import { MediaLink } from "../../utils/_media.types";
-import { MediaUpdateFormat } from "../../utils/_media.update";
+import { ClassType, Field, InputType, ObjectType, registerEnumType } from "type-graphql";
+import { Prop, modelOptions, types } from "@typegoose/typegoose";
+import { MediaLink, MediaSearchLogic } from "../../utils/_media.types";
 import { DataVirtual } from "../../utils";
+import { FilterQuery } from "mongoose";
+import { Base } from "../../utils/_media.base";
 
 
 export enum CompanyLabel {
@@ -21,15 +18,7 @@ registerEnumType(CompanyLabel, {
 })
 
 @ObjectType()
-export class Company {
-
-    @Field()
-    @Prop()
-    id?: string;
-
-    @Field()
-    @Prop()
-    pubId?: string;
+export class Company extends Base('Company') {
 
     @Field(t => CompanyLabel)
     @Prop({ enum: CompanyLabel })
@@ -46,10 +35,6 @@ export class Company {
     @Field()
     @Prop()
     createdDate?: Date
-
-    constructor(props: Company) {
-        Object.assign(this, props);
-    }
 }
 
 @ObjectType()
@@ -57,5 +42,52 @@ export class Company {
 export class CompanyRelation extends DataVirtual(Company) {
     @Field()
     @Prop({ required: true })
-    pubId!: string;
+    id!: string;
+}
+
+@InputType()
+export class CompanySearchQuery {
+    @Field({ nullable: true })
+    name?: string;
+
+    @Field(_ => CompanyLabel, { nullable: true })
+    label?: CompanyLabel;
+
+    static queryParse(this: types.QueryHelperThis<ClassType<Company>, CompanyCustomQuery>, props: CompanySearchQuery, logic: MediaSearchLogic) {
+        let query: FilterQuery<Company>[] = [];
+
+        if (props.name)
+            query.push({ "data.name": { "$regex": props.name, "$options": "i" } })
+
+        if (props.label)
+            query.push({ "data.label": props.label })
+
+        switch (logic) {
+            case MediaSearchLogic.OR:
+                if (query.length) this.or(query)
+                break;
+
+            case MediaSearchLogic.AND:
+                if (query.length) this.and(query)
+                break;
+
+            default:
+                if (query.length) this.or(query)
+                break;
+        }
+
+        console.log('query', this.getQuery())
+
+        return this;
+    }
+
+    static genProjection(props: CompanySearchQuery) {
+        let projections: { [key: string]: any } = {};
+
+        return projections;
+    }
+}
+
+export interface CompanyCustomQuery {
+    queryParse: types.AsQueryMethod<typeof CompanySearchQuery.queryParse>;
 }

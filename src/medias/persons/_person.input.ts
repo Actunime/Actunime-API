@@ -1,15 +1,14 @@
 import { Field, InputType } from "type-graphql";
 // import { HandlerInputOnly, InputHandler } from "../../utils/_inputHandler";
-import { Person, PersonRelation } from './_person.type';
+import { Person, PersonRelation, PersonrRoleRelationLabel } from './_person.type';
 import { MediaLinkInput, MediaPersonGender, MediaPersonOrCharacterNameInput } from "../../utils/_media.types";
-import { MediaUpdateOptionArg } from "../../utils/_media.update";
 import { PersonModel } from "./_person.model";
-import { MediaDoc, createUpdate } from "../../utils";
-
+import { MediaDoc, UpdateParams, createUpdate } from "../../utils";
+import { MediaRequiredFields } from "../../utils/_media.base";
 
 @InputType()
 export class PersonInput implements Partial<Person> {
-    
+
     // @Field(type => PersonLabel)
     // label!: PersonLabel
 
@@ -35,33 +34,33 @@ export class PersonInput implements Partial<Person> {
     links?: MediaLinkInput[]
 
 
-    static createUpdate(props: PersonInput, action: "request" | "direct_update", visible: boolean) {
+    static createUpdate(props: PersonInput, action: "request" | "direct_update", params: Omit<UpdateParams<Person>, 'db' | 'changes'>) {
 
         const db = PersonModel;
-        let docToSaveWith: MediaDoc[] = [];
+        let docToSaveWith: MediaDoc<any>[] = [];
 
-        let media: Person = { ...props };
+        let changes: Omit<Person, MediaRequiredFields> = { ...props };
 
         if (action === 'direct_update') {
-            return createUpdate<Person>({ media, db, visible, docToSaveWith })
+            return createUpdate<Omit<Person, MediaRequiredFields>>({ changes, db, docToSaveWith, ...params })
         } else {
-            return createUpdate<Person>({ media, db, visible, docToSaveWith })
+            return createUpdate<Omit<Person, MediaRequiredFields>>({ changes, db, docToSaveWith, ...params })
         }
     }
 
     static InitFromRelation(
         props: PersonRelationFields,
         action: "request" | "direct_update",
-        addModel: (m: MediaDoc[]) => void) {
+        addModel: (m: MediaDoc<any>[]) => void, params: Omit<UpdateParams<Person>, 'db' | 'changes'>) {
 
         let relationOutput: PersonRelation[] = [];
 
         if (props.news) {
             for (const relation of props.news) {
-                const update = this.createUpdate(relation.data, action, relation.options?.visible === undefined ? true : false);
+                const update = this.createUpdate(relation.data, action, params);
                 let model = update.returnModels()
                 relationOutput.push({
-                    pubId: model[0].pubId,
+                    id: model[0].id,
                     label: relation.label,
                     data: null
                 })
@@ -72,7 +71,7 @@ export class PersonInput implements Partial<Person> {
         if (props.exists) {
             for (const relation of props.exists) {
                 relationOutput.push({
-                    pubId: relation.pubId,
+                    id: relation.id,
                     label: relation.label,
                     data: null
                 })
@@ -83,28 +82,20 @@ export class PersonInput implements Partial<Person> {
     }
 }
 
-@InputType()
-export class PersonSearchQuery {
-    @Field()
-    title!: string;
-}
-
 @InputType({ description: "Relation Person, ajouter une nouvelle société en même temps qu'un nouveau media." })
 class PersonRelationAddInput {
     @Field(_ => PersonInput)
     data!: PersonInput;
     @Field()
-    label!: string;
-    @Field(_ => MediaUpdateOptionArg, { nullable: true })
-    options?: MediaUpdateOptionArg
+    label!: PersonrRoleRelationLabel;
 }
 
 @InputType({ description: "Relation Person, ajouter une société a un nouveau media." })
 class PersonRelationExistInput {
     @Field(_ => String)
-    pubId!: string;
+    id!: string;
     @Field()
-    label!: string;
+    label!: PersonrRoleRelationLabel;
 }
 
 @InputType()

@@ -1,0 +1,22 @@
+[
+    {
+        "label": "Opening",
+        "value": "OPENING",
+        "description": "C'est le générique d'ouverture qui donne un avant-goût de l'œuvre."
+    },
+    {
+        "label": "Ending",
+        "value": "ENDING",
+        "description": "C'est la musique qui se situe à la fin de l'épisode."
+    },
+    {
+        "label": "OST",
+        "value": "OST",
+        "description": "Ce sont les musiques qui accompagnent les scènes de l'anime."
+    },
+    {
+        "label": "Insert",
+        "value": "INSERT",
+        "description": "Un insert song est une chanson qui est jouée pendant un épisode, généralement lors d'une scène importante ou dramatique."
+    }
+]

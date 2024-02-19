@@ -5,7 +5,7 @@ import { FilterQuery } from "mongoose";
 // Utiles
 import { Base } from "../../utils/_media.base";
 import { MediaTitle, MediaDate, MediaLink, MediaImage, MediaSearchLogic } from "../../utils/_media.types";
-import { DefaultAnimeFormatEnum, DefaultSourceEnum, DefaultStatusEnum, GenresEnum } from "../defaultData";
+import { DefaultMangaFormatEnum, DefaultSourceEnum, DefaultStatusEnum, GenresEnum } from "../defaultData";
 import themes from '../defaultFiles/themes.json';
 // Relations
 import { PersonRelation } from "../persons/_person.type";
@@ -16,16 +16,16 @@ import { GroupeRelation } from "../groupe/_groupe.type";
 
 @ObjectType()
 @modelOptions({ schemaOptions: { _id: false, toJSON: { virtuals: true } } })
-export class AnimeRelation {
+export class MangaRelation {
     @Field({ nullable: true })
     @Prop()
     id!: string;
 }
 
-/** Anime part types */
+/** Manga part types */
 @ObjectType()
 @ModelOptions({ schemaOptions: { _id: false } })
-class AnimeEpisode {
+class MangaEpisode {
     // @Field({ nullable: true }) @Prop()
     @Field({ nullable: true })
     @Prop()
@@ -46,7 +46,7 @@ class AnimeEpisode {
 
 @ObjectType()
 @ModelOptions({ schemaOptions: { _id: false } })
-class AnimeSource {
+class MangaSource {
     @Field(() => DefaultSourceEnum)
     @Prop({ enum: DefaultSourceEnum })
     origine!: DefaultSourceEnum
@@ -55,17 +55,17 @@ class AnimeSource {
     refPubId?: string
 }
 
-/** Anime type */
+/** Manga type */
 @ObjectType()
-export class Anime extends Base('Anime') {
+export class Manga extends Base('Manga') {
 
     @Field(_ => GroupeRelation, { nullable: true })
     @Prop({ type: GroupeRelation })
     groupe?: GroupeRelation;
 
-    @Field(_ => AnimeRelation, { nullable: true })
-    @Prop({ type: AnimeRelation, default: undefined })
-    parent?: AnimeRelation;
+    @Field(_ => MangaRelation, { nullable: true })
+    @Prop({ type: MangaRelation, default: undefined })
+    parent?: MangaRelation;
 
     @Field(_ => MediaTitle, { nullable: true })
     @Prop({ default: undefined })
@@ -83,13 +83,13 @@ export class Anime extends Base('Anime') {
     @Prop({ default: undefined })
     synopsis?: string;
 
-    @Field(() => AnimeSource, { nullable: true })
-    @Prop({ type: AnimeSource, default: undefined })
-    source?: AnimeSource;
+    @Field(() => MangaSource, { nullable: true })
+    @Prop({ type: MangaSource, default: undefined })
+    source?: MangaSource;
 
-    @Field(_ => DefaultAnimeFormatEnum, { nullable: true })
-    @Prop({ enum: DefaultAnimeFormatEnum, default: undefined })
-    format?: DefaultAnimeFormatEnum;
+    @Field(_ => DefaultMangaFormatEnum, { nullable: true })
+    @Prop({ enum: DefaultMangaFormatEnum, default: undefined })
+    format?: DefaultMangaFormatEnum;
 
     @Field({ nullable: true })
     @Prop({ default: undefined })
@@ -107,9 +107,9 @@ export class Anime extends Base('Anime') {
     @Prop({ enum: DefaultStatusEnum, default: undefined })
     status?: DefaultStatusEnum;
 
-    @Field(t => AnimeEpisode, { nullable: true })
-    @Prop({ type: AnimeEpisode })
-    episodes?: AnimeEpisode;
+    @Field(t => MangaEpisode, { nullable: true })
+    @Prop({ type: MangaEpisode })
+    episodes?: MangaEpisode;
 
     @Field({ nullable: true })
     @Prop({ default: undefined })
@@ -156,7 +156,7 @@ registerEnumType(Season, {
 
 
 @InputType()
-export class AnimeSearchQuery {
+export class MangaSearchQuery {
     @Field({ nullable: true })
     groupe?: string; // Groupe id
 
@@ -212,11 +212,11 @@ export class AnimeSearchQuery {
     track?: string; // track id
 
 
-    static queryParse(this: types.QueryHelperThis<ClassType<Anime>, AnimeCustomQuery>, props: AnimeSearchQuery, logic: MediaSearchLogic) {
+    static queryParse(this: types.QueryHelperThis<ClassType<Manga>, MangaCustomQuery>, props: MangaSearchQuery, logic: MediaSearchLogic) {
 
         console.log('qprops', props);
 
-        let query: FilterQuery<Anime>[] = [];
+        let query: FilterQuery<Manga>[] = [];
         if (props.title)
             query = query.concat([
                 { "data.title.default": { "$regex": props.title, "$options": "i" } },
@@ -349,7 +349,7 @@ export class AnimeSearchQuery {
         return this;
     }
 
-    static genProjection(props: AnimeSearchQuery) {
+    static genProjection(props: MangaSearchQuery) {
         let projections: { [key: string]: any } = {};
         if (props.season) {
             Object.assign(projections,
@@ -363,6 +363,6 @@ export class AnimeSearchQuery {
     }
 }
 
-export interface AnimeCustomQuery {
-    queryParse: types.AsQueryMethod<typeof AnimeSearchQuery.queryParse>;
+export interface MangaCustomQuery {
+    queryParse: types.AsQueryMethod<typeof MangaSearchQuery.queryParse>;
 }

@@ -1,0 +1,170 @@
+[
+    {
+        "label": "Seiyū (Comédien de doublage)",
+        "value": "DOUBLAGE_SEIYU"
+    },
+    {
+        "label": "Auteur de l'oeuvre",
+        "value": "AUTEUR"
+    },
+    {
+        "label": "Éditeur",
+        "value": "EDITEUR"
+    },
+    {
+        "label": "Producteur",
+        "value": "PRODUCTEUR"
+    },
+    {
+        "label": "Réalisateur",
+        "value": "REALISATEUR"
+    },
+    {
+        "label": "Réalisateur épisodes",
+        "value": "REALISATEUR_EPISODES"
+    },
+    {
+        "label": "Réalisateur mise en page",
+        "value": "REALISATEUR_MISEENPAGE"
+    },
+    {
+        "label": "Directeur artistique et cinématrographique",
+        "value": "DIRECTEUR_ARTISTIQUE_CINEMATROGRAPHIQUE"
+    },
+    {
+        "label": "Directeur d'animation",
+        "value": "DIRECTEUR_ANIMATION"
+    },
+    {
+        "label": "Concepteur",
+        "value": "CONCEPTEUR"
+    },
+    {
+        "label": "Animateur principal",
+        "value": "ANIMATEUR_PRINCIPAL"
+    },
+    {
+        "label": "Animateur intermédiaire",
+        "value": "ANIMATEUR_INTERMEDIAIRE"
+    },
+    {
+        "label": "Coloriste",
+        "value": "COLORISTES"
+    },
+    {
+        "label": "Directeur d'enregistrement",
+        "value": "DIRECTEUR_ENREGISTREMENT"
+    },
+    {
+        "label": "Scenariste",
+        "value": "SCENARISTE"
+    },
+    {
+        "label": "Animateur 3D",
+        "value": "ANIMATEUR_3D"
+    },
+    {
+        "label": "Metteur en scène",
+        "value": "METTEUR_EN_SCENE"
+    },
+    {
+        "label": "Superviseur",
+        "value": "SUPERVISEUR"
+    },
+    {
+        "label": "Monteur",
+        "value": "MONTEUR"
+    },
+    {
+        "label": "Reponsable de droits",
+        "value": "RESPONSABLE_DROITS"
+    },
+    {
+        "label": "Producteur musique",
+        "value": "PRODUCTEUR_MUSIQUE"
+    },
+    {
+        "label": "Responsable marketing",
+        "value": "RESPONSABLE_MARKETING"
+    },
+    {
+        "label": "Diffuseur",
+        "value": "DIFFUSEUR"
+    },
+    {
+        "label": "Storyboarder",
+        "value": "STORYBOARDER"
+    },
+    {
+        "label": "Artiste VFX",
+        "value": "ARTISTE_VFX"
+    },
+    {
+        "label": "Ingénieur Son",
+        "value": "INGENIEUR_SON"
+    },
+    {
+        "label": "Directeur doublage",
+        "value": "DIRECTEUR_DOUBLAGE"
+    },
+    {
+        "label": "Traducteur",
+        "value": "TRADUCTEUR"
+    },
+    {
+        "label": "Mangaka",
+        "value": "MANGAKA"
+    },
+    {
+        "label": "Character Designer",
+        "value": "CHARACTER_DESIGNER"
+    },
+    {
+        "label": "Dessinateur de décors",
+        "value": "DESSINATEUR_DECORS"
+    },
+    {
+        "label": "Réalisateur de mise en page",
+        "value": "REALISATEUR_MISE_EN_PAGE"
+    },
+    {
+        "label": "Compositeur",
+        "value": "COMPOSITEUR"
+    },
+    {
+        "label": "Parolier",
+        "value": "PAROLIER"
+    },
+    {
+        "label": "Arrangeur",
+        "value": "ARRANGEUR"
+    },
+    {
+        "label": "Musicien",
+        "value": "MUSICIEN"
+    },
+    {
+        "label": "Chanteur",
+        "value": "CHANTEUR"
+    },
+    {
+        "label": "Chanteuse",
+        "value": "CHANTEUSE"
+    },
+    {
+        "label": "Chef d'orchestre",
+        "value": "CHEF_ORCHESTRE"
+    },
+    {
+        "label": "Producteur musical",
+        "value": "PRODUCTEUR_MUSICAL"
+    },
+    {
+        "label": "Designer sonore",
+        "value": "DESIGNER_SONORE"
+    },
+    {
+        "label": "Mixeur",
+        "value": "MIXEUR"
+    }
+]

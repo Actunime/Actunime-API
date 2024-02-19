@@ -1,9 +1,6 @@
-import { type IMediaUpdates } from "./_media.update";
+export function createDataFromUpdate<T extends object, U extends { changes: T, createdAt: Date } = { changes: T, createdAt: Date }>(updates: any[], passId?: string): T | null {
 
-export function genMediaFromUpdate<T extends object>(updates: IMediaUpdates<T>[]): T | null {
-
-    function sortByCreatedAt(a: IMediaUpdates<any>, b: IMediaUpdates<any>) {
-        if (!b.createdAt || !a.createdAt) return 0;
+    function sortByCreatedAt(a: U, b: U) {
         return a.createdAt.getTime() - b.createdAt.getTime() // De la moins récente a la plus récente
     }
 
@@ -12,20 +9,14 @@ export function genMediaFromUpdate<T extends object>(updates: IMediaUpdates<T>[]
     let data: T = Object();
 
     for (let i = 0; i < sortedUpdate.length; i++) {
-        let obj = sortedUpdate[i].data;
+        let obj = sortedUpdate[i].changes;
         for (const key in obj) {
             let value = obj[key];
-            // Ignorer les valeurs non défini
             if (typeof value === 'undefined')
                 continue;
-            // // Ignorer les arrays vide
-            // if (Array.isArray(value)) {
-            //     if (value.length === 0)
-            //         continue;
-            // }
             Object.assign(data, { [key]: value })
         }
     }
 
-    return Object.keys(data).length ? data : null;
+    return Object.keys(data).length ? passId && Object.assign(data, { id: passId }) || data : null;
 }

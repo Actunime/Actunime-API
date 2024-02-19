@@ -5,6 +5,8 @@ import formats from './defaultFiles/formats.json';
 import sources from './defaultFiles/sources.json';
 import status from './defaultFiles/status.json';
 import themes from './defaultFiles/themes.json';
+import personRoles from './defaultFiles/personRoles.json';
+import trackTypes from './defaultFiles/trackTypes.json';
 
 @ObjectType()
 class ListLabelValue {
@@ -12,7 +14,7 @@ class ListLabelValue {
     label!: string;
     @Field()
     value!: string;
-    @Field()
+    @Field({ nullable: true })
     description?: string;
 }
 
@@ -32,6 +34,12 @@ class DefaultData {
 
     @Field(t => [ListLabelValue])
     themes!: ListLabelValue[]
+
+    @Field(t => [ListLabelValue])
+    personRoles!: ListLabelValue[]
+
+    @Field(t => [ListLabelValue])
+    trackTypes!: ListLabelValue[]
 }
 
 
@@ -40,16 +48,20 @@ export class DefaultDataResolver {
 
     @Query(type => DefaultData, { nullable: true })
     async defaultData(): Promise<DefaultData | null> {
+        console.log('Récupération defaultdata')
         return {
             sources,
             status,
             formats,
             genres,
-            themes
+            themes,
+            personRoles,
+            trackTypes
         }
     }
-
 }
+
+
 
 export enum GenresEnum {
     ACTION = 'ACTION',
@@ -98,6 +110,12 @@ export enum DefaultAnimeFormatEnum {
     OVA = "OVA",
     SPECIAL = "SPECIAL",
     TV_SHORT = "TV_SHORT"
+}
+
+export enum DefaultMangaFormatEnum {
+    MANGA = "MANGA",
+    MANHWA = "MANHWA",
+    MANHUA = "MANHUA",
 }
 
 registerEnumType(DefaultAnimeFormatEnum, {

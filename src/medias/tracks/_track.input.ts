@@ -1,11 +1,11 @@
 
-import { Field, InputType } from "type-graphql";
+import { Field, InputType, registerEnumType } from "type-graphql";
 import { MediaLinkInput } from "../../utils/_media.types";
-import { MediaUpdateOptionArg } from "../../utils/_media.update";
-import { PersonInput, PersonRelationFields } from "../persons/_person.input";
-import { MediaDoc, createUpdate } from "../../utils";
+import { MediaDoc, UpdateParams, createUpdate } from "../../utils";
 import { TrackModel } from "./_track.model";
-import { Track, TrackRelation } from "./_track.type";
+import { Track, TrackLabelRelation, TrackRelation } from "./_track.type";
+import { PersonInput, PersonRelationFields } from "../persons/_person.input";
+import { MediaRequiredFields } from "../../utils/_media.base";
 
 @InputType()
 export class TrackInput {
@@ -25,36 +25,36 @@ export class TrackInput {
     @Field(type => PersonRelationFields)
     artists?: PersonRelationFields;
 
-    static createUpdate(props: TrackInput, action: "request" | "direct_update", visible: boolean) {
+    static createUpdate(props: TrackInput, action: "request" | "direct_update", params: Omit<UpdateParams<Track>, 'db' | 'changes'>) {
 
         const db = TrackModel;
-        let docToSaveWith: MediaDoc[] = [];
+        let docToSaveWith: MediaDoc<any>[] = [];
 
-        let media: Track = {
+        let changes: Omit<Track, MediaRequiredFields> = {
             ...props,
-            artists: props.artists ? PersonInput.InitFromRelation(props.artists, action, (m) => docToSaveWith = docToSaveWith.concat(m)) : undefined
+            artists: props.artists ? PersonInput.InitFromRelation(props.artists, action, (m) => docToSaveWith = docToSaveWith.concat(m), params) : undefined
         };
 
         if (action === 'direct_update') {
-            return createUpdate<Track>({ media, db, visible, docToSaveWith })
+            return createUpdate<Omit<Track, MediaRequiredFields>>({ changes, db, docToSaveWith, ...params })
         } else {
-            return createUpdate<Track>({ media, db, visible, docToSaveWith })
+            return createUpdate<Omit<Track, MediaRequiredFields>>({ changes, db, docToSaveWith, ...params })
         }
     }
 
     static InitFromRelation(
         props: TrackRelationFields,
         action: "request" | "direct_update",
-        addModel: (m: MediaDoc[]) => void) {
+        addModel: (m: MediaDoc<any>[]) => void, params: Omit<UpdateParams<Track>, 'db' | 'changes'>) {
 
         let relationOutput: TrackRelation[] = [];
 
         if (props.news) {
             for (const relation of props.news) {
-                const update = this.createUpdate(relation.data, action, relation.options?.visible === undefined ? true : false);
+                const update = this.createUpdate(relation.data, action, params);
                 let model = update.returnModels()
                 relationOutput.push({
-                    pubId: model[0].pubId,
+                    id: model[0].id,
                     label: relation.label,
                     data: null
                 })
@@ -65,7 +65,7 @@ export class TrackInput {
         if (props.exists) {
             for (const relation of props.exists) {
                 relationOutput.push({
-                    pubId: relation.pubId,
+                    id: relation.id,
                     label: relation.label,
                     data: null
                 })
@@ -80,25 +80,22 @@ export class TrackInput {
 class TrackRelationAddInput {
 
     @Field({ nullable: true })
-    label?: string;
+    label?: TrackLabelRelation;
 
     @Field(type => [Number], { nullable: true })
     episodes?: number[];
 
     @Field(_ => TrackInput)
     data!: TrackInput;
-
-    @Field(_ => MediaUpdateOptionArg, { nullable: true })
-    options?: MediaUpdateOptionArg
 }
 
 @InputType({ description: "Relation Track" })
 class TrackRelationExistInput {
     @Field(_ => String)
-    pubId!: string;
+    id!: string;
 
     @Field({ nullable: true })
-    label?: string;
+    label?: TrackLabelRelation;
 
     @Field(type => [Number], { nullable: true })
     episodes?: number[];
