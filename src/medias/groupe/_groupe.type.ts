@@ -1,12 +1,13 @@
-import { Index, Prop, modelOptions, types } from "@typegoose/typegoose";
+import { Prop, ReturnModelType, modelOptions, types } from "@typegoose/typegoose";
 import { ClassType, Field, InputType, ObjectType } from "type-graphql";
 import { DataVirtual, MediaSearchLogic } from "../../utils";
 import { FilterQuery } from "mongoose";
-import { Base } from "../../utils/_media.base";
+import { IMedia } from "../../utils/_media.base";
 
 
 @ObjectType()
-export class Groupe extends Base('Groupe') {
+export class Groupe {
+
     @Prop({ required: true, unique: true })
     @Field()
     name?: string;
@@ -28,10 +29,9 @@ export class GroupeUpdateOutput {
 @modelOptions({ schemaOptions: { _id: false, toJSON: { virtuals: true } } })
 export class GroupeRelation extends DataVirtual(Groupe) {
     @Field()
-    @Prop({ required: true })
+    @Prop()
     id!: string;
 }
-
 
 @InputType()
 export class GroupeSearchQuery {
@@ -39,31 +39,52 @@ export class GroupeSearchQuery {
     name?: string;
     //? ajouter un champ pour la recherche avec plusieurs ids ?
 
-    static queryParse(this: types.QueryHelperThis<ClassType<Groupe>, GroupeCustomQuery>, props: GroupeSearchQuery, logic: MediaSearchLogic) {
-        let query: FilterQuery<Groupe>[] = [];
+    static async dynamicPopulate(this: types.QueryHelperThis<ClassType<IMedia<Groupe>>, GroupeCustomQuery>, info: any) {
+        if (!info) return this;
+        // const projection = Object.fromEntries(Object.keys(fieldsProjection(info)).map(key => [key, 1]));
+
+        // const staffsRelations = Object.keys(projection).filter(key => key.includes('.actors.'))
+        // if (staffsRelations.length) {
+        //     this?.populate({
+        //         path: 'data.actors.person',
+        //     })
+        // }
+
+        return this;
+    }
+
+    static parse<TModel extends new (...args: any) => any>(props: GroupeSearchQuery | null, logic?: MediaSearchLogic, model?: TModel) {
+        let query: FilterQuery<ReturnModelType<TModel, GroupeCustomQuery>>[] = [];
+       
+        if (!props) return {};
 
         if (props.name)
             query.push({ "data.name": { "$regex": props.name, "$options": "i" } })
 
-
         switch (logic) {
             case MediaSearchLogic.OR:
-                if (query.length) this.or(query)
-                break;
+                query = [{ $or: query }]
+                return query[0];
 
             case MediaSearchLogic.AND:
-                if (query.length) this.and(query)
-                break;
+                query = [{ $and: query }]
+                return query[0]
 
             default:
-                if (query.length) this.or(query)
-                break;
+                query = [{ $or: query }]
+                return query[0];
         }
+    }
 
-        console.log('query', this.getQuery())
+    static queryParse(this: types.QueryHelperThis<ClassType<Groupe>, GroupeCustomQuery>, props: GroupeSearchQuery, logic: MediaSearchLogic) {
+       
+        const query = GroupeSearchQuery.parse(props, logic);
+
+        this.setQuery(query as any);
 
         return this;
     }
+
 
     static genProjection(props: GroupeSearchQuery) {
         let projections: { [key: string]: any } = {};
@@ -74,4 +95,5 @@ export class GroupeSearchQuery {
 
 export interface GroupeCustomQuery {
     queryParse: types.AsQueryMethod<typeof GroupeSearchQuery.queryParse>;
+    dynamicPopulate: types.AsQueryMethod<typeof GroupeSearchQuery.dynamicPopulate>;
 }

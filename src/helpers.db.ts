@@ -6,17 +6,20 @@ import { DefaultAnimeFormatEnum, DefaultSourceEnum, DefaultStatusEnum } from './
 import { AnimeModel } from './medias/animes';
 import { PersonrRoleRelationLabel } from './medias/persons/_person.type';
 import { CharacterRelationLabel, TrackLabelRelation } from './medias';
+import mongoose from 'mongoose';
 
 
 export async function createFakeData() {
 
     // await AnimeModel.syncIndexes()
 
+    await mongoose.connection.db.dropDatabase();
+
     try {
         let FakeData = await AnimeInput.createUpdate({
             groupe: {
                 // exist: {
-                //     id: "2d2vq",
+                //     id: "df1t4",
                 // }
                 new: {
                     name: "Kimetsu no Yaiba"
@@ -137,14 +140,15 @@ export async function createFakeData() {
                 }]
             }
         }, 'direct_update', {
-            author: '2cpw6'
+            author: '2cpw6',
+            verifiedBy: '2cpw6'
         })
 
-        let modifed = await FakeData
+        await FakeData
             .save();
 
         let test = await AnimeModel.find()
-        console.log(test.map(t => t.toJSON().rawData))
+        console.log(test.map(t => t.toJSON()))
 
         // await AnimeModel.deleteMany({"data.source.origine": "Manga"})
         // await modifed.populate('data.characters.vData data.companys.vData data.staffs.vData data.tracks.vData');

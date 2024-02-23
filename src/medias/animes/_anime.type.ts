@@ -1,25 +1,30 @@
 // Modules
 import { ClassType, Field, InputType, ObjectType, registerEnumType } from "type-graphql";
-import { ModelOptions, Prop, modelOptions, types } from "@typegoose/typegoose";
+import { ModelOptions, Prop, ReturnModelType, modelOptions, types } from "@typegoose/typegoose";
 import { FilterQuery } from "mongoose";
 // Utiles
-import { Base } from "../../utils/_media.base";
+import { IMedia } from "../../utils/_media.base";
 import { MediaTitle, MediaDate, MediaLink, MediaImage, MediaSearchLogic } from "../../utils/_media.types";
 import { DefaultAnimeFormatEnum, DefaultSourceEnum, DefaultStatusEnum, GenresEnum } from "../defaultData";
 import themes from '../defaultFiles/themes.json';
 // Relations
-import { PersonRelation } from "../persons/_person.type";
-import { TrackRelation } from "../tracks/_track.type";
-import { CharacterRelation } from "../characters/_character.type";
-import { CompanyRelation } from "../companys/_company.type";
+import { PersonRelation } from "../persons/_person.model";
+import { TrackRelation } from "../tracks/_track.model";
+import { CharacterRelation } from "../characters/_character.model";
+import { CompanyRelation } from "../companys/_company.model";
 import { GroupeRelation } from "../groupe/_groupe.type";
+import { fieldsProjection } from "graphql-fields-list";
 
 @ObjectType()
 @modelOptions({ schemaOptions: { _id: false, toJSON: { virtuals: true } } })
 export class AnimeRelation {
     @Field({ nullable: true })
-    @Prop()
+    @Prop({ required: true })
     id!: string;
+
+    public get data() {
+        return this.id;
+    }
 }
 
 /** Anime part types */
@@ -57,7 +62,7 @@ class AnimeSource {
 
 /** Anime type */
 @ObjectType()
-export class Anime extends Base('Anime') {
+export class Anime {
 
     @Field(_ => GroupeRelation, { nullable: true })
     @Prop({ type: GroupeRelation })
@@ -142,6 +147,8 @@ export class Anime extends Base('Anime') {
 
 
 
+
+
 enum Season {
     HIVER = "HIVER",
     AUTOMNE = "AUTOMNE",
@@ -212,11 +219,62 @@ export class AnimeSearchQuery {
     track?: string; // track id
 
 
-    static queryParse(this: types.QueryHelperThis<ClassType<Anime>, AnimeCustomQuery>, props: AnimeSearchQuery, logic: MediaSearchLogic) {
+    static async dynamicPopulate(this: types.QueryHelperThis<ClassType<IMedia<Anime>>, AnimeCustomQuery>, info: any) {
+        if (!info) return this;
+        const projection = Object.fromEntries(Object.keys(fieldsProjection(info)).map(key => [key, 1]));
 
-        console.log('qprops', props);
+        const companysRelations = Object.keys(projection).filter(key => key.includes('.companys.'))
+        if (companysRelations.length) {
+            this?.populate({
+                path: 'data.companys.company',
+            })
+        }
 
-        let query: FilterQuery<Anime>[] = [];
+        const staffsRelations = Object.keys(projection).filter(key => key.includes('.staffs.'))
+        if (staffsRelations.length) {
+            this?.populate({
+                path: 'data.staffs.person',
+            })
+        }
+
+        const charactersRelations = Object.keys(projection).filter(key => key.includes('.characters.') && !key.includes('.actors.'))
+        if (charactersRelations.length) {
+            const actorsRelations = Object.keys(projection).filter(key => key.includes('.actors.'))
+            this?.populate({
+                path: 'data.characters.character',
+                ...actorsRelations.length && {
+                    populate: {
+                        path: 'data.actors.person',
+                        foreignField: 'id',
+                        model: 'Person'
+                    }
+                }
+            })
+        }
+
+        const tracksRelations = Object.keys(projection).filter(key => key.includes('.tracks.') && !key.includes('.artists.'))
+        if (tracksRelations.length) {
+            const artistsRelations = Object.keys(projection).filter(key => key.includes('.artists.'))
+            this?.populate({
+                path: 'data.tracks.track',
+                ...artistsRelations.length && {
+                    populate: {
+                        path: 'data.artists.person',
+                        foreignField: 'id',
+                        model: 'Person'
+                    }
+                }
+            })
+        }
+
+        return this;
+    }
+
+    static parse<TModel extends new (...args: any) => any>(props: AnimeSearchQuery | null, logic?: MediaSearchLogic, model?: TModel) {
+
+        let query: FilterQuery<ReturnModelType<TModel, AnimeCustomQuery>>[] = [];
+        if (!props) return {};
+
         if (props.title)
             query = query.concat([
                 { "data.title.default": { "$regex": props.title, "$options": "i" } },
@@ -232,10 +290,11 @@ export class AnimeSearchQuery {
             query.push({ 'data.parent': props.parent })
 
         if (props.season) {
-            const date = new Date();
-            const month = date.getMonth();
+            // const date = new Date();
+            // const month = date.getMonth();
             function getMonths() {
-                let months = [];
+                let months: number[] = [];
+                if (!props) return months;
                 switch (props.season) {
                     case 'HIVER':
                         for (let i = 1; i < 12; i++) {
@@ -284,7 +343,9 @@ export class AnimeSearchQuery {
             if (mQuery.length)
                 query.push({ 'data.date.start': { $exists: true } })
 
-            this.or(mQuery)
+            query.push({
+                $or: mQuery
+            })
         }
 
         if (props.year)
@@ -332,19 +393,23 @@ export class AnimeSearchQuery {
 
         switch (logic) {
             case MediaSearchLogic.OR:
-                if (query.length) this.or(query)
-                break;
+                query = [{ $or: query }]
+                return query[0];
 
             case MediaSearchLogic.AND:
-                if (query.length) this.and(query)
-                break;
+                query = [{ $and: query }]
+                return query[0]
 
             default:
-                if (query.length) this.or(query)
-                break;
+                query = [{ $or: query }]
+                return query[0];
         }
+    }
+    static queryParse(this: types.QueryHelperThis<ClassType<Anime>, AnimeCustomQuery>, props: AnimeSearchQuery, logic: MediaSearchLogic) {
 
-        console.log('query', this.getQuery())
+        const query = AnimeSearchQuery.parse(props, logic);
+
+        this.setQuery(query as any);
 
         return this;
     }
@@ -365,4 +430,5 @@ export class AnimeSearchQuery {
 
 export interface AnimeCustomQuery {
     queryParse: types.AsQueryMethod<typeof AnimeSearchQuery.queryParse>;
+    dynamicPopulate: types.AsQueryMethod<typeof AnimeSearchQuery.dynamicPopulate>;
 }

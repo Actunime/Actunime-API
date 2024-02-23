@@ -1,49 +1,30 @@
 import { Arg, Authorized, Info, Mutation, Query, Resolver } from "type-graphql";
 import { MediaSearchLogic, Pagination } from "../../utils";
-import { CompanyMedia, CompanyModel, CompanyPaginationOutput } from "./_company.model";
+import { CompanyMedia, CompanyMediaPagination, CompanyModel } from "./_company.model";
 import { Company, CompanySearchQuery } from "./_company.type";
-import { fieldsProjection } from 'graphql-fields-list'
 import { PaginationQuery } from "../../utils/_pagination";
 import { CompanyInput } from "./_company.input";
 import { IUserRoles } from "../users/_user.type";
 
-
 @Resolver(Company)
 export class CompanyResolver {
 
-    @Query(_return => Company, { nullable: true })
-    async getCompany(@Arg("id", () => String) id: string, @Info() info: any) {
-
-        const projection = info ?
-            Object.fromEntries(
-                Object.keys(
-                    Object.assign(fieldsProjection(info), { id: 1 })
-                ).map(key => [key.replace(key, 'data.' + key), 1])) : {};
-
-        console.log(projection)
-
-        const findCompany = await CompanyModel.findOne({ id }, { id: 1, ...projection }).lean();
-
-        console.log('getCompany', findCompany);
-        // TODO: check le statut (public ou non etc...)
-        if (findCompany && findCompany.data) {
-
-            console.log("CA RETOURNE")
-            const { id, data } = findCompany;
-
-            return data;
-
-        } else {
-            return null;
+    @Query(_return => CompanyMedia, { nullable: true })
+    async company(@Arg("id", () => String) id: string, @Info() info: any) {
+        try {
+            const anime = await CompanyModel.findOne({ id, data: { $ne: undefined } }).dynamicPopulate(info)
+            return anime?.toJSON();
+        } catch (err) {
+            console.error(err)
+            return null
         }
-
     }
 
-    @Query(_returns => CompanyPaginationOutput, { nullable: true })
-    async searchCompanys(
+    @Query(_returns => CompanyMediaPagination, { nullable: true })
+    async companys(
 
         @Arg("pagination", () => Pagination, { nullable: true })
-        pagination: Pagination | null,
+        paginationQuery: Pagination | null,
 
         @Arg("searchQuery", () => CompanySearchQuery, { nullable: true })
         searchQuery: CompanySearchQuery | null,
@@ -54,45 +35,21 @@ export class CompanyResolver {
         @Info()
         info: any
 
-    ): Promise<CompanyPaginationOutput | null> {
+    ): Promise<CompanyMediaPagination | null> {
 
-        console.log('searchCompanys');
+        const filter = CompanySearchQuery.parse<typeof CompanyModel>(searchQuery, searchLogic);
 
-        const queryGen = CompanyModel.find();
-        // .find({ data: { $ne: null } });
-
-        console.log('searchQuery', searchQuery)
-
-        if (searchQuery)
-            queryGen.queryParse(searchQuery, searchLogic)
-
+        console.log('query', filter)
 
         return PaginationQuery({
             model: CompanyModel,
-            paginationQuery: pagination,
-            filter: queryGen.getQuery(),
+            paginationQuery,
+            filter,
             info,
             customProjection: searchQuery ? CompanySearchQuery.genProjection(searchQuery) : {}
         });
     }
-
-    @Query(_returns => CompanyMedia, { nullable: true })
-    async getFullCompany(@Arg("id", () => String) id: String) {
-
-        const findCompany = await CompanyModel.findOne({ id }).lean();
-
-        console.log('getFullCompany', findCompany, id);
-
-        if (findCompany) {
-            const sortedUpdate = findCompany.updates?.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-            // const sortedUpdateRequest = findCompany.requests?.sort(sortByCreatedAt);
-
-            return findCompany
-        } else {
-            return null;
-        }
-    }
-
+    
     @Mutation(_ => Company, { description: "Ajouter un (nouvel) company (staff)" })
     async createCompany(@Arg("data", _ => CompanyInput) dataInput: CompanyInput) {
 

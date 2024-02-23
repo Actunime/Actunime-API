@@ -43,7 +43,7 @@ export class MediaImage {
 
 @ObjectType()
 export class MediaLink {
-    @Field()
+    @Field({ nullable: true })
     @Prop()
     name!: string;
 

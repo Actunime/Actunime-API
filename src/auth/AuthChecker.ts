@@ -1,4 +1,4 @@
-import { type AuthChecker, ResolverData } from "type-graphql";
+import { type AuthChecker } from "type-graphql";
 import { IUserRoles } from "../medias/users/_user.type";
 import { ActunimeAuthContext } from "..";
 

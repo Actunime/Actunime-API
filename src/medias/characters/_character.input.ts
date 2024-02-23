@@ -1,10 +1,10 @@
 
 import { Field, InputType } from "type-graphql";
-import { CharacterSpecies, Character, CharacterRelation, CharacterRelationLabel } from './_character.type';
+import { CharacterSpecies, Character, CharacterRelationLabel } from './_character.type';
 import { MediaPersonOrCharacterNameInput, MediaPersonGender } from "../../utils/_media.types";
 import { PersonInput, PersonRelationFields } from "../persons/_person.input";
 import { MediaDoc, UpdateParams, createUpdate } from "../../utils/_createUpdate";
-import { CharacterModel } from "./_character.model";
+import { CharacterModel, CharacterRelation } from "./_character.model";
 import { MediaRequiredFields } from "../../utils/_media.base";
 
 
@@ -66,7 +66,7 @@ export class CharacterInput {
                 relationOutput.push({
                     id: model[0].id,
                     label: relation.label,
-                    data: null
+                    character: model[0].id,
                 })
                 addModel(model)
             }
@@ -75,8 +75,9 @@ export class CharacterInput {
         if (props.exists) {
             for (const relation of props.exists) {
                 relationOutput.push({
-                    id: relation.id, label: relation.label,
-                    data: null
+                    id: relation.id,
+                    label: relation.label,
+                    character: relation.id
                 })
             }
         }

@@ -1,8 +1,8 @@
 import { Field, InputType } from "type-graphql";
 // import { HandlerInputOnly, InputHandler } from "../../utils/_inputHandler";
-import { Person, PersonRelation, PersonrRoleRelationLabel } from './_person.type';
+import { Person, PersonrRoleRelationLabel } from './_person.type';
 import { MediaLinkInput, MediaPersonGender, MediaPersonOrCharacterNameInput } from "../../utils/_media.types";
-import { PersonModel } from "./_person.model";
+import { PersonModel, PersonRelation } from "./_person.model";
 import { MediaDoc, UpdateParams, createUpdate } from "../../utils";
 import { MediaRequiredFields } from "../../utils/_media.base";
 
@@ -13,13 +13,13 @@ export class PersonInput implements Partial<Person> {
     // label!: PersonLabel
 
     @Field(t => MediaPersonOrCharacterNameInput)
-    name!: MediaPersonOrCharacterNameInput
+    name!: MediaPersonOrCharacterNameInput;
 
     @Field()
-    age?: number
+    age?: number;
 
     @Field()
-    birthDate?: string
+    birthDate?: string;
 
     @Field(type => MediaPersonGender)
     gender?: MediaPersonGender;
@@ -32,7 +32,6 @@ export class PersonInput implements Partial<Person> {
 
     @Field(t => [MediaLinkInput])
     links?: MediaLinkInput[]
-
 
     static createUpdate(props: PersonInput, action: "request" | "direct_update", params: Omit<UpdateParams<Person>, 'db' | 'changes'>) {
 
@@ -62,7 +61,7 @@ export class PersonInput implements Partial<Person> {
                 relationOutput.push({
                     id: model[0].id,
                     label: relation.label,
-                    data: null
+                    person: model[0].id
                 })
                 addModel(model)
             }
@@ -73,7 +72,7 @@ export class PersonInput implements Partial<Person> {
                 relationOutput.push({
                     id: relation.id,
                     label: relation.label,
-                    data: null
+                    person: relation.id
                 })
             }
         }

@@ -1,9 +1,9 @@
 
-import { Field, InputType, registerEnumType } from "type-graphql";
+import { Field, InputType } from "type-graphql";
 import { MediaLinkInput } from "../../utils/_media.types";
 import { MediaDoc, UpdateParams, createUpdate } from "../../utils";
-import { TrackModel } from "./_track.model";
-import { Track, TrackLabelRelation, TrackRelation } from "./_track.type";
+import { TrackModel, TrackRelation } from "./_track.model";
+import { Track, TrackLabelRelation, } from "./_track.type";
 import { PersonInput, PersonRelationFields } from "../persons/_person.input";
 import { MediaRequiredFields } from "../../utils/_media.base";
 
@@ -56,7 +56,7 @@ export class TrackInput {
                 relationOutput.push({
                     id: model[0].id,
                     label: relation.label,
-                    data: null
+                    track: model[0].id
                 })
                 addModel(model)
             }
@@ -67,7 +67,7 @@ export class TrackInput {
                 relationOutput.push({
                     id: relation.id,
                     label: relation.label,
-                    data: null
+                    track: relation.id
                 })
             }
         }

@@ -1,8 +1,7 @@
 import { Arg, Authorized, Info, Mutation, Query, Resolver } from "type-graphql";
 import { MediaSearchLogic, Pagination } from "../../utils";
-import { AnimeMedia, AnimeModel, AnimePaginationOutput } from "./_anime.model";
+import { AnimeMedia, AnimeMediaPagination, AnimeModel } from "./_anime.model";
 import { Anime, AnimeSearchQuery } from "./_anime.type";
-import { fieldsProjection } from 'graphql-fields-list'
 import { PaginationQuery } from "../../utils/_pagination";
 import { AnimeInput } from "./_anime.input";
 import { IUserRoles } from "../users/_user.type";
@@ -11,39 +10,22 @@ import { IUserRoles } from "../users/_user.type";
 @Resolver(Anime)
 export class AnimeResolver {
 
-    @Query(_return => Anime, { nullable: true })
-    async getAnime(@Arg("id", () => String) id: string, @Info() info: any) {
-
-        const projection = info ?
-            Object.fromEntries(
-                Object.keys(
-                    Object.assign(fieldsProjection(info), { id: 1 })
-                ).map(key => [key.replace(key, 'data.' + key), 1])) : {};
-
-        console.log(projection)
-
-        const findAnime = await AnimeModel.findOne({ id }, { id: 1, ...projection }).lean();
-
-        console.log('getAnime', findAnime);
-        // TODO: check le statut (public ou non etc...)
-        if (findAnime && findAnime.data) {
-
-            console.log("CA RETOURNE")
-            const { id, data } = findAnime;
-
-            return data;
-
-        } else {
-            return null;
+    @Query(_return => AnimeMedia, { nullable: true })
+    async anime(@Arg("id", () => String) id: string, @Info() info: any) {
+        try {
+            const anime = await AnimeModel.findOne({ id, data: { $ne: undefined } }).dynamicPopulate(info)
+            return anime?.toJSON();
+        } catch (err) {
+            console.error(err)
+            return null
         }
-
     }
 
-    @Query(_returns => AnimePaginationOutput, { nullable: true })
-    async searchAnimes(
+    @Query(_returns => AnimeMediaPagination, { nullable: true })
+    async animes(
 
         @Arg("pagination", () => Pagination, { nullable: true })
-        pagination: Pagination | null,
+        paginationQuery: Pagination | null,
 
         @Arg("searchQuery", () => AnimeSearchQuery, { nullable: true })
         searchQuery: AnimeSearchQuery | null,
@@ -54,43 +36,19 @@ export class AnimeResolver {
         @Info()
         info: any
 
-    ): Promise<AnimePaginationOutput | null> {
+    ): Promise<AnimeMediaPagination | null> {
 
-        console.log('searchAnimes');
+        const filter = AnimeSearchQuery.parse(searchQuery, searchLogic, AnimeModel);
 
-        const queryGen = AnimeModel.find();
-        // .find({ data: { $ne: null } });
-
-        console.log('searchQuery', searchQuery)
-
-        if (searchQuery)
-            queryGen.queryParse(searchQuery, searchLogic)
-
+        console.log('query', filter)
 
         return PaginationQuery({
             model: AnimeModel,
-            paginationQuery: pagination,
-            filter: queryGen.getQuery(),
+            paginationQuery,
+            filter,
             info,
             customProjection: searchQuery ? AnimeSearchQuery.genProjection(searchQuery) : {}
         });
-    }
-
-    @Query(_returns => AnimeMedia, { nullable: true })
-    async getFullAnime(@Arg("id", () => String) id: String) {
-
-        const findAnime = await AnimeModel.findOne({ id }).lean();
-
-        console.log('getFullAnime', findAnime, id);
-
-        if (findAnime) {
-            const sortedUpdate = findAnime.updates?.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-            // const sortedUpdateRequest = findAnime.requests?.sort(sortByCreatedAt);
-
-            return findAnime
-        } else {
-            return null;
-        }
     }
 
     @Mutation(_ => Anime, { description: "Ajouter un (nouvel) anime (staff)" })

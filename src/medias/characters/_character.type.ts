@@ -1,12 +1,12 @@
 
 
 import { ClassType, Field, InputType, ObjectType, registerEnumType } from "type-graphql";
-import { Prop, ModelOptions, modelOptions, types } from "@typegoose/typegoose";
+import { Prop, ModelOptions, types, ReturnModelType } from "@typegoose/typegoose";
 import { MediaPersonOrCharacterName, MediaPersonGender, MediaSearchLogic } from "../../utils/_media.types";
-import { PersonRelation } from "../persons/_person.type";
-import { DataVirtual } from "../../utils/_media.virtual";
+import { PersonRelation } from "../persons/_person.model";
 import { FilterQuery } from "mongoose";
-import { Base } from "../../utils/_media.base";
+import { fieldsProjection } from "graphql-fields-list";
+import { IMedia } from "../../utils/_media.base";
 
 export enum CharacterSpecies {
     ELFE = "ELFE",
@@ -23,7 +23,7 @@ registerEnumType(CharacterSpecies, {
 
 @ObjectType()
 @ModelOptions({ schemaOptions: { _id: false, toJSON: { virtuals: true } } })
-export class Character extends Base('Character') {
+export class Character {
 
     @Field(type => MediaPersonOrCharacterName, { nullable: true })
     @Prop(({ type: MediaPersonOrCharacterName }))
@@ -84,25 +84,31 @@ registerEnumType(CharacterRelationLabel, {
  * 
  */
 
-@ObjectType()
-@modelOptions({ schemaOptions: { _id: false, toJSON: { virtuals: true } } })
-export class CharacterRelation extends DataVirtual(Character) {
-    @Field(_ => String)
-    @Prop({ type: () => String, required: true })
-    id!: string;
-
-    @Field(_ => CharacterRelationLabel, { nullable: true })
-    @Prop({ enum: CharacterRelationLabel, default: undefined })
-    label?: CharacterRelationLabel;
-}
 
 @InputType()
 export class CharacterSearchQuery {
     @Field({ nullable: true })
     name?: string;
 
-    static queryParse(this: types.QueryHelperThis<ClassType<Character>, CharacterCustomQuery>, props: CharacterSearchQuery, logic: MediaSearchLogic) {
-        let query: FilterQuery<Character>[] = [];
+    static async dynamicPopulate(this: types.QueryHelperThis<ClassType<IMedia<Character>>, CharacterCustomQuery>, info: any) {
+        if (!info) return this;
+        const projection = Object.fromEntries(Object.keys(fieldsProjection(info)).map(key => [key, 1]));
+
+        const staffsRelations = Object.keys(projection).filter(key => key.includes('.actors.'))
+        if (staffsRelations.length) {
+            this?.populate({
+                path: 'data.actors.person',
+            })
+        }
+
+        return this;
+    }
+
+    static parse<TModel extends new (...args: any) => any>(props: CharacterSearchQuery | null, logic?: MediaSearchLogic, model?: TModel) {
+        let query: FilterQuery<ReturnModelType<TModel, CharacterCustomQuery>>[] = [];
+       
+        if (!props) return {};
+
         if (props.name)
             query = query.concat([
                 { "data.name.first": { "$regex": props.name, "$options": "i" } },
@@ -112,19 +118,24 @@ export class CharacterSearchQuery {
 
         switch (logic) {
             case MediaSearchLogic.OR:
-                if (query.length) this.or(query)
-                break;
+                query = [{ $or: query }]
+                return query[0];
 
             case MediaSearchLogic.AND:
-                if (query.length) this.and(query)
-                break;
+                query = [{ $and: query }]
+                return query[0]
 
             default:
-                if (query.length) this.or(query)
-                break;
+                query = [{ $or: query }]
+                return query[0];
         }
+    }
 
-        console.log('query', this.getQuery())
+    static queryParse(this: types.QueryHelperThis<ClassType<Character>, CharacterCustomQuery>, props: CharacterSearchQuery, logic: MediaSearchLogic) {
+       
+        const query = CharacterSearchQuery.parse(props, logic);
+
+        this.setQuery(query as any);
 
         return this;
     }
@@ -138,4 +149,5 @@ export class CharacterSearchQuery {
 
 export interface CharacterCustomQuery {
     queryParse: types.AsQueryMethod<typeof CharacterSearchQuery.queryParse>;
+    dynamicPopulate: types.AsQueryMethod<typeof CharacterSearchQuery.dynamicPopulate>;
 }

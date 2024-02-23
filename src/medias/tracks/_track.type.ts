@@ -1,15 +1,15 @@
 
 
 import { ClassType, Field, InputType, ObjectType, registerEnumType } from "type-graphql";
-import { Prop, modelOptions, types } from "@typegoose/typegoose";
-import { Base } from "../../utils/_media.base";
+import { Prop, ReturnModelType, types } from "@typegoose/typegoose";
 import { MediaLink, MediaSearchLogic } from "../../utils/_media.types";
-import { PersonRelation } from "../persons/_person.type";
-import { DataVirtual } from "../../utils";
+import { PersonRelation } from "../persons/_person.model";
 import { FilterQuery } from "mongoose";
+import { fieldsProjection } from "graphql-fields-list";
+import { IMedia } from "../../utils/_media.base";
 
 @ObjectType()
-export class Track extends Base('Track') {
+export class Track {
 
     @Field()
     @Prop()
@@ -32,49 +32,54 @@ export class Track extends Base('Track') {
     artists?: PersonRelation[];
 
 }
-@ObjectType()
-@modelOptions({ schemaOptions: { _id: false, toJSON: { virtuals: true } } })
-export class TrackRelation extends DataVirtual(Track) {
-
-    @Field({ nullable: true })
-    @Prop({ required: true })
-    id?: string;
-
-    @Field({ nullable: true })
-    @Prop()
-    label?: TrackLabelRelation;
-
-    @Field(type => [Number], { nullable: true })
-    @Prop({ type: [Number] })
-    episodes?: number[];
-}
-
 @InputType()
 export class TrackSearchQuery {
     @Field({ nullable: true })
     name?: string;
 
-    static queryParse(this: types.QueryHelperThis<ClassType<Track>, TrackCustomQuery>, props: TrackSearchQuery, logic: MediaSearchLogic) {
-        let query: FilterQuery<Track>[] = [];
+    static async dynamicPopulate(this: types.QueryHelperThis<ClassType<IMedia<Track>>, TrackCustomQuery>, info: any) {
+        if (!info) return this;
+        const projection = Object.fromEntries(Object.keys(fieldsProjection(info)).map(key => [key, 1]));
+
+        const artistsRelations = Object.keys(projection).filter(key => key.includes('.artists.'))
+        if (artistsRelations.length) {
+            this?.populate({
+                path: 'data.artists.person',
+            })
+        }
+
+        return this;
+    }
+
+    static parse<TModel extends new (...args: any) => any>(props: TrackSearchQuery | null, logic?: MediaSearchLogic, model?: TModel) {
+        let query: FilterQuery<ReturnModelType<TModel, TrackCustomQuery>>[] = [];
+       
+        if (!props) return {};
+
 
         if (props.name)
             query.push({ "data.name": { "$regex": props.name, "$options": "i" } })
 
         switch (logic) {
             case MediaSearchLogic.OR:
-                if (query.length) this.or(query)
-                break;
+                query = [{ $or: query }]
+                return query[0];
 
             case MediaSearchLogic.AND:
-                if (query.length) this.and(query)
-                break;
+                query = [{ $and: query }]
+                return query[0]
 
             default:
-                if (query.length) this.or(query)
-                break;
+                query = [{ $or: query }]
+                return query[0];
         }
+    }
 
-        console.log('query', this.getQuery())
+    static queryParse(this: types.QueryHelperThis<ClassType<Track>, TrackCustomQuery>, props: TrackSearchQuery, logic: MediaSearchLogic) {
+       
+        const query = TrackSearchQuery.parse(props, logic);
+
+        this.setQuery(query as any);
 
         return this;
     }
@@ -88,6 +93,7 @@ export class TrackSearchQuery {
 
 export interface TrackCustomQuery {
     queryParse: types.AsQueryMethod<typeof TrackSearchQuery.queryParse>;
+    dynamicPopulate: types.AsQueryMethod<typeof TrackSearchQuery.dynamicPopulate>;
 }
 
 export enum TrackLabelRelation {

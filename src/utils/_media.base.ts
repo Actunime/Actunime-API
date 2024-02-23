@@ -1,7 +1,8 @@
 import { ModelOptions, Prop, Index, Pre, QueryMethod } from "@typegoose/typegoose";
-import { ObjectType, Field, ClassType, registerEnumType } from "type-graphql";
+import { ObjectType, Field, ClassType, registerEnumType, Authorized } from "type-graphql";
 import { createDataFromUpdate } from "./_genMediaFromUpdate";
 import { genPublicID } from "./_genPublicId";
+import { IUserRoles } from "../medias/users/_user.type";
 
 
 enum UpdateStatus {
@@ -42,12 +43,11 @@ export interface IMedia<TMedia extends object> {
     updatedAt?: Date;
 }
 
-const inited = [];
-
 export function Base(modelName?: string, options?: { _id?: boolean, id?: boolean }) {
     console.log('base', modelName)
     @ModelOptions({
-        options: { customName: modelName },
+        //? Assigne un customName que aux schema destiné a être sauvegardé en tant que collection.
+        ...modelName?.endsWith('DB') && { options: { customName: modelName.slice(0, -2) } },
         schemaOptions: {
             timestamps: true,
             id: false,
@@ -58,40 +58,28 @@ export function Base(modelName?: string, options?: { _id?: boolean, id?: boolean
     })
     @ObjectType()
     abstract class Base {
-        @Field()
-        id!: string;
         // En tant que staff je veut savoir qui a vérifié la mise à jour
         @Prop()
-        @Field(_ => String)
+        @Field(_ => String, { nullable: true })
         verifiedBy!: string
 
         // En tant que staff je veut savoir si la mise a jour est vérifié ou non
         //? Virtuals
-        // @Prop({ type: Boolean })
         @Field(_ => Boolean)
         public get verified() {
             return !!this.verifiedBy && !this.deleted
         }
 
-        // public set verified(verified: boolean) {
-        //     this.verified = verified;
-        // }
-
         // En tant que staff je veut savoir qui a supprimé la mise à jour
         @Prop()
-        @Field()
+        @Field({ nullable: true })
         deletedAt?: Date;
 
         // En tant que staff je veut savoir si une mise a jour a été supprimé ou non
-        // @Prop()
-        @Field(_ => Boolean)
+        @Field(_ => Boolean, { nullable: true })
         public get deleted() {
             return !!this.deletedAt
         }
-
-        // public set deleted(deleted: boolean) {
-        //     this.deleted = deleted;
-        // }
 
         @Prop()
         @Field()
@@ -105,19 +93,20 @@ export function Base(modelName?: string, options?: { _id?: boolean, id?: boolean
     return Base;
 }
 
-export function Media<TMedia extends object & { id: string, createdAt: Date, updatedAt: Date }>(ClassMedia: ClassType<TMedia>, queryParse?: (...args: any) => any) {
-    console.log('Media Init', ClassMedia?.name);
+export function Media<TMedia extends object>(ClassMedia: ClassType<TMedia>, queryParse?: (...args: any) => any, dynamicPopulate?:  (...args: any) => any) {
+    console.log('%cMedia', 'color: green', ClassMedia?.name);
 
     // @ModelOptions({ schemaOptions: { timestamps: true, id: false, _id: false } })
+
     @ObjectType(ClassMedia.name + "Update")
     abstract class Update extends Base(ClassMedia.name + "Update", { _id: false, id: false }) {
         @Prop({ required: true, default: () => genPublicID() })
         @Field()
         id!: string;
 
-        @Prop({ type: ClassMedia, _id: false })
+        @Prop({ type: ClassMedia, _id: false, default: () => ({ id: genPublicID() }) })
         @Field(_ => ClassMedia)
-        changes!: Required<Pick<Partial<TMedia>, 'id' | 'createdAt' | 'updatedAt'>> & Partial<TMedia>
+        changes!: Partial<TMedia>
 
         @Prop({ enum: UpdateStatus, default: UpdateStatus.PENDING })
         @Field(_ => UpdateStatus)
@@ -151,33 +140,41 @@ export function Media<TMedia extends object & { id: string, createdAt: Date, upd
             break;
     }
 
+    @QueryMethod(dynamicPopulate || (() => { }))
     @QueryMethod(queryParse || (() => { }))
     @Pre<Media>('save', function (next) {
-        this.data = createDataFromUpdate<Required<Pick<Partial<TMedia>, 'id' | 'createdAt' | 'updatedAt'>> & Partial<TMedia>, Pick<Update, 'changes' | 'createdAt'>>(
+        this.data = createDataFromUpdate<Partial<TMedia>, Pick<Update, 'changes' | 'createdAt'>>(
             this.updates.filter((u: any) => u.toJSON().verified),
             this.id
         );
         next()
     })
-   
+
     @Index(index as any)
     @ObjectType(ClassMedia.name + "Media", { description: ClassMedia.name })
-    class Media extends Base(ClassMedia.name) {
-        @Prop({ required: true, default: () => genPublicID(), unique: true })
+    class Media extends Base(ClassMedia.name + "DB") {
+        @Prop({ required: true, default: () => genPublicID() })
         @Field()
         id!: string;
 
         // En tant qu'utilisateur je veut récupérer les informations complètes d'un "media"
-        @Prop({ type: ClassMedia })
+        @Prop({ type: ClassMedia, _id: false })
         @Field(_ => ClassMedia)
-        data!: Required<Pick<Partial<TMedia>, 'id' | 'createdAt' | 'updatedAt'>> & Partial<TMedia> | null;
+        data!: Partial<TMedia> | null;
+
+        public get verifiedData() {
+            return this.updates && createDataFromUpdate(
+                this.updates?.filter((u: any) => u.toJSON().verified), this.id
+            ) as TMedia
+        }
 
         public get rawData() {
             // Juste pour tester le retour du champ data en mode non vérifié
-            return createDataFromUpdate(this.updates.map((u: any) => u.toJSON()), this.id) as TMedia
+            return this.updates && createDataFromUpdate(this.updates.map((u: any) => u.toJSON()), this.id) as TMedia
         }
 
         // En tant que staff je veut récupérer la liste des modifications d'un "media"
+        @Authorized([IUserRoles.MODERATEUR, IUserRoles.ADMIN])
         @Prop({ type: [Update], default: [] })
         @Field(_ => [Update])
         updates!: Update[]

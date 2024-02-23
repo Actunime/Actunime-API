@@ -1,10 +1,9 @@
 
 import { ClassType, Field, InputType, ObjectType, registerEnumType } from "type-graphql";
-import { Prop, modelOptions, types } from "@typegoose/typegoose";
+import { Prop, ReturnModelType, types } from "@typegoose/typegoose";
 import { MediaLink, MediaSearchLogic } from "../../utils/_media.types";
-import { DataVirtual } from "../../utils";
 import { FilterQuery } from "mongoose";
-import { Base } from "../../utils/_media.base";
+import { IMedia } from "../../utils/_media.base";
 
 
 export enum CompanyLabel {
@@ -18,7 +17,7 @@ registerEnumType(CompanyLabel, {
 })
 
 @ObjectType()
-export class Company extends Base('Company') {
+export class Company {
 
     @Field(t => CompanyLabel)
     @Prop({ enum: CompanyLabel })
@@ -37,14 +36,6 @@ export class Company extends Base('Company') {
     createdDate?: Date
 }
 
-@ObjectType()
-@modelOptions({ schemaOptions: { _id: false, toJSON: { virtuals: true } } })
-export class CompanyRelation extends DataVirtual(Company) {
-    @Field()
-    @Prop({ required: true })
-    id!: string;
-}
-
 @InputType()
 export class CompanySearchQuery {
     @Field({ nullable: true })
@@ -53,8 +44,25 @@ export class CompanySearchQuery {
     @Field(_ => CompanyLabel, { nullable: true })
     label?: CompanyLabel;
 
-    static queryParse(this: types.QueryHelperThis<ClassType<Company>, CompanyCustomQuery>, props: CompanySearchQuery, logic: MediaSearchLogic) {
-        let query: FilterQuery<Company>[] = [];
+    static async dynamicPopulate(this: types.QueryHelperThis<ClassType<IMedia<Company>>, CompanyCustomQuery>, info: any) {
+        if (!info) return this;
+        // const projection = Object.fromEntries(Object.keys(fieldsProjection(info)).map(key => [key, 1]));
+
+        // const staffsRelations = Object.keys(projection).filter(key => key.includes('.actors.'))
+        // if (staffsRelations.length) {
+        //     this?.populate({
+        //         path: 'data.actors.person',
+        //     })
+        // }
+
+        return this;
+    }
+
+
+    static parse<TModel extends new (...args: any) => any>(props: CompanySearchQuery | null, logic?: MediaSearchLogic, model?: TModel) {
+        let query: FilterQuery<ReturnModelType<TModel, CompanyCustomQuery>>[] = [];
+       
+        if (!props) return {};
 
         if (props.name)
             query.push({ "data.name": { "$regex": props.name, "$options": "i" } })
@@ -64,19 +72,24 @@ export class CompanySearchQuery {
 
         switch (logic) {
             case MediaSearchLogic.OR:
-                if (query.length) this.or(query)
-                break;
+                query = [{ $or: query }]
+                return query[0];
 
             case MediaSearchLogic.AND:
-                if (query.length) this.and(query)
-                break;
+                query = [{ $and: query }]
+                return query[0]
 
             default:
-                if (query.length) this.or(query)
-                break;
+                query = [{ $or: query }]
+                return query[0];
         }
+    }
 
-        console.log('query', this.getQuery())
+    static queryParse(this: types.QueryHelperThis<ClassType<Company>, CompanyCustomQuery>, props: CompanySearchQuery, logic: MediaSearchLogic) {
+       
+        const query = CompanySearchQuery.parse(props, logic);
+
+        this.setQuery(query as any);
 
         return this;
     }
@@ -90,4 +103,5 @@ export class CompanySearchQuery {
 
 export interface CompanyCustomQuery {
     queryParse: types.AsQueryMethod<typeof CompanySearchQuery.queryParse>;
+    dynamicPopulate: types.AsQueryMethod<typeof CompanySearchQuery.dynamicPopulate>;
 }

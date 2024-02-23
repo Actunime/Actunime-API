@@ -1,47 +1,58 @@
 // Modules
 import { ClassType, Field, InputType, ObjectType, registerEnumType } from "type-graphql";
-import { ModelOptions, Prop, modelOptions, types } from "@typegoose/typegoose";
+import { ModelOptions, Prop, ReturnModelType, modelOptions, types } from "@typegoose/typegoose";
 import { FilterQuery } from "mongoose";
 // Utiles
-import { Base } from "../../utils/_media.base";
 import { MediaTitle, MediaDate, MediaLink, MediaImage, MediaSearchLogic } from "../../utils/_media.types";
 import { DefaultMangaFormatEnum, DefaultSourceEnum, DefaultStatusEnum, GenresEnum } from "../defaultData";
 import themes from '../defaultFiles/themes.json';
 // Relations
-import { PersonRelation } from "../persons/_person.type";
-import { TrackRelation } from "../tracks/_track.type";
-import { CharacterRelation } from "../characters/_character.type";
-import { CompanyRelation } from "../companys/_company.type";
+import { PersonRelation } from "../persons/_person.model";
+import { TrackRelation } from "../tracks/_track.model";
+import { CharacterRelation } from "../characters/_character.model";
+import { CompanyRelation } from "../companys/_company.model";
 import { GroupeRelation } from "../groupe/_groupe.type";
+import { IMedia } from "../../utils/_media.base";
+import { fieldsProjection } from "graphql-fields-list";
 
 @ObjectType()
 @modelOptions({ schemaOptions: { _id: false, toJSON: { virtuals: true } } })
 export class MangaRelation {
     @Field({ nullable: true })
-    @Prop()
+    @Prop({ required: true })
     id!: string;
 }
 
 /** Manga part types */
 @ObjectType()
 @ModelOptions({ schemaOptions: { _id: false } })
-class MangaEpisode {
-    // @Field({ nullable: true }) @Prop()
-    @Field({ nullable: true })
+class MangaChapter {
     @Prop()
-    airing?: number;
-
     @Field({ nullable: true })
+    airing!: number;
     @Prop()
+    @Field({ nullable: true })
     nextAiringDate?: Date;
-
-    @Field({ nullable: true })
     @Prop()
-    total?: number;
-
     @Field({ nullable: true })
+    total!: number;
+}
+
+@ObjectType()
+@ModelOptions({ schemaOptions: { _id: false } })
+class MangaVolume {
     @Prop()
-    durationMinutePerEp?: number;
+    @Field({ nullable: true })
+    name!: string;
+    @Prop()
+    @Field({ nullable: true })
+    num?: number;
+    @Prop()
+    @Field({ nullable: true })
+    pubDate?: Date;
+    @Prop()
+    @Field({ nullable: true })
+    image?: string;
 }
 
 @ObjectType()
@@ -57,7 +68,7 @@ class MangaSource {
 
 /** Manga type */
 @ObjectType()
-export class Manga extends Base('Manga') {
+export class Manga {
 
     @Field(_ => GroupeRelation, { nullable: true })
     @Prop({ type: GroupeRelation })
@@ -107,9 +118,13 @@ export class Manga extends Base('Manga') {
     @Prop({ enum: DefaultStatusEnum, default: undefined })
     status?: DefaultStatusEnum;
 
-    @Field(t => MangaEpisode, { nullable: true })
-    @Prop({ type: MangaEpisode })
-    episodes?: MangaEpisode;
+    @Field(t => MangaChapter, { nullable: true })
+    @Prop({ type: MangaChapter })
+    chapters?: MangaChapter;
+
+    @Field(t => [MangaVolume], { nullable: true })
+    @Prop({ type: [MangaVolume], default: undefined })
+    volumes?: MangaVolume[];
 
     @Field({ nullable: true })
     @Prop({ default: undefined })
@@ -191,7 +206,7 @@ export class MangaSearchQuery {
     status?: string;
 
     @Field({ nullable: true })
-    minEpisodes?: number;
+    minChapters?: number;
 
     @Field({ nullable: true })
     adult?: boolean;
@@ -212,11 +227,47 @@ export class MangaSearchQuery {
     track?: string; // track id
 
 
-    static queryParse(this: types.QueryHelperThis<ClassType<Manga>, MangaCustomQuery>, props: MangaSearchQuery, logic: MediaSearchLogic) {
+    static async dynamicPopulate(this: types.QueryHelperThis<ClassType<IMedia<Manga>>, MangaCustomQuery>, info: any) {
+        if (!info) return this;
+        const projection = Object.fromEntries(Object.keys(fieldsProjection(info)).map(key => [key, 1]));
 
-        console.log('qprops', props);
+        const companysRelations = Object.keys(projection).filter(key => key.includes('.companys.'))
+        if (companysRelations.length) {
+            this?.populate({
+                path: 'data.companys.company',
+            })
+        }
 
-        let query: FilterQuery<Manga>[] = [];
+        const staffsRelations = Object.keys(projection).filter(key => key.includes('.staffs.'))
+        if (staffsRelations.length) {
+            this?.populate({
+                path: 'data.staffs.person',
+            })
+        }
+
+        const charactersRelations = Object.keys(projection).filter(key => key.includes('.characters.') && !key.includes('.actors.'))
+        if (charactersRelations.length) {
+            const actorsRelations = Object.keys(projection).filter(key => key.includes('.actors.'))
+            this?.populate({
+                path: 'data.characters.character',
+                ...actorsRelations.length && {
+                    populate: {
+                        path: 'data.actors.person',
+                        foreignField: 'id',
+                        model: 'Person'
+                    }
+                }
+            })
+        }
+
+        return this;
+    }
+
+    static parse<TModel extends new (...args: any) => any>(props: MangaSearchQuery | null, logic?: MediaSearchLogic, model?: TModel) {
+
+        let query: FilterQuery<ReturnModelType<TModel, MangaCustomQuery>>[] = [];
+        if (!props) return {};
+
         if (props.title)
             query = query.concat([
                 { "data.title.default": { "$regex": props.title, "$options": "i" } },
@@ -232,10 +283,11 @@ export class MangaSearchQuery {
             query.push({ 'data.parent': props.parent })
 
         if (props.season) {
-            const date = new Date();
-            const month = date.getMonth();
+            // const date = new Date();
+            // const month = date.getMonth();
             function getMonths() {
-                let months = [];
+                let months: number[] = [];
+                if (!props) return months;
                 switch (props.season) {
                     case 'HIVER':
                         for (let i = 1; i < 12; i++) {
@@ -284,7 +336,9 @@ export class MangaSearchQuery {
             if (mQuery.length)
                 query.push({ 'data.date.start': { $exists: true } })
 
-            this.or(mQuery)
+            query.push({
+                $or: mQuery
+            })
         }
 
         if (props.year)
@@ -308,8 +362,8 @@ export class MangaSearchQuery {
         if (props.status)
             query.push({ 'data.status': props.status })
 
-        if (props.minEpisodes)
-            query.push({ 'data.episodes.airing': { $gt: props.minEpisodes } })
+        if (props.minChapters)
+            query.push({ 'data.chapters.airing': { $gt: props.minChapters } })
 
         if (props.adult)
             query.push({ 'data.adult': props.adult })
@@ -327,24 +381,25 @@ export class MangaSearchQuery {
         if (props.character)
             query.push({ 'data.characters.id': props.character })
 
-        if (props.track)
-            query.push({ 'data.tracks.id': props.track })
-
         switch (logic) {
             case MediaSearchLogic.OR:
-                if (query.length) this.or(query)
-                break;
+                query = [{ $or: query }]
+                return query[0];
 
             case MediaSearchLogic.AND:
-                if (query.length) this.and(query)
-                break;
+                query = [{ $and: query }]
+                return query[0]
 
             default:
-                if (query.length) this.or(query)
-                break;
+                query = [{ $or: query }]
+                return query[0];
         }
+    }
+    static queryParse(this: types.QueryHelperThis<ClassType<Manga>, MangaCustomQuery>, props: MangaSearchQuery, logic: MediaSearchLogic) {
 
-        console.log('query', this.getQuery())
+        const query = MangaSearchQuery.parse(props, logic);
+
+        this.setQuery(query as any);
 
         return this;
     }
@@ -365,4 +420,5 @@ export class MangaSearchQuery {
 
 export interface MangaCustomQuery {
     queryParse: types.AsQueryMethod<typeof MangaSearchQuery.queryParse>;
+    dynamicPopulate: types.AsQueryMethod<typeof MangaSearchQuery.dynamicPopulate>;
 }

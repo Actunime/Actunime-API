@@ -1,4 +1,4 @@
-import { ObjectType, Field, InputType } from "type-graphql";
+import {  Field, InputType } from "type-graphql";
 import { MediaDoc, UpdateParams, createUpdate } from "../../utils";
 import { Groupe } from "./_groupe.type";
 import { GroupeModel } from "./_groupe.model";
@@ -53,13 +53,13 @@ export class GroupeInput {
             addModel(model)
             return {
                 id: model[0].id,
-                data: null
+                data:  model[0].id
             }
         } else
             if (props.exist)
                 return {
                     id: props.exist.id,
-                    data: null
+                    data: props.exist.id
                 }
 
         return;

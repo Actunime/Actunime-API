@@ -1,38 +1,37 @@
 import { ClassType, Field, InputType, ObjectType, registerEnumType } from "type-graphql";
-import { Prop, modelOptions, types } from "@typegoose/typegoose";
+import { Prop, ReturnModelType, types } from "@typegoose/typegoose";
 import { MediaLink, MediaPersonGender, MediaPersonOrCharacterName, MediaSearchLogic } from "../../utils/_media.types";
-import { DataVirtual } from "../../utils";
 import { FilterQuery } from "mongoose";
-import { Base } from "../../utils/_media.base";
+import { IMedia } from "../../utils/_media.base";
 
 @ObjectType()
-export class Person extends Base('Person') {
+export class Person {
 
     @Field(type => MediaPersonOrCharacterName)
     @Prop(({ type: MediaPersonOrCharacterName }))
     name!: MediaPersonOrCharacterName
 
-    @Field()
+    @Field({ nullable: true })
     @Prop()
     age?: number
 
-    @Field()
+    @Field({ nullable: true })
     @Prop()
     birthDate?: string
 
-    @Field(type => MediaPersonGender)
+    @Field(type => MediaPersonGender, { nullable: true })
     @Prop({ enum: MediaPersonGender })
     gender?: MediaPersonGender;
 
-    @Field()
+    @Field({ nullable: true })
     @Prop()
     bio?: string
 
-    @Field()
+    @Field({ nullable: true })
     @Prop()
     image?: string
 
-    @Field(_ => MediaLink)
+    @Field(_ => MediaLink, { nullable: true })
     @Prop({ type: MediaLink })
     links?: MediaLink[]
 
@@ -92,47 +91,61 @@ registerEnumType(PersonrRoleRelationLabel, {
 })
 
 
-@ObjectType()
-@modelOptions({ schemaOptions: { _id: false, toJSON: { virtuals: true } } })
-export class PersonRelation extends DataVirtual(Person) {
-    @Field()
-    @Prop()
-    id!: string;
-    @Field()
-    @Prop()
-    label?: PersonrRoleRelationLabel;;
-}
-
-
 @InputType()
 export class PersonSearchQuery {
     @Field({ nullable: true })
     name?: string;
 
-    static queryParse(this: types.QueryHelperThis<ClassType<Person>, PersonCustomQuery>, props: PersonSearchQuery, logic: MediaSearchLogic) {
-        let query: FilterQuery<Person>[] = [];
+    static async dynamicPopulate(this: types.QueryHelperThis<ClassType<IMedia<Person>>, PersonCustomQuery>, info: any) {
+        if (!info) return this;
+        // const projection = Object.fromEntries(Object.keys(fieldsProjection(info)).map(key => [key, 1]));
 
-        if (props.name)
-            query.push({ "data.name": { "$regex": props.name, "$options": "i" } })
-
-        switch (logic) {
-            case MediaSearchLogic.OR:
-                if (query.length) this.or(query)
-                break;
-
-            case MediaSearchLogic.AND:
-                if (query.length) this.and(query)
-                break;
-
-            default:
-                if (query.length) this.or(query)
-                break;
-        }
-
-        console.log('query', this.getQuery())
+        // const staffsRelations = Object.keys(projection).filter(key => key.includes('.actors.'))
+        // if (staffsRelations.length) {
+        //     this?.populate({
+        //         path: 'data.actors.person',
+        //     })
+        // }
 
         return this;
     }
+
+    static parse<TModel extends new (...args: any) => any>(props: PersonSearchQuery | null, logic?: MediaSearchLogic, model?: TModel) {
+        let query: FilterQuery<ReturnModelType<TModel, PersonCustomQuery>>[] = [];
+       
+        if (!props) return {};
+
+        if (props.name)
+            query = query.concat([
+                { "data.name.first": { "$regex": props.name, "$options": "i" } },
+                { "data.name.end": { "$regex": props.name, "$options": "i" } },
+                { "data.name.alias": { "$regex": props.name, "$options": "i" } },
+            ])
+
+        switch (logic) {
+            case MediaSearchLogic.OR:
+                query = [{ $or: query }]
+                return query[0];
+
+            case MediaSearchLogic.AND:
+                query = [{ $and: query }]
+                return query[0]
+
+            default:
+                query = [{ $or: query }]
+                return query[0];
+        }
+    }
+
+    static queryParse(this: types.QueryHelperThis<ClassType<Person>, PersonCustomQuery>, props: PersonSearchQuery, logic: MediaSearchLogic) {
+       
+        const query = PersonSearchQuery.parse(props, logic);
+
+        this.setQuery(query as any);
+
+        return this;
+    }
+
 
     static genProjection(props: PersonSearchQuery) {
         let projections: { [key: string]: any } = {};
@@ -143,4 +156,5 @@ export class PersonSearchQuery {
 
 export interface PersonCustomQuery {
     queryParse: types.AsQueryMethod<typeof PersonSearchQuery.queryParse>;
+    dynamicPopulate: types.AsQueryMethod<typeof PersonSearchQuery.dynamicPopulate>;
 }

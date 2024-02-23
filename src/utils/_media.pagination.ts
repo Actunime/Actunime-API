@@ -8,41 +8,44 @@ class Pagination {
     limit!: number;
 }
 
-export interface PaginationOutputType {
-    currentPage: number;
-    totalPage: number;
-    limitPerPage: number;
-    totalResults: number;
+export interface PaginationMediaType {
+    page: number;
+    pageCount: number;
+    pageResultsCount: number;
     hasNextPage: boolean;
     hasPrevPage: boolean;
     results: any[];
+    resultsLimit: number;
+    resultsCount: number;
     ms?: number;
 }
 
-function PaginationOutput<TData extends object>(DataClass: ClassType<TData>) {
+function PaginationMedia<TData extends object>(DataClass: ClassType<TData>) {
     @ObjectType({ description: "Pagination responses" })
-    abstract class PaginationOutput {
+    abstract class PaginationMedia {
         @Field({ nullable: true })
-        currentPage!: number;
+        page!: number;
         @Field({ nullable: true })
-        totalPage!: number;
+        pageCount!: number;
         @Field({ nullable: true })
-        limitPerPage!: number;
-        @Field({ nullable: true })
-        totalResults!: number;
+        pageResultsCount!: number;
         @Field({ nullable: true })
         hasNextPage!: boolean;
         @Field({ nullable: true })
         hasPrevPage!: boolean;
         @Field(_ => [DataClass], { nullable: true, defaultValue: [] })
         results!: TData[];
+        @Field({ nullable: true })
+        resultsLimit!: number;
+        @Field({ nullable: true })
+        resultsCount!: number;
         @Field()
         ms?: number;
     }
-    return PaginationOutput;
+    return PaginationMedia;
 }
 
 export {
     Pagination,
-    PaginationOutput
+    PaginationMedia
 }

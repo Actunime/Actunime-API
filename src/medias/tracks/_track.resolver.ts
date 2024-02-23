@@ -1,8 +1,7 @@
 import { Arg, Authorized, Info, Mutation, Query, Resolver } from "type-graphql";
 import { MediaSearchLogic, Pagination } from "../../utils";
-import { TrackMedia, TrackModel, TrackPaginationOutput } from "./_track.model";
+import { TrackMedia, TrackMediaPagination, TrackModel } from "./_track.model";
 import { Track, TrackSearchQuery } from "./_track.type";
-import { fieldsProjection } from 'graphql-fields-list'
 import { PaginationQuery } from "../../utils/_pagination";
 import { TrackInput } from "./_track.input";
 import { IUserRoles } from "../users/_user.type";
@@ -11,39 +10,22 @@ import { IUserRoles } from "../users/_user.type";
 @Resolver(Track)
 export class TrackResolver {
 
-    @Query(_return => Track, { nullable: true })
-    async getTrack(@Arg("id", () => String) id: string, @Info() info: any) {
-
-        const projection = info ?
-            Object.fromEntries(
-                Object.keys(
-                    Object.assign(fieldsProjection(info), { id: 1 })
-                ).map(key => [key.replace(key, 'data.' + key), 1])) : {};
-
-        console.log(projection)
-
-        const findTrack = await TrackModel.findOne({ id }, { id: 1, ...projection }).lean();
-
-        console.log('getTrack', findTrack);
-        // TODO: check le statut (public ou non etc...)
-        if (findTrack && findTrack.data) {
-
-            console.log("CA RETOURNE")
-            const { id, data } = findTrack;
-
-            return data;
-
-        } else {
-            return null;
+    @Query(_return => TrackMedia, { nullable: true })
+    async track(@Arg("id", () => String) id: string, @Info() info: any) {
+        try {
+            const track = await TrackModel.findOne({ id, data: { $ne: undefined } }).dynamicPopulate(info)
+            return track?.toJSON();
+        } catch (err) {
+            console.error(err)
+            return null
         }
-
     }
 
-    @Query(_returns => TrackPaginationOutput, { nullable: true })
-    async searchTracks(
+    @Query(_returns => TrackMediaPagination, { nullable: true })
+    async tracks(
 
         @Arg("pagination", () => Pagination, { nullable: true })
-        pagination: Pagination | null,
+        paginationQuery: Pagination | null,
 
         @Arg("searchQuery", () => TrackSearchQuery, { nullable: true })
         searchQuery: TrackSearchQuery | null,
@@ -54,43 +36,19 @@ export class TrackResolver {
         @Info()
         info: any
 
-    ): Promise<TrackPaginationOutput | null> {
+    ): Promise<TrackMediaPagination | null> {
 
-        console.log('searchTracks');
+        const filter = TrackSearchQuery.parse<typeof TrackModel>(searchQuery, searchLogic);
 
-        const queryGen = TrackModel.find();
-        // .find({ data: { $ne: null } });
-
-        console.log('searchQuery', searchQuery)
-
-        if (searchQuery)
-            queryGen.queryParse(searchQuery, searchLogic)
-
+        console.log('query', filter)
 
         return PaginationQuery({
             model: TrackModel,
-            paginationQuery: pagination,
-            filter: queryGen.getQuery(),
+            paginationQuery,
+            filter,
             info,
             customProjection: searchQuery ? TrackSearchQuery.genProjection(searchQuery) : {}
         });
-    }
-
-    @Query(_returns => TrackMedia, { nullable: true })
-    async getFullTrack(@Arg("id", () => String) id: String) {
-
-        const findTrack = await TrackModel.findOne({ id }).lean();
-
-        console.log('getFullTrack', findTrack, id);
-
-        if (findTrack) {
-            const sortedUpdate = findTrack.updates?.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-            // const sortedUpdateRequest = findTrack.requests?.sort(sortByCreatedAt);
-
-            return findTrack
-        } else {
-            return null;
-        }
     }
 
     @Mutation(_ => Track, { description: "Ajouter un (nouvel) track (staff)" })

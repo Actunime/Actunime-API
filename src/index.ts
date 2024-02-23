@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { ApolloServer, BaseContext } from "@apollo/server";
+import { ApolloServer } from "@apollo/server";
 import Fastify from 'fastify';
 import mongoose from 'mongoose';
 import { buildSchema } from "type-graphql";
@@ -12,7 +12,6 @@ import { IUserRoles } from "./medias/users/_user.type";
 import JWT from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
 import { authChecker } from "./auth/AuthChecker";
-import { DefaultDataResolver } from "./medias/defaultData";
 import { createFakeData } from "./helpers.db";
 import { UserModel } from "./medias/users/_user.model";
 
@@ -40,8 +39,6 @@ async function connectDB() {
         autoIndex: true,
         autoCreate: true
     });
-
-    await mongoose.connection.db.dropDatabase();
 }
 
 export interface ActunimeAuthContext {

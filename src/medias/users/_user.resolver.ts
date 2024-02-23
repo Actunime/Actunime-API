@@ -2,9 +2,9 @@
 
 
 
-import { Arg, Authorized, Info, Query, Resolver } from "type-graphql";
+import { Arg, Info, Query, Resolver } from "type-graphql";
 import { MediaSearchLogic, Pagination } from "../../utils";
-import { UserModel, UserPaginationOutput, } from "./_user.model";
+import { UserModel, UserPaginationMedia, } from "./_user.model";
 import { User, UserSearchQuery } from "./_user.type";
 import { fieldsProjection } from 'graphql-fields-list'
 import { UserPaginationQuery } from "../../utils/_pagination";
@@ -21,7 +21,7 @@ export class UserResolver {
         return user;
     }
 
-    @Query(_returns => UserPaginationOutput, { nullable: true })
+    @Query(_returns => UserPaginationMedia, { nullable: true })
     async searchUsers(
 
         @Arg("pagination", () => Pagination, { nullable: true })
@@ -36,7 +36,7 @@ export class UserResolver {
         @Info()
         info: any
 
-    ): Promise<UserPaginationOutput | null> {
+    ): Promise<UserPaginationMedia | null> {
 
         console.log('searchUsers');
 

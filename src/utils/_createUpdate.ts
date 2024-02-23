@@ -29,9 +29,8 @@ export function createUpdate<
 
     return {
         returnModels: (): MediaDoc<any>[] => {
-            const model = new db() as MediaDoc<any>;
+            const model = new db({ verifiedBy: verifiedBy || undefined, updates: [update] }) as MediaDoc<any>;
 
-            model.updates.push(update);
             return docToSaveWith ? [model, ...docToSaveWith] : [model];
         },
         save: async () => {
@@ -41,8 +40,7 @@ export function createUpdate<
                         await doc.validate();
                     }
 
-                const model = new db();
-                model.updates.push(update);
+                const model = new db({ verifiedBy: verifiedBy || undefined, updates: [update] });
                 await model.validate();
 
                 if (docToSaveWith)

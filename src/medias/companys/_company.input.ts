@@ -1,8 +1,8 @@
 
 import { Field, InputType } from "type-graphql";
 import { MediaLinkInput } from "../../utils/_media.types";
-import { Company, CompanyLabel, CompanyRelation } from "./_company.type";
-import { CompanyModel } from "./_company.model";
+import { Company, CompanyLabel, } from "./_company.type";
+import { CompanyModel, CompanyRelation } from "./_company.model";
 import { MediaDoc, UpdateParams, createUpdate } from "../../utils/_createUpdate";
 import { MediaRequiredFields } from "../../utils/_media.base";
 
@@ -42,14 +42,11 @@ export class CompanyInput implements Partial<Company> {
 
         if (props.news) {
             for (const relation of props.news) {
-                const update = this.createUpdate(relation.data, action, {
-                    author: '',
-                    verifiedBy: ''
-                });
+                const update = this.createUpdate(relation.data, action, params);
                 let model = update.returnModels()
                 relationOutput.push({
                     id: model[0].id,
-                    data: null
+                    company: model[0].id
                 })
                 addModel(model)
             }
@@ -59,7 +56,7 @@ export class CompanyInput implements Partial<Company> {
             for (const relation of props.exists) {
                 relationOutput.push({
                     id: relation.id,
-                    data: null
+                    company: relation.id
                 })
             }
         }

@@ -1,4 +1,4 @@
-import { Prop, Ref } from "@typegoose/typegoose";
+import { ModelOptions, Prop, Ref } from "@typegoose/typegoose";
 import { ClassType, Field, ObjectType } from "type-graphql";
 
 
@@ -6,24 +6,18 @@ import { ClassType, Field, ObjectType } from "type-graphql";
 
 export function DataVirtual<TMedia extends object>(Media: ClassType<TMedia>) {
     @ObjectType()
+    @ModelOptions({
+        schemaOptions: { toJSON: { virtuals: true }, toObject: { virtuals: true } }
+    })
     abstract class DataVirtual {
         // @Field(_ => Media)
-        @Prop({ ref: () => Media, foreignField: 'id', localField: 'id', justOne: true, default: undefined })
-        vData?: Ref<TMedia>;
+        // @Field(_ => Media, { nullable: true })
+        // @Prop({ ref: () => Media, foreignField: 'id', localField: 'id', justOne: true, default: undefined })
+        // vData?: Ref<TMedia>;
 
         @Field(_ => Media, { nullable: true })
-        public get data() {
-            if (this.vData) {
-                let data = (this.vData as unknown as any).data;
-                // this.vData = undefined;
-                return data;
-            }
-            return null;
-        }
-
-        public set data(data: TMedia | null) {
-            // this.data = data;
-        }
+        @Prop({ ref: () => Media, type: () => String, foreignField: 'id', localField: 'id', justOne: true })
+        data!: Ref<TMedia, string>
     }
 
     return DataVirtual;

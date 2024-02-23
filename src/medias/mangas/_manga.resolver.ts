@@ -1,8 +1,7 @@
 import { Arg, Authorized, Info, Mutation, Query, Resolver } from "type-graphql";
 import { MediaSearchLogic, Pagination } from "../../utils";
-import { MangaMedia, MangaModel, MangaPaginationOutput } from "./_manga.model";
+import { MangaMedia, MangaMediaPagination, MangaModel } from "./_manga.model";
 import { Manga, MangaSearchQuery } from "./_manga.type";
-import { fieldsProjection } from 'graphql-fields-list'
 import { PaginationQuery } from "../../utils/_pagination";
 import { MangaInput } from "./_manga.input";
 import { IUserRoles } from "../users/_user.type";
@@ -10,40 +9,22 @@ import { IUserRoles } from "../users/_user.type";
 
 @Resolver(Manga)
 export class MangaResolver {
-
-    @Query(_return => Manga, { nullable: true })
-    async getManga(@Arg("id", () => String) id: string, @Info() info: any) {
-
-        const projection = info ?
-            Object.fromEntries(
-                Object.keys(
-                    Object.assign(fieldsProjection(info), { id: 1 })
-                ).map(key => [key.replace(key, 'data.' + key), 1])) : {};
-
-        console.log(projection)
-
-        const findManga = await MangaModel.findOne({ id }, { id: 1, ...projection }).lean();
-
-        console.log('getManga', findManga);
-        // TODO: check le statut (public ou non etc...)
-        if (findManga && findManga.data) {
-
-            console.log("CA RETOURNE")
-            const { id, data } = findManga;
-
-            return data;
-
-        } else {
-            return null;
+    @Query(_return => MangaMedia, { nullable: true })
+    async manga(@Arg("id", () => String) id: string, @Info() info: any) {
+        try {
+            const manga = await MangaModel.findOne({ id, data: { $ne: undefined } }).dynamicPopulate(info)
+            return manga?.toJSON();
+        } catch (err) {
+            console.error(err)
+            return null
         }
-
     }
 
-    @Query(_returns => MangaPaginationOutput, { nullable: true })
-    async searchMangas(
+    @Query(_returns => MangaMediaPagination, { nullable: true })
+    async mangas(
 
         @Arg("pagination", () => Pagination, { nullable: true })
-        pagination: Pagination | null,
+        paginationQuery: Pagination | null,
 
         @Arg("searchQuery", () => MangaSearchQuery, { nullable: true })
         searchQuery: MangaSearchQuery | null,
@@ -54,45 +35,20 @@ export class MangaResolver {
         @Info()
         info: any
 
-    ): Promise<MangaPaginationOutput | null> {
+    ): Promise<MangaMediaPagination | null> {
 
-        console.log('searchMangas');
+        const filter = MangaSearchQuery.parse<typeof MangaModel>(searchQuery, searchLogic);
 
-        const queryGen = MangaModel.find();
-        // .find({ data: { $ne: null } });
-
-        console.log('searchQuery', searchQuery)
-
-        if (searchQuery)
-            queryGen.queryParse(searchQuery, searchLogic)
-
+        console.log('query', filter)
 
         return PaginationQuery({
             model: MangaModel,
-            paginationQuery: pagination,
-            filter: queryGen.getQuery(),
+            paginationQuery,
+            filter,
             info,
             customProjection: searchQuery ? MangaSearchQuery.genProjection(searchQuery) : {}
         });
     }
-
-    @Query(_returns => MangaMedia, { nullable: true })
-    async getFullManga(@Arg("id", () => String) id: String) {
-
-        const findManga = await MangaModel.findOne({ id }).lean();
-
-        console.log('getFullManga', findManga, id);
-
-        if (findManga) {
-            const sortedUpdate = findManga.updates?.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-            // const sortedUpdateRequest = findManga.requests?.sort(sortByCreatedAt);
-
-            return findManga
-        } else {
-            return null;
-        }
-    }
-
     @Mutation(_ => Manga, { description: "Ajouter un (nouvel) manga (staff)" })
     async createManga(@Arg("data", _ => MangaInput) dataInput: MangaInput) {
 

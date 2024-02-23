@@ -27,9 +27,9 @@ class MangaVolumeInput {
     @Field({ nullable: true })
     num?: number;
     @Field({ nullable: true })
-    pubDate!: Date;
+    pubDate?: Date;
     @Field({ nullable: true })
-    image!: string;
+    image?: string;
 }
 
 @InputType()
