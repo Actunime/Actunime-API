@@ -43,7 +43,7 @@ export class MediaImage {
 
 @ObjectType()
 export class MediaLink {
-    @Field({ nullable: true })
+    @Field()
     @Prop()
     name!: string;
 
@@ -80,15 +80,15 @@ registerEnumType(MediaPersonGender, {
 
 @ObjectType()
 export class MediaPersonOrCharacterName {
-    @Field()
+    @Field({ nullable: true })
     @Prop()
     first?: string;
 
-    @Field()
+    @Field({ nullable: true })
     @Prop()
     end?: string;
 
-    @Field(type => [String])
+    @Field(type => [String], { nullable: true })
     @Prop({ type: [String] })
     alias?: string[];
 }

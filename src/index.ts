@@ -14,6 +14,7 @@ import * as dotenv from 'dotenv';
 import { authChecker } from "./auth/AuthChecker";
 import { createFakeData } from "./helpers.db";
 import { UserModel } from "./medias/users/_user.model";
+import { DefaultDataResolver } from "./medias/defaultData";
 
 dotenv.config();
 // import cache from 'ts-cache-mongoose'
@@ -64,7 +65,7 @@ try {
 
         // TODO! https://github.com/MichalLytek/type-graphql/tree/v2.0.0-beta.6/examples/apollo-cache
         const schema = await buildSchema({
-            resolvers: [AnimeResolver, CharacterResolver, CompanyResolver, TrackResolver, PersonResolver, GroupeResolver, UserResolver ],
+            resolvers: [AnimeResolver, CharacterResolver, CompanyResolver, TrackResolver, PersonResolver, GroupeResolver, UserResolver, DefaultDataResolver ],
             emitSchemaFile: path.resolve(__dirname, "schema.graphql"),
             globalMiddlewares: [TypegooseMiddleware],
             validate: false,

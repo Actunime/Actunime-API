@@ -80,6 +80,11 @@ export async function PaginationQuery<T extends AnyParamConstructor<any>, TModel
             Object.assign(projection, { 'data.tracks.id': 1 })
         }
 
+        if (projectionKeys.find(k => k.startsWith("data.artists.person"))) {
+            pathToPopulate.push({ path: 'data.artists.person' })
+            Object.assign(projection, { 'data.artists.id': 1 })
+        }
+
 
         const projections = {
             ...projection,
@@ -125,10 +130,10 @@ export async function PaginationQuery<T extends AnyParamConstructor<any>, TModel
 
         const [result] = dbResponse;
 
-        console.log('pathToPopulate', pathToPopulate)
+        console.log('pathToPopulate', pathToPopulate, result)
         if (pathToPopulate) {
             for await (const path of pathToPopulate) {
-                await model.populate(result.results, path);
+                await model.populate(result.results, { ...path, options: { lean: true } });
             }
         }
 

@@ -1,19 +1,19 @@
 
 import { AnimeInput } from './medias/animes/_anime.input';
 import { MediaPersonGender } from './utils/_media.types';
-import { CompanyLabel } from './medias/companys/_company.type';
+import { CompanyType } from './medias/companys/_company.type';
 import { DefaultAnimeFormatEnum, DefaultSourceEnum, DefaultStatusEnum } from './medias/defaultData';
 import { AnimeModel } from './medias/animes';
 import { PersonrRoleRelationLabel } from './medias/persons/_person.type';
-import { CharacterRelationLabel, TrackLabelRelation } from './medias';
-import mongoose from 'mongoose';
+import { CharacterRelationLabel, TrackRelationLabel } from './medias';
+
 
 
 export async function createFakeData() {
 
     // await AnimeModel.syncIndexes()
 
-    await mongoose.connection.db.dropDatabase();
+    // await mongoose.connection.db.dropDatabase();
 
     try {
         let FakeData = await AnimeInput.createUpdate({
@@ -56,7 +56,7 @@ export async function createFakeData() {
                     {
                         data: {
                             name: 'Ufotable',
-                            label: CompanyLabel['STUDIO'],
+                            type: CompanyType['STUDIO'],
                             links: [
                                 {
                                     name: 'Site officiel',
@@ -120,7 +120,7 @@ export async function createFakeData() {
             },
             tracks: {
                 news: [{
-                    label: TrackLabelRelation.OPENING,
+                    label: TrackRelationLabel.OPENING,
                     data: {
                         name: 'Gurenge',
                         artists: {
@@ -145,7 +145,7 @@ export async function createFakeData() {
         })
 
         await FakeData
-            .save();
+        //     .save();
 
         let test = await AnimeModel.find()
         console.log(test.map(t => t.toJSON()))

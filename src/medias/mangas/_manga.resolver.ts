@@ -1,7 +1,6 @@
 import { Arg, Authorized, Info, Mutation, Query, Resolver } from "type-graphql";
 import { MediaSearchLogic, Pagination } from "../../utils";
-import { MangaMedia, MangaMediaPagination, MangaModel } from "./_manga.model";
-import { Manga, MangaSearchQuery } from "./_manga.type";
+import { Manga, MangaSearchQuery, MangaMedia, MangaMediaPagination, MangaModel } from "./_manga.type";
 import { PaginationQuery } from "../../utils/_pagination";
 import { MangaInput } from "./_manga.input";
 import { IUserRoles } from "../users/_user.type";

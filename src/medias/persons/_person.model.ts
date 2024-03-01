@@ -8,7 +8,7 @@ import { Media } from "../../utils/_media.base";
 export class PersonPaginationMedia extends PaginationMedia<Person>(Person) { }
 
 @ObjectType()
-export class PersonMedia extends Media<Person>(Person, PersonSearchQuery.queryParse) { }
+export class PersonMedia extends Media<Person>(Person, PersonSearchQuery.queryParse, PersonSearchQuery.dynamicPopulate) { }
 
 
 @ObjectType()
@@ -17,8 +17,8 @@ export class PersonRelation {
     @Field()
     @Prop({ required: true })
     id!: string;
-    @Field()
-    @Prop()
+    @Field(_ => PersonrRoleRelationLabel, { nullable: true })
+    @Prop({ enum: PersonrRoleRelationLabel })
     label?: PersonrRoleRelationLabel;;
 
     @Field(_ => PersonMedia, { nullable: true })

@@ -1,6 +1,6 @@
 import { Prop, Ref, getModelForClass, modelOptions } from "@typegoose/typegoose";
 import { Field, ObjectType } from "type-graphql";
-import { Track, TrackCustomQuery, TrackLabelRelation, TrackSearchQuery } from "./_track.type";
+import { Track, TrackCustomQuery, TrackRelationLabel, TrackSearchQuery } from "./_track.type";
 import { PaginationMedia } from "../../utils";
 import { Media } from "../../utils/_media.base";
 
@@ -18,9 +18,9 @@ export class TrackRelation {
     @Prop({ required: true })
     id!: string;
 
-    @Field({ nullable: true })
+    @Field(_ => TrackRelationLabel, { nullable: true })
     @Prop()
-    label?: TrackLabelRelation;
+    label?: TrackRelationLabel;
 
     @Field(type => [Number], { nullable: true })
     @Prop({ type: [Number] })

@@ -3,7 +3,7 @@ import { Field, InputType } from "type-graphql";
 import { MediaLinkInput } from "../../utils/_media.types";
 import { MediaDoc, UpdateParams, createUpdate } from "../../utils";
 import { TrackModel, TrackRelation } from "./_track.model";
-import { Track, TrackLabelRelation, } from "./_track.type";
+import { Track, TrackRelationLabel, } from "./_track.type";
 import { PersonInput, PersonRelationFields } from "../persons/_person.input";
 import { MediaRequiredFields } from "../../utils/_media.base";
 
@@ -79,8 +79,8 @@ export class TrackInput {
 @InputType({ description: "Relation Track" })
 class TrackRelationAddInput {
 
-    @Field({ nullable: true })
-    label?: TrackLabelRelation;
+    @Field(_ => TrackRelationLabel, { nullable: true })
+    label?: TrackRelationLabel;
 
     @Field(type => [Number], { nullable: true })
     episodes?: number[];
@@ -94,8 +94,8 @@ class TrackRelationExistInput {
     @Field(_ => String)
     id!: string;
 
-    @Field({ nullable: true })
-    label?: TrackLabelRelation;
+    @Field(_ => TrackRelationLabel, { nullable: true })
+    label?: TrackRelationLabel;
 
     @Field(type => [Number], { nullable: true })
     episodes?: number[];

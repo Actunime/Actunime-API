@@ -1,8 +1,7 @@
 
 import { Field, InputType } from 'type-graphql';
 import { MediaRequiredFields } from '../../utils/_media.base';
-import { AnimeModel } from './_anime.model';
-import { Anime } from './_anime.type';
+import { Anime, AnimeModel } from './_anime.type';
 import { MediaTitleInput, MediaDateInput, MediaImageInput, MediaLinkInput, MediaDoc, createUpdate, UpdateParams } from '../../utils';
 import { DefaultAnimeFormatEnum, DefaultSourceEnum, DefaultStatusEnum, GenresEnum } from '../defaultData';
 import { CharacterInput, CharacterRelationFields } from '../characters/_character.input';
@@ -100,7 +99,7 @@ export class AnimeInput {
 
         let changes: Omit<Anime, MediaRequiredFields> = {
             ...props,
-            parent: props.parent ? { id: props.parent, data: props.parent } : undefined,
+            parent: props.parent ? { id: props.parent, anime: props.parent } : undefined,
             groupe: props.groupe ? GroupeInput.InitFromRelation(props.groupe, action, (m) => docToSaveWith = docToSaveWith.concat(m), params) : undefined,
             companys: props.companys ? CompanyInput.InitFromRelation(props.companys, action, (m) => docToSaveWith = docToSaveWith.concat(m), params) : undefined,
             staffs: props.staffs ? PersonInput.InitFromRelation(props.staffs, action, (m) => docToSaveWith = docToSaveWith.concat(m), params) : undefined,

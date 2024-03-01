@@ -6,32 +6,32 @@ import { FilterQuery } from "mongoose";
 import { IMedia } from "../../utils/_media.base";
 
 
-export enum CompanyLabel {
-    STUDIO = "Studio",
-    PRODUCER = "Producteur"
+export enum CompanyType {
+    STUDIO = "STUDIO",
+    PRODUCER = "PRODUCER"
 }
 
-registerEnumType(CompanyLabel, {
-    name: "CompanyLabel",
+registerEnumType(CompanyType, {
+    name: "CompanyType",
     description: "Company label"
 })
 
 @ObjectType()
 export class Company {
 
-    @Field(t => CompanyLabel)
-    @Prop({ enum: CompanyLabel })
-    label!: CompanyLabel
+    @Field(t => CompanyType)
+    @Prop({ enum: CompanyType })
+    type!: CompanyType
 
     @Field()
     @Prop()
     name!: string
 
-    @Field(t => [MediaLink])
+    @Field(t => [MediaLink], { nullable: true })
     @Prop({ type: [MediaLink] })
     links?: MediaLink[]
 
-    @Field()
+    @Field({ nullable: true })
     @Prop()
     createdDate?: Date
 }
@@ -41,8 +41,8 @@ export class CompanySearchQuery {
     @Field({ nullable: true })
     name?: string;
 
-    @Field(_ => CompanyLabel, { nullable: true })
-    label?: CompanyLabel;
+    @Field(_ => CompanyType, { nullable: true })
+    type?: CompanyType;
 
     static async dynamicPopulate(this: types.QueryHelperThis<ClassType<IMedia<Company>>, CompanyCustomQuery>, info: any) {
         if (!info) return this;
@@ -61,14 +61,14 @@ export class CompanySearchQuery {
 
     static parse<TModel extends new (...args: any) => any>(props: CompanySearchQuery | null, logic?: MediaSearchLogic, model?: TModel) {
         let query: FilterQuery<ReturnModelType<TModel, CompanyCustomQuery>>[] = [];
-       
+
         if (!props) return {};
 
         if (props.name)
             query.push({ "data.name": { "$regex": props.name, "$options": "i" } })
 
-        if (props.label)
-            query.push({ "data.label": props.label })
+        if (props.type)
+            query.push({ "data.type": props.type })
 
         switch (logic) {
             case MediaSearchLogic.OR:
@@ -86,7 +86,7 @@ export class CompanySearchQuery {
     }
 
     static queryParse(this: types.QueryHelperThis<ClassType<Company>, CompanyCustomQuery>, props: CompanySearchQuery, logic: MediaSearchLogic) {
-       
+
         const query = CompanySearchQuery.parse(props, logic);
 
         this.setQuery(query as any);

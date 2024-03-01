@@ -15,19 +15,19 @@ export class Track {
     @Prop()
     name!: string
 
-    @Field(type => [MediaLink])
+    @Field(type => [MediaLink], { nullable: true })
     @Prop({ type: MediaLink })
     links?: MediaLink[]
 
-    @Field()
+    @Field({ nullable: true })
     @Prop()
     outDate?: Date;
 
-    @Field()
+    @Field({ nullable: true })
     @Prop()
     image?: string;
 
-    @Field(type => [PersonRelation])
+    @Field(type => [PersonRelation], { nullable: true })
     @Prop({ type: [PersonRelation] })
     artists?: PersonRelation[];
 
@@ -53,7 +53,7 @@ export class TrackSearchQuery {
 
     static parse<TModel extends new (...args: any) => any>(props: TrackSearchQuery | null, logic?: MediaSearchLogic, model?: TModel) {
         let query: FilterQuery<ReturnModelType<TModel, TrackCustomQuery>>[] = [];
-       
+
         if (!props) return {};
 
 
@@ -76,7 +76,7 @@ export class TrackSearchQuery {
     }
 
     static queryParse(this: types.QueryHelperThis<ClassType<Track>, TrackCustomQuery>, props: TrackSearchQuery, logic: MediaSearchLogic) {
-       
+
         const query = TrackSearchQuery.parse(props, logic);
 
         this.setQuery(query as any);
@@ -96,13 +96,13 @@ export interface TrackCustomQuery {
     dynamicPopulate: types.AsQueryMethod<typeof TrackSearchQuery.dynamicPopulate>;
 }
 
-export enum TrackLabelRelation {
+export enum TrackRelationLabel {
     'OPENING' = 'OPENING',
     'ENDING' = 'ENDING',
     'OST' = 'OST',
     'INSERT' = "INSERT"
 }
 
-registerEnumType(TrackLabelRelation, {
-    name: 'TrackLabelRelation'
+registerEnumType(TrackRelationLabel, {
+    name: 'TrackRelationLabel'
 })

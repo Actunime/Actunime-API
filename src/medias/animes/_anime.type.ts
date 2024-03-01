@@ -1,9 +1,9 @@
 // Modules
 import { ClassType, Field, InputType, ObjectType, registerEnumType } from "type-graphql";
-import { ModelOptions, Prop, ReturnModelType, modelOptions, types } from "@typegoose/typegoose";
+import { ModelOptions, Prop, Ref, ReturnModelType, getModelForClass, modelOptions, types } from "@typegoose/typegoose";
 import { FilterQuery } from "mongoose";
 // Utiles
-import { IMedia } from "../../utils/_media.base";
+import { IMedia, Media } from "../../utils/_media.base";
 import { MediaTitle, MediaDate, MediaLink, MediaImage, MediaSearchLogic } from "../../utils/_media.types";
 import { DefaultAnimeFormatEnum, DefaultSourceEnum, DefaultStatusEnum, GenresEnum } from "../defaultData";
 import themes from '../defaultFiles/themes.json';
@@ -14,17 +14,25 @@ import { CharacterRelation } from "../characters/_character.model";
 import { CompanyRelation } from "../companys/_company.model";
 import { GroupeRelation } from "../groupe/_groupe.type";
 import { fieldsProjection } from "graphql-fields-list";
+import { PaginationMedia } from "../../utils";
 
 @ObjectType()
-@modelOptions({ schemaOptions: { _id: false, toJSON: { virtuals: true } } })
+@modelOptions({ schemaOptions: { _id: false, toJSON: { virtuals: true }, toObject: { virtuals: true } } })
 export class AnimeRelation {
-    @Field({ nullable: true })
+    @Field()
     @Prop({ required: true })
     id!: string;
 
-    public get data() {
-        return this.id;
-    }
+    @Field(_ => AnimeMedia, { nullable: true })
+    @Prop({
+        ref: () => AnimeMedia,
+        type: () => String,
+        foreignField: 'id',
+        localField: 'id',
+        justOne: true,
+        default: undefined
+    })
+    anime!: Ref<AnimeMedia, string>;
 }
 
 /** Anime part types */
@@ -57,7 +65,7 @@ class AnimeSource {
     origine!: DefaultSourceEnum
     @Field({ nullable: true })
     @Prop()
-    refPubId?: string
+    refId?: string
 }
 
 /** Anime type */
@@ -432,3 +440,11 @@ export interface AnimeCustomQuery {
     queryParse: types.AsQueryMethod<typeof AnimeSearchQuery.queryParse>;
     dynamicPopulate: types.AsQueryMethod<typeof AnimeSearchQuery.dynamicPopulate>;
 }
+
+
+@ObjectType()
+export class AnimeMedia extends Media<Anime>(Anime, AnimeSearchQuery.queryParse, AnimeSearchQuery.dynamicPopulate) { }
+@ObjectType()
+export class AnimeMediaPagination extends PaginationMedia(AnimeMedia) { }
+
+export const AnimeModel = getModelForClass<typeof AnimeMedia, AnimeCustomQuery>(AnimeMedia, { schemaOptions: { toJSON: { virtuals: true } } });

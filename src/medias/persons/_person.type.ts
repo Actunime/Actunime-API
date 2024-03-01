@@ -31,8 +31,8 @@ export class Person {
     @Prop()
     image?: string
 
-    @Field(_ => MediaLink, { nullable: true })
-    @Prop({ type: MediaLink })
+    @Field(_ => [MediaLink], { nullable: true })
+    @Prop({ type: [MediaLink] })
     links?: MediaLink[]
 
 }
@@ -112,7 +112,7 @@ export class PersonSearchQuery {
 
     static parse<TModel extends new (...args: any) => any>(props: PersonSearchQuery | null, logic?: MediaSearchLogic, model?: TModel) {
         let query: FilterQuery<ReturnModelType<TModel, PersonCustomQuery>>[] = [];
-       
+
         if (!props) return {};
 
         if (props.name)
@@ -138,7 +138,7 @@ export class PersonSearchQuery {
     }
 
     static queryParse(this: types.QueryHelperThis<ClassType<Person>, PersonCustomQuery>, props: PersonSearchQuery, logic: MediaSearchLogic) {
-       
+
         const query = PersonSearchQuery.parse(props, logic);
 
         this.setQuery(query as any);

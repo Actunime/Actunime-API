@@ -85,7 +85,7 @@ export class PersonInput implements Partial<Person> {
 class PersonRelationAddInput {
     @Field(_ => PersonInput)
     data!: PersonInput;
-    @Field()
+    @Field(_ => PersonrRoleRelationLabel, { nullable: true })
     label!: PersonrRoleRelationLabel;
 }
 
@@ -93,7 +93,7 @@ class PersonRelationAddInput {
 class PersonRelationExistInput {
     @Field(_ => String)
     id!: string;
-    @Field()
+    @Field(_ => PersonrRoleRelationLabel, { nullable: true })
     label!: PersonrRoleRelationLabel;
 }
 

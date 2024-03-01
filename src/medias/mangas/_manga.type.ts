@@ -1,6 +1,6 @@
 // Modules
 import { ClassType, Field, InputType, ObjectType, registerEnumType } from "type-graphql";
-import { ModelOptions, Prop, ReturnModelType, modelOptions, types } from "@typegoose/typegoose";
+import { ModelOptions, Prop, Ref, ReturnModelType, getModelForClass, modelOptions, types } from "@typegoose/typegoose";
 import { FilterQuery } from "mongoose";
 // Utiles
 import { MediaTitle, MediaDate, MediaLink, MediaImage, MediaSearchLogic } from "../../utils/_media.types";
@@ -12,18 +12,31 @@ import { TrackRelation } from "../tracks/_track.model";
 import { CharacterRelation } from "../characters/_character.model";
 import { CompanyRelation } from "../companys/_company.model";
 import { GroupeRelation } from "../groupe/_groupe.type";
-import { IMedia } from "../../utils/_media.base";
+import { IMedia, Media } from "../../utils/_media.base";
 import { fieldsProjection } from "graphql-fields-list";
-
-@ObjectType()
-@modelOptions({ schemaOptions: { _id: false, toJSON: { virtuals: true } } })
-export class MangaRelation {
-    @Field({ nullable: true })
-    @Prop({ required: true })
-    id!: string;
-}
+import { PaginationMedia } from "../../utils";
 
 /** Manga part types */
+
+@ObjectType()
+@modelOptions({ schemaOptions: { _id: false, toJSON: { virtuals: true }, toObject: { virtuals: true } } })
+export class MangaRelation {
+    @Field(_ => String)
+    @Prop({ required: true })
+    id!: string;
+
+    @Field(_ => MangaMedia, { nullable: true })
+    @Prop({
+        ref: () => MangaMedia,
+        type: () => String,
+        foreignField: 'id',
+        localField: 'id',
+        justOne: true,
+        default: undefined
+    })
+    manga!: Ref<MangaMedia, string>;
+}
+
 @ObjectType()
 @ModelOptions({ schemaOptions: { _id: false } })
 class MangaChapter {
@@ -422,3 +435,15 @@ export interface MangaCustomQuery {
     queryParse: types.AsQueryMethod<typeof MangaSearchQuery.queryParse>;
     dynamicPopulate: types.AsQueryMethod<typeof MangaSearchQuery.dynamicPopulate>;
 }
+
+
+@ObjectType()
+export class MangaPaginationMedia extends PaginationMedia<Manga>(Manga) { }
+
+@ObjectType()
+export class MangaMedia extends Media<Manga>(Manga, MangaSearchQuery.queryParse) { }
+
+
+export const MangaModel = getModelForClass<typeof MangaMedia, MangaCustomQuery>(MangaMedia, { schemaOptions: { toJSON: { virtuals: true } } });
+@ObjectType()
+export class MangaMediaPagination extends PaginationMedia(MangaMedia) { }

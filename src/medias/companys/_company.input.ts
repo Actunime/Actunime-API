@@ -1,7 +1,7 @@
 
 import { Field, InputType } from "type-graphql";
 import { MediaLinkInput } from "../../utils/_media.types";
-import { Company, CompanyLabel, } from "./_company.type";
+import { Company, CompanyType, } from "./_company.type";
 import { CompanyModel, CompanyRelation } from "./_company.model";
 import { MediaDoc, UpdateParams, createUpdate } from "../../utils/_createUpdate";
 import { MediaRequiredFields } from "../../utils/_media.base";
@@ -10,8 +10,8 @@ import { MediaRequiredFields } from "../../utils/_media.base";
 
 @InputType()
 export class CompanyInput implements Partial<Company> {
-    @Field(t => CompanyLabel)
-    label!: CompanyLabel
+    @Field(t => CompanyType)
+    type!: CompanyType
 
     @Field()
     name!: string

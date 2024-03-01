@@ -70,6 +70,10 @@ export function Base(modelName?: string, options?: { _id?: boolean, id?: boolean
             return !!this.verifiedBy && !this.deleted
         }
 
+        public set verified(value: boolean) {
+            // this.verified = value;
+        }
+
         // En tant que staff je veut savoir qui a supprimé la mise à jour
         @Prop()
         @Field({ nullable: true })
@@ -79,6 +83,10 @@ export function Base(modelName?: string, options?: { _id?: boolean, id?: boolean
         @Field(_ => Boolean, { nullable: true })
         public get deleted() {
             return !!this.deletedAt
+        }
+
+        public set deleted(value: boolean) {
+            // this.deleted = value;
         }
 
         @Prop()
@@ -93,7 +101,7 @@ export function Base(modelName?: string, options?: { _id?: boolean, id?: boolean
     return Base;
 }
 
-export function Media<TMedia extends object>(ClassMedia: ClassType<TMedia>, queryParse?: (...args: any) => any, dynamicPopulate?:  (...args: any) => any) {
+export function Media<TMedia extends object>(ClassMedia: ClassType<TMedia>, queryParse?: (...args: any) => any, dynamicPopulate?: (...args: any) => any) {
     console.log('%cMedia', 'color: green', ClassMedia?.name);
 
     // @ModelOptions({ schemaOptions: { timestamps: true, id: false, _id: false } })

@@ -1,7 +1,6 @@
 import { Arg, Authorized, Info, Mutation, Query, Resolver } from "type-graphql";
 import { MediaSearchLogic, Pagination } from "../../utils";
-import { AnimeMedia, AnimeMediaPagination, AnimeModel } from "./_anime.model";
-import { Anime, AnimeSearchQuery } from "./_anime.type";
+import { Anime, AnimeSearchQuery, AnimeMedia, AnimeMediaPagination, AnimeModel } from "./_anime.type";
 import { PaginationQuery } from "../../utils/_pagination";
 import { AnimeInput } from "./_anime.input";
 import { IUserRoles } from "../users/_user.type";
