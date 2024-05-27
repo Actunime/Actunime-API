@@ -1,0 +1,30 @@
+{
+  "name": "actunime-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node build",
+    "build": "tsc --pretty --locale fr",
+    "dev": "node build",
+    "dev-watch": "tsc -w --pretty --locale fr"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fastify/cors": "^9.0.1",
+    "@fastify/passport": "^2.4.0",
+    "@fastify/rate-limit": "^9.1.0",
+    "dotenv": "^16.4.5",
+    "fastify": "^4.27.0",
+    "mongoose": "^8.4.0",
+    "nanoid": "^3.3.4",
+    "typescript": "^5.4.5",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0"
+  }
+}
