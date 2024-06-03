@@ -40,4 +40,20 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+  docker_build:
+    runs-on: self-hosted
+    steps:
+      - name: Build Docker Image
+        run: | 
+          docker build -t actunime-api-image .
+          docker pull actunime-api-image
+          
+      - name: Deploy Docker Image
+        run: |
+          docker stop actunime-api
+          docker rm actunime-api
+          docker run -d -p 4000 --name actunime-api actunime-api-image
+              
+        
+    
 
