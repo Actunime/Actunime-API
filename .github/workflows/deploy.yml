@@ -47,13 +47,12 @@ jobs:
       - name: Build Docker Image
         run: | 
           docker build -t actunime-api-image .
-          docker pull actunime-api-image
           
       - name: Deploy Docker Image
         run: |
           docker stop actunime-api
           docker rm actunime-api
-          docker run -d -p 4000 --name actunime-api actunime-api-image
+          docker run -d -p 4000:4000 --name actunime-api actunime-api-image
               
         
     
