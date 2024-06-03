@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node build",
+    "start": "NODE_ENV=production node build",
     "build": "tsc --pretty --locale fr",
-    "dev": "node build",
+    "dev": "NODE_ENV=development node build",
     "dev-watch": "tsc -w --pretty --locale fr"
   },
   "keywords": [],

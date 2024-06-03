@@ -1,4 +1,6 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config({ path: `.env.${process.env.NODE_ENV || 'development'}` });
+
 import Fastify from 'fastify';
 import { connectDB } from './_utils/mongoose';
 import * as v1 from './api/v1';
@@ -15,7 +17,7 @@ import Fastify_Cors from "@fastify/cors";
         const hostname = url ? new URL(url).hostname : '';
         return ["localhost", "actunime.fr"].includes(hostname);
     }
-    
+
     fastify.register(Fastify_Cors, {
         origin: (origin, cb) => {
             if (checkOrigin(origin))
@@ -40,7 +42,7 @@ import Fastify_Cors from "@fastify/cors";
 
     try {
         await connectDB();
-        
+
 
         for await (const [key, route] of Object.entries(v1)) {
             await fastify.register(route, { prefix: '/v1' });
