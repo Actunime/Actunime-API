@@ -60,5 +60,3 @@ import Fastify_Cors from "@fastify/cors";
 
 })();
 
-
-
