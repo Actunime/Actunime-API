@@ -3,8 +3,6 @@ name: Node.js CI/CD
 on:
   push:
     branches: [ production ]
-  pull_request:
-    branches: [ production ]
 
 jobs:
   cache-and-install:
