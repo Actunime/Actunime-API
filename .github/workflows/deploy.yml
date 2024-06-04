@@ -46,7 +46,7 @@ jobs:
     steps:
       - name: Build Docker Image
         run: | 
-          docker build --net host -t actunime-api-image .
+          docker build --network host -t actunime-api-image .
           
       - name: Deploy Docker Image
         run: |
