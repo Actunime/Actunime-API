@@ -50,8 +50,8 @@ jobs:
 
       - name: Delete old container
         run: |
-          docker ps -q --filter "name=actunime-api" | grep -q . && docker stop actunime-api
-          docker ps -q --filter "name=actunime-api" | grep -q . && docker rm actunime-api
+          docker stop actunime-api || true
+          docker rm actunime-api || true
           
       - name: Deploy Docker Container
         run: |
