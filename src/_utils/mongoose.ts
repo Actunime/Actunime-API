@@ -9,7 +9,11 @@ const opts: ConnectOptions = {
     connectTimeoutMS: 5000,
 };
 
+
+
 export const connectDB = async () => {
+    console.log('URI', process.env.MONGODB_URI, 'options', opts);
+    
     console.log("Connexion a la base de données...")
     await mongoose.connect(process.env.MONGODB_URI!, opts);
     console.log("Base de données connectée");
