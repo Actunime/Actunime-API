@@ -20,8 +20,6 @@ FROM base
 COPY --from=prod-deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app/build
 
-USER actunime-api-node
-
 EXPOSE 3000
 
 CMD [ "pnpm", "run", "start" ]
