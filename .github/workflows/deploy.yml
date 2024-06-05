@@ -6,7 +6,7 @@ on:
 
 jobs:
   cache-and-install:
-    runs-on: self-hosted
+    runs-on: ActunimeProject-VM
 
     steps:
       - name: Checkout
@@ -39,7 +39,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
   docker_build:
-    runs-on: self-hosted
+    runs-on: ActunimeProject-VM
     needs: cache-and-install
     steps:
       - name: Build Docker Image
@@ -53,7 +53,7 @@ jobs:
           
       - name: Deploy Docker Container
         run: |
-          docker run -d -p 4000:4000 --name actunime-api actunime-api-image
+          docker run -d -p 3001:3001 --name actunime-api actunime-api-image
               
         
     
