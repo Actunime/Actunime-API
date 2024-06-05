@@ -5,46 +5,46 @@ on:
     branches: [ production ]
 
 jobs:
-  cache-and-install:
-    runs-on: ActunimeProject-VM
+  # cache-and-install:
+  #   runs-on: ActunimeProject-VM
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
+  #     - name: Install Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 22
 
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
-        with:
-          version: 8
-          run_install: false
+  #     - uses: pnpm/action-setup@v4
+  #       name: Install pnpm
+  #       with:
+  #         version: 8
+  #         run_install: false
 
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+  #     - name: Get pnpm store directory
+  #       shell: bash
+  #       run: |
+  #         echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
 
-      - uses: actions/cache@v4
-        name: Setup pnpm cache
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+  #     - uses: actions/cache@v4
+  #       name: Setup pnpm cache
+  #       with:
+  #         path: ${{ env.STORE_PATH }}
+  #         key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-pnpm-store-
 
-      - name: Install dependencies
-        run: pnpm install
+  #     - name: Install dependencies
+  #       run: pnpm install
   docker_build:
     runs-on: ActunimeProject-VM
-    needs: cache-and-install
+    # needs: cache-and-install
     steps:
       - name: Build Docker Image
         run: | 
-          docker build --network host -t actunime-api-image .
+          docker build -t actunime-api-image .
 
       - name: Delete old container
         run: |
@@ -53,7 +53,7 @@ jobs:
           
       - name: Deploy Docker Container
         run: |
-          docker run -d -p 3001:3001 --name actunime-api actunime-api-image
+          docker run -d --name actunime-api actunime-api-image
               
         
     
