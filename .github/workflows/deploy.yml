@@ -56,4 +56,4 @@ jobs:
 
       - name: Deploy Docker Container
         run: |
-          docker run -d -p 3000:3000 --name actunime-api actunime-api-image
+          docker run -d -p 3000 --name actunime-api actunime-api-image
