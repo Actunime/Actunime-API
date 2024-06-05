@@ -20,6 +20,7 @@ import Fastify_Cors from "@fastify/cors";
 
     fastify.register(Fastify_Cors, {
         origin: (origin, cb) => {
+            console.log("Origine", origin);
             if (checkOrigin(origin))
                 return cb(null, true);
             return cb(null, false);
