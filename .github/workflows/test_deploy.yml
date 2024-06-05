@@ -45,11 +45,11 @@ jobs:
     steps:
       - name: Configuration des variables de productions
         run: |
-        touch .env.production
-        echo MONGODB_URI=${{ secrets.MONGODB_URI }} >> .env.production
-        echo MONGODB_user=${{ secrets.MONGODB_user }} >> .env.production
-        echo MONGODB_pass=${{ secrets.MONGODB_pass }} >> .env.production
-        echo MONGODB_dbName=${{ secrets.MONGODB_dbName }} >> .env.production
+          touch .env.production
+          echo MONGODB_URI=${{ secrets.MONGODB_URI }} >> .env.production
+          echo MONGODB_user=${{ secrets.MONGODB_user }} >> .env.production
+          echo MONGODB_pass=${{ secrets.MONGODB_pass }} >> .env.production
+          echo MONGODB_dbName=${{ secrets.MONGODB_dbName }} >> .env.production
 
   docker_build:
     runs-on: ActunimeProject-VM
