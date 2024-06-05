@@ -46,6 +46,7 @@ jobs:
         run: |
           pwd
           ls
+          docker image rm actunime-api-image || true
           docker build -f Dockerfile -t actunime-api-image .
 
       - name: Delete old container
