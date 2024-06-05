@@ -56,7 +56,7 @@ import Fastify_Cors from "@fastify/cors";
             console.log('Route', key, "chargé!");
         }
 
-        await fastify.listen({ port: 3001 });
+        await fastify.listen({ port: 8083 });
     } catch (err) {
         fastify.log.error(err)
         process.exit(1)
