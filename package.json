@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start-prod": "tsc --pretty --locale fr && NODE_ENV=production node build",
     "start": "NODE_ENV=production node build",
     "build": "tsc --pretty --locale fr",
     "dev": "NODE_ENV=development node build",
