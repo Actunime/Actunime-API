@@ -3,7 +3,7 @@ import mongoose, { ConnectOptions } from 'mongoose';
 const opts: ConnectOptions = {
     bufferCommands: false,
     user: process.env.MONGODB_user,
-    pass: process.env.MONGODB_pass,
+    pass: `${process.env.MONGODB_pass}`,
     dbName: process.env.MONGODB_dbName,
     autoIndex: true,
     connectTimeoutMS: 5000,
