@@ -23,4 +23,3 @@ COPY --from=build /app/build /app/build
 EXPOSE 3000
 
 CMD [ "pnpm", "run", "start" ]
-

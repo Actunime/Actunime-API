@@ -38,22 +38,39 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
-  docker_build:
+
+  config_env:
     runs-on: ActunimeProject-VM
     needs: setup
     steps:
-      - name: Build Docker Image
+      - name: Configuration des variables de productions
         run: |
-          pwd
-          ls
-          docker image rm actunime-api-image || true
-          docker build -f Dockerfile -t actunime-api-image .
+        touch .env.production
+        echo MONGODB_URI=${{ secrets.MONGODB_URI }} >> .env.production
+        echo MONGODB_user=${{ secrets.MONGODB_user }} >> .env.production
+        echo MONGODB_pass=${{ secrets.MONGODB_pass }} >> .env.production
+        echo MONGODB_dbName=${{ secrets.MONGODB_dbName }} >> .env.production
 
-      - name: Delete old container
+  docker_build:
+    runs-on: ActunimeProject-VM
+    needs: config_env
+    steps:
+      - name: Arrêt du conteneur
         run: |
           docker stop actunime-api || true
+
+      - name: Suppression de l'ancienne image
+        run: |
+          docker image rm actunime-api-image || true
+
+      - name: Construction de l'image docker
+        run: |
+          docker build -f Dockerfile -t actunime-api-image .
+
+      - name: Suppression ancien conteneur
+        run: |
           docker rm actunime-api || true
 
-      - name: Deploy Docker Container
+      - name: Déploiement du conteneur
         run: |
           docker run -d -p 3000:3000 --name actunime-api actunime-api-image
