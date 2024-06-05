@@ -13,20 +13,21 @@ import Fastify_Cors from "@fastify/cors";
         logger: true
     })
 
-    const checkOrigin = (url: string | undefined): boolean => {
-        const hostname = url ? new URL(url).hostname : '';
-        return ["localhost", "actunime.fr"].includes(hostname);
-    }
+    // const checkOrigin = (url: string | undefined): boolean => {
+    //     const hostname = url ? new URL(url).hostname : '';
+    //     return ["localhost", "actunime.fr"].includes(hostname);
+    // }
 
-    fastify.register(Fastify_Cors, {
-        origin: (origin, cb) => {
-            console.log("Origine", origin);
-            if (checkOrigin(origin))
-                return cb(null, true);
-            return cb(null, false);
-        },
-        credentials: true
-    })
+    fastify
+        // .register(Fastify_Cors, {
+        //     origin: (origin, cb) => {
+        //         console.log("Origine", origin);
+        //         if (checkOrigin(origin))
+        //             return cb(null, true);
+        //         return cb(null, false);
+        //     },
+        //     // credentials: true
+        // })
         .register(Fastify_RateLimit, {
             global: false,
             max: 100,
@@ -44,20 +45,20 @@ import Fastify_Cors from "@fastify/cors";
     try {
         await connectDB();
 
+        fastify.get('/', async (request, reply) => {
+            return { hello: 'world' }
+        })
 
         for await (const [key, route] of Object.entries(v1)) {
             await fastify.register(route, { prefix: '/v1' });
             console.log('Route', key, "chargé!");
         }
 
-
-
         await fastify.listen({ port: 3001 });
     } catch (err) {
         fastify.log.error(err)
         process.exit(1)
     }
-
 
 })();
 
