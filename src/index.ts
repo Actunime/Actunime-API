@@ -45,7 +45,6 @@ import Fastify_Cors from "@fastify/cors";
     try {
         await connectDB();
 
-        console.log("BIEN MODIFIE")
         fastify.get('/', async (request, reply) => {
             console.log("request from", request.ip);
             return { hello: 'world' }
