@@ -39,6 +39,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Build test
+        run: pnpm run build
+
+      - name: Set up GitHub token
+        run: echo "GH_TOKEN=${{ secrets.GH_TOKEN }}" >> $GITHUB_ENV
+
+      - name: Run Semantic Release
+        run: pnpx semantic-release
+
   config_env:
     runs-on: ActunimeProject-VM
     needs: setup
