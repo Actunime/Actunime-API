@@ -13,21 +13,21 @@ import Fastify_Cors from "@fastify/cors";
         logger: true
     })
 
-    // const checkOrigin = (url: string | undefined): boolean => {
-    //     const hostname = url ? new URL(url).hostname : '';
-    //     return ["localhost", "actunime.fr"].includes(hostname);
-    // }
+    const checkOrigin = (url: string | undefined): boolean => {
+        const hostname = url ? new URL(url).hostname : '';
+        return ["localhost", "actunime.fr"].includes(hostname);
+    }
 
     fastify
-        // .register(Fastify_Cors, {
-        //     origin: (origin, cb) => {
-        //         console.log("Origine", origin);
-        //         if (checkOrigin(origin))
-        //             return cb(null, true);
-        //         return cb(null, false);
-        //     },
-        //     // credentials: true
-        // })
+        .register(Fastify_Cors, {
+            origin: (origin, cb) => {
+                console.log("Origine", origin);
+                if (checkOrigin(origin))
+                    return cb(null, true);
+                return cb(null, false);
+            },
+            // credentials: true
+        })
         .register(Fastify_RateLimit, {
             global: false,
             max: 100,
