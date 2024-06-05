@@ -9,11 +9,12 @@ WORKDIR /app
 # Installe les dépendances de production
 FROM base AS prod-deps
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
-
-# Construit le projet
-FROM base AS build
-# RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm run build
+
+# # Construit le projet
+# FROM base AS build
+# RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+# RUN pnpm run build
 
 # Crée l'image finale
 FROM base
