@@ -40,7 +40,7 @@ jobs:
   #       run: pnpm install
   docker_build:
     runs-on: ActunimeProject-VM
-    needs: cache-and-install
+    # needs: cache-and-install
     steps:
       - name: Build Docker Image
         run: | 
