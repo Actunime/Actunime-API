@@ -44,7 +44,9 @@ jobs:
     steps:
       - name: Build Docker Image
         run: |
-          docker build -t actunime-api-image .
+          pwd
+          ls
+          docker build -f Dockerfile -t actunime-api-image .
 
       - name: Delete old container
         run: |
