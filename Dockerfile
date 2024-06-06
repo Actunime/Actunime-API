@@ -6,6 +6,8 @@ RUN corepack enable
 COPY . /app
 WORKDIR /app
 
+ENV NODE_ENV production
+
 # Installe les dépendances de production
 FROM base AS prod-deps
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
@@ -20,7 +22,6 @@ FROM base
 COPY --from=prod-deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app/build
 
-ENV NODE_ENV production
 
 EXPOSE 3000
 
