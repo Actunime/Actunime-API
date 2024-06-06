@@ -15,7 +15,8 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-l
 # Construit le projet
 FROM base AS build
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN pnpm run build --noEmitOnError false
+# RUN tsc --force --noEmit --noEmitOnError
+RUN tsc --build --clean && tsc --build --force
 
 # Crée l'image finale
 FROM base
