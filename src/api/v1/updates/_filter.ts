@@ -1,7 +1,7 @@
 import { UpdateModel } from '../../../_models';
 import { MediaPagination } from '../../../_server-utils/pagination';
 import { RestrictedAPIRoute } from '../../../_server-utils/restricted';
-import { IUpdate_Pagination_ZOD, Update_Pagination_ZOD } from '../../../_validation/updateZOD';
+import { Update_Pagination_ZOD } from '../../../_validation/updateZOD';
 import { FastifyRequest } from 'fastify';
 
 export async function Filter(req: FastifyRequest<{ Querystring: { pagination?: string } }>) {
@@ -10,8 +10,8 @@ export async function Filter(req: FastifyRequest<{ Querystring: { pagination?: s
     () => new Response("Vous n'etes pas autorisé.", { status: 401 }),
     async (user) => {
       try {
-        const paramPagination = JSON.parse(req.query.pagination || 'object');
-        const data = Update_Pagination_ZOD.parse(paramPagination || object);
+        const paramPagination = JSON.parse(req.query.pagination || '{}');
+        const data = Update_Pagination_ZOD.parse(paramPagination || {});
 
         const pagination = new MediaPagination({
           model: UpdateModel

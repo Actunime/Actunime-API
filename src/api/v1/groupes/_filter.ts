@@ -1,13 +1,13 @@
 import { GroupeModel } from '../../../_models/_groupeModel';
 import { MediaPagination } from '../../../_server-utils/pagination';
-import { Groupe_Pagination_ZOD, IGroupe_Pagination_ZOD } from '../../../_validation/groupeZOD';
+import { Groupe_Pagination_ZOD } from '../../../_validation/groupeZOD';
 import { FastifyRequest } from 'fastify';
 
 export async function Filter(req: FastifyRequest<{ Querystring: { pagination?: string } }>) {
   try {
-    const paramPagination = JSON.parse(req.query.pagination || 'object');
+    const paramPagination = JSON.parse(req.query.pagination || '{}');
 
-    const data = Groupe_Pagination_ZOD.parse(paramPagination || object);
+    const data = Groupe_Pagination_ZOD.parse(paramPagination || {});
 
     const pagination = new MediaPagination({
       model: GroupeModel

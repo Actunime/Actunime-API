@@ -5,9 +5,9 @@ import { FastifyRequest } from 'fastify';
 
 export async function Filter(req: FastifyRequest<{ Querystring: { pagination?: string } }>) {
   try {
-    const paramPagination = JSON.parse(req.query.pagination || 'object');
+    const paramPagination = JSON.parse(req.query.pagination || '{}');
 
-    const data = User_Pagination_ZOD.parse(paramPagination || object);
+    const data = User_Pagination_ZOD.parse(paramPagination || {});
 
     const pagination = new MediaPagination({
       model: UserModel

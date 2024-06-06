@@ -47,7 +47,7 @@ export const Add_Groupe_ZOD = z.object({
 export type IAdd_Groupe_ZOD = z.infer<typeof Add_Groupe_ZOD>;
 
 export const GroupeDataToZOD = (data: IGroupe): Partial<ICreate_Groupe_ZOD> => {
-  if (!data) return object;
+  if (!data) return {};
 
   const toZOD: Partial<ICreate_Groupe_ZOD> = {
     name: data.name

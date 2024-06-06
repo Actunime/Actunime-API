@@ -57,7 +57,7 @@ export const Add_Track_ZOD = z.object({
 export type IAdd_Track_ZOD = z.infer<typeof Add_Track_ZOD>;
 
 export const TrackDataToZOD = (data: ITrack): Partial<ICreate_Track_ZOD> => {
-  if (!data) return object;
+  if (!data) return {};
 
   const toZOD: Partial<ICreate_Track_ZOD> = {
     name: data.name,

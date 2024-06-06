@@ -1,13 +1,13 @@
 import { CompanyModel } from '../../../_models/_companyModel';
 import { MediaPagination } from '../../../_server-utils/pagination';
-import { Company_Pagination_ZOD, ICompany_Pagination_ZOD } from '../../../_validation/companyZOD';
+import { Company_Pagination_ZOD } from '../../../_validation/companyZOD';
 import { FastifyRequest } from 'fastify';
 
 export async function Filter(req: FastifyRequest<{ Querystring: { pagination?: string } }>) {
   try {
-    const paramPagination = JSON.parse(req.query.pagination || 'object');
+    const paramPagination = JSON.parse(req.query.pagination || '{}');
 
-    const data = Company_Pagination_ZOD.parse(paramPagination || object);
+    const data = Company_Pagination_ZOD.parse(paramPagination || {});
 
     const pagination = new MediaPagination({
       model: CompanyModel

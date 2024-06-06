@@ -201,7 +201,7 @@ export const Create_Anime_Update_ZOD = z.object({
 });
 
 export const AnimeDataToZOD = (data: IAnime): Partial<ICreate_Anime_ZOD> => {
-  if (!data) return object;
+  if (!data) return {};
 
   const toZOD: Partial<ICreate_Anime_ZOD> = {
     groupe: data.groupe,
@@ -218,7 +218,7 @@ export const AnimeDataToZOD = (data: IAnime): Partial<ICreate_Anime_ZOD> => {
             end: dateToZod(data.date.end)
           }
         }
-      : object),
+      : {}),
     status: data.status,
     format: data.format,
     vf: data.vf,
@@ -229,7 +229,7 @@ export const AnimeDataToZOD = (data: IAnime): Partial<ICreate_Anime_ZOD> => {
             nextAiringDate: dateTimeToZod(data.episodes.nextAiringDate)
           }
         }
-      : object),
+      : {}),
     adult: data.adult,
     explicit: data.explicit,
     genres: data.genres || [],

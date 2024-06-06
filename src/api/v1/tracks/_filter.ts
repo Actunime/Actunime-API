@@ -1,13 +1,13 @@
 import { TrackModel } from '../../../_models/_trackModel';
 import { MediaPagination } from '../../../_server-utils/pagination';
-import { ITrack_Pagination_ZOD, Track_Pagination_ZOD } from '../../../_validation/trackZOD';
+import { Track_Pagination_ZOD } from '../../../_validation/trackZOD';
 import { FastifyRequest } from 'fastify';
 
 export async function Filter(req: FastifyRequest<{ Querystring: { pagination?: string } }>) {
   try {
-    const paramPagination = JSON.parse(req.query.pagination || 'object');
+    const paramPagination = JSON.parse(req.query.pagination || '{}');
 
-    const data = Track_Pagination_ZOD.parse(paramPagination || object);
+    const data = Track_Pagination_ZOD.parse(paramPagination || {});
 
     const pagination = new MediaPagination({
       model: TrackModel

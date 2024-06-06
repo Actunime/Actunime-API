@@ -116,7 +116,7 @@ export class MediaPagination<T = any> {
     aggregation.push({ $project: project });
 
     const resData: IPaginationResponse<T>[] = await this.model.aggregate(aggregation).exec();
-    let response: Partial<IPaginationResponse<any>> = object;
+    let response: Partial<IPaginationResponse<any>> = {};
     if (!Array.isArray(resData) || !resData.length)
       response = {
         page: this.page,

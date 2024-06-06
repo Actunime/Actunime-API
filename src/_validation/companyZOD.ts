@@ -24,7 +24,7 @@ export const Company_Pagination_ZOD = z
       })
       .partial()
       .strict(),
-    with: z.object(object).partial().strict()
+    with: z.object({}).partial().strict()
   })
   .partial()
   .strict();
@@ -51,7 +51,7 @@ export const Add_Company_ZOD = z.object({
 export type IAdd_Company_ZOD = z.infer<typeof Add_Company_ZOD>;
 
 export const CompanyDataToZOD = (data: ICompany): Partial<ICreate_Company_ZOD> => {
-  if (!data) return object;
+  if (!data) return {};
 
   const toZOD: Partial<ICreate_Company_ZOD> = {
     type: data.type,

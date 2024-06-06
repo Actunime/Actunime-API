@@ -1,13 +1,13 @@
 import { PersonModel } from '../../../_models/_personModel';
 import { MediaPagination } from '../../../_server-utils/pagination';
-import { IPerson_Pagination_ZOD, Person_Pagination_ZOD } from '../../../_validation/personZOD';
+import { Person_Pagination_ZOD } from '../../../_validation/personZOD';
 import { FastifyRequest } from 'fastify';
 
 export async function Filter(req: FastifyRequest<{ Querystring: { pagination?: string } }>) {
   try {
-    const paramPagination = JSON.parse(req.query.pagination || 'object');
+    const paramPagination = JSON.parse(req.query.pagination || '{}');
 
-    const data = Person_Pagination_ZOD.parse(paramPagination || object);
+    const data = Person_Pagination_ZOD.parse(paramPagination || {});
 
     const pagination = new MediaPagination({
       model: PersonModel

@@ -69,7 +69,7 @@ export const Add_Character_ZOD = z.object({
 export type IAdd_Character_ZOD = z.infer<typeof Add_Character_ZOD>;
 
 export const CharacterDataToZOD = (data: ICharacter): Partial<ICreate_Character_ZOD> => {
-  if (!data) return object;
+  if (!data) return {};
 
   const toZOD: Partial<ICreate_Character_ZOD> = {
     name: data.name,

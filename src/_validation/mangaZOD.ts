@@ -100,7 +100,7 @@ export const Create_Manga_ZOD = z
 export type ICreate_Manga_ZOD = z.infer<typeof Create_Manga_ZOD>;
 
 export const MangaDataToZOD = (data: IManga): Partial<ICreate_Manga_ZOD> => {
-  if (!data) return object;
+  if (!data) return {};
 
   const toZOD: Partial<ICreate_Manga_ZOD> = {
     groupe: data.groupe,
@@ -117,7 +117,7 @@ export const MangaDataToZOD = (data: IManga): Partial<ICreate_Manga_ZOD> => {
             end: dateToZod(data.date.end)
           }
         }
-      : object),
+      : {}),
     status: data.status,
     format: data.format,
     vf: data.vf || ('false' as any),
@@ -128,7 +128,7 @@ export const MangaDataToZOD = (data: IManga): Partial<ICreate_Manga_ZOD> => {
             nextAiringDate: dateTimeToZod(data.chapters.nextAiringDate)
           }
         }
-      : object),
+      : {}),
     ...(data.volumes
       ? {
           volumes: {
@@ -136,7 +136,7 @@ export const MangaDataToZOD = (data: IManga): Partial<ICreate_Manga_ZOD> => {
             nextAiringDate: dateTimeToZod(data.volumes.nextAiringDate)
           }
         }
-      : object),
+      : {}),
     adult: data.adult || ('false' as any),
     explicit: data.explicit || ('false' as any),
     genres: data.genres || [],

@@ -1,11 +1,11 @@
 import { AnimeModel } from '../../../_models/_animeModel';
 import { MediaPagination } from '../../../_server-utils/pagination';
-import { Anime_Pagination_ZOD, IAnime_Pagination_ZOD } from '../../../_validation/animeZOD';
+import { Anime_Pagination_ZOD } from '../../../_validation/animeZOD';
 import { FastifyRequest } from 'fastify';
 
 export async function Filter(req: FastifyRequest<{ Querystring: { pagination?: string } }>) {
   try {
-    const paramPagination = JSON.parse(req.query.pagination || 'object');
+    const paramPagination = JSON.parse(req.query.pagination || '{}');
     const data = Anime_Pagination_ZOD.parse(paramPagination);
 
     const pagination = new MediaPagination({

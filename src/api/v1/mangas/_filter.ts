@@ -1,13 +1,13 @@
 import { MangaModel } from '../../../_models/_mangaModel';
 import { MediaPagination } from '../../../_server-utils/pagination';
-import { IManga_Pagination_ZOD, Manga_Pagination_ZOD } from '../../../_validation/mangaZOD';
+import { Manga_Pagination_ZOD } from '../../../_validation/mangaZOD';
 import { FastifyRequest } from 'fastify';
 
 export async function Filter(req: FastifyRequest<{ Querystring: { pagination?: string } }>) {
   try {
-    const paramPagination = JSON.parse(req.query.pagination || 'object');
+    const paramPagination = JSON.parse(req.query.pagination || '{}');
 
-    const data = Manga_Pagination_ZOD.parse(paramPagination || object);
+    const data = Manga_Pagination_ZOD.parse(paramPagination || {});
 
     const pagination = new MediaPagination({
       model: MangaModel

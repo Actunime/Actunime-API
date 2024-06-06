@@ -42,7 +42,7 @@ export const Person_Pagination_ZOD = z
       })
       .partial()
       .strict(),
-    with: z.object(object).partial().strict()
+    with: z.object({}).partial().strict()
   })
   .partial()
   .strict();
@@ -58,7 +58,7 @@ export const Add_Person_ZOD = z.object({
 export type IAdd_Person_ZOD = z.infer<typeof Add_Person_ZOD>;
 
 export const PersonDataToZOD = (data: IPerson): Partial<ICreate_Person_ZOD> => {
-  if (!data) return object;
+  if (!data) return {};
 
   const toZOD: Partial<ICreate_Person_ZOD> = {
     name: data.name,
