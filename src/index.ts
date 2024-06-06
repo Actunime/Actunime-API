@@ -18,14 +18,14 @@ import Fastify_Cors from "@fastify/cors";
         return ["localhost", "actunime.fr"].includes(hostname);
     }
 
-    fastify.register(Fastify_Cors, {
-        origin: (origin, cb) => {
-            if (checkOrigin(origin))
-                return cb(null, true);
-            return cb(null, false);
-        },
-        credentials: true
-    })
+    fastify
+        .register(Fastify_Cors, {
+            origin: (origin, cb) => {
+                if (checkOrigin(origin))
+                    return cb(null, true);
+                return cb(null, false);
+            },
+        })
         .register(Fastify_RateLimit, {
             global: false,
             max: 100,
@@ -43,20 +43,16 @@ import Fastify_Cors from "@fastify/cors";
     try {
         await connectDB();
 
-
         for await (const [key, route] of Object.entries(v1)) {
             await fastify.register(route, { prefix: '/v1' });
             console.log('Route', key, "chargé!");
         }
 
-
-
-        await fastify.listen({ port: 3001 });
+        await fastify.listen({ host: '0.0.0.0', port: 3000 });
     } catch (err) {
         fastify.log.error(err)
         process.exit(1)
     }
-
 
 })();
 

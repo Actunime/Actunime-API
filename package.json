@@ -1,13 +1,16 @@
 {
+  "private": true,
   "name": "actunime-api",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start-prod": "tsc --pretty --locale fr && NODE_ENV=production node build",
     "start": "NODE_ENV=production node build",
     "build": "tsc --pretty --locale fr",
-    "dev": "NODE_ENV=development node build",
-    "dev-watch": "tsc -w --pretty --locale fr"
+    "dev": "node build",
+    "dev-watch": "tsc -w --pretty --locale fr",
+    "prepare": "husky || true"
   },
   "keywords": [],
   "author": "",
@@ -20,11 +23,41 @@
     "fastify": "^4.27.0",
     "mongoose": "^8.4.0",
     "nanoid": "^3.3.4",
-    "typescript": "^5.4.5",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "typescript": "^5.4.5"
   },
   "devDependencies": {
+    "@commitlint/config-conventional": "^19.2.2",
+    "@eslint/js": "^9.4.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@types/eslint__js": "^8.42.3",
+    "@typescript-eslint/eslint-plugin": "^7.12.0",
+    "@typescript-eslint/parser": "^7.12.0",
+    "conventional-changelog-conventionalcommits": "^8.0.0",
+    "eslint": "~9.3.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "globals": "^15.3.0",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5",
     "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0"
+    "tsconfig-paths": "^4.2.0",
+    "typescript-eslint": "^7.12.0"
+  },
+  "lint-staged": {
+    "*.{js, jsx,ts,tsx}": [
+      "pnpm eslint --quiet --fix ."
+    ],
+    "*.{json,js,ts,jsx,tsx,html}": [
+      "prettier --write"
+    ]
+  },
+  "engines": {
+    "node": ">=21.0.0",
+    "pnpm": ">=8.0.0",
+    "npm": "please-use-pnpm",
+    "yarn": "please-use-pnpm"
   }
 }

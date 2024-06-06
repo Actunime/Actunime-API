@@ -1,38 +1,41 @@
-import { IActivity } from "../_types/activityType";
-import { ActivityActionArray } from "../_utils/activityUtil";
-import { genPublicID } from "../_utils/genID";
-import { TargetPathArray } from "../_utils/global";
-import { Model, Schema, model, models } from "mongoose";
-import { withSchema } from "./_mediaModel";
+import { IActivity } from '../_types/activityType';
+import { ActivityActionArray } from '../_utils/activityUtil';
+import { genPublicID } from '../_utils/genID';
+import { TargetPathArray } from '../_utils/global';
+import { Schema, model } from 'mongoose';
+import { withSchema } from './_mediaModel';
 
-const withTargetSchema = new Schema({
-  id: { type: String, required: true },
-}, { _id: false, toJSON: { virtuals: true } })
+const withTargetSchema = new Schema(
+  {
+    id: { type: String, required: true }
+  },
+  { _id: false, toJSON: { virtuals: true } }
+);
 
 const ActivitySchema = new Schema<IActivity>(
   {
     id: { type: String, default: () => genPublicID(8) },
     type: {
       type: String,
-      enum: ["PUBLIC", "MEMBER", "MODERATION"],
-      required: true,
+      enum: ['PUBLIC', 'MEMBER', 'MODERATION'],
+      required: true
     },
     action: {
       type: String,
       enum: ActivityActionArray,
-      required: true,
+      required: true
     },
     author: { type: withSchema, default: undefined },
     target: { type: withTargetSchema, default: undefined },
     targetPath: {
       type: String,
       enum: TargetPathArray,
-      required: true,
+      required: true
     },
     changes: { type: Object, default: undefined },
-    params: { type: Object, default: undefined },
+    params: { type: Object, default: undefined }
   },
   { timestamps: true, id: false }
 );
 
-export const ActivityModel = model("Activity", ActivitySchema);
+export const ActivityModel = model('Activity', ActivitySchema);

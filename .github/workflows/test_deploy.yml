@@ -1,7 +1,7 @@
 name: Node.js CI/CD
 
 on:
-  push:
+  pull_request:
     branches: [production]
 
 jobs:
@@ -39,17 +39,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build test
-        run: pnpm run build
-
-      - name: Set up GitHub token
-        run: |
-          echo "GH_TOKEN=${{ secrets.GH_TOKEN }}" >> $GITHUB_ENV
-          echo "NPM_TOKEN=${{ secrets.NPM_TOKEN }}" >> $GITHUB_ENV
-
-      - name: Run Semantic Release
-        run: pnpx semantic-release
-
   config_env:
     runs-on: ActunimeProject-VM
     needs: setup
@@ -66,22 +55,26 @@ jobs:
     runs-on: ActunimeProject-VM
     needs: config_env
     steps:
-      - name: Arrêt du conteneur
-        run: |
-          docker stop actunime-api || true
+      # - name: Arrêt du conteneur
+      #   run: |
+      #     docker stop actunime-api || true
 
-      - name: Suppression de l'ancienne image
+      - name: Suppression de l'ancienne image test
         run: |
-          docker image rm actunime-api-image || true
+          docker image rm actunime-api-test-image || true
 
-      - name: Construction de l'image docker
+      - name: Construction de l'image docker test
         run: |
-          docker build -f Dockerfile -t actunime-api-image .
+          docker build -f Dockerfile -t actunime-api-test-image .
 
-      - name: Suppression ancien conteneur
+      - name: Suppression de l'ancien conteneur test
         run: |
-          docker rm actunime-api || true
+          docker rm actunime-api-test || true
 
-      - name: Déploiement du conteneur
+      - name: Test Déploiement du conteneur test
         run: |
-          docker run -d -p 3000:3000 --name actunime-api actunime-api-image
+          docker run -d -p 3020:3020 --name actunime-api-test actunime-api-test-image
+
+      - name: Arrêt du conteneur test
+        run: |
+          docker stop actunime-api-test || true

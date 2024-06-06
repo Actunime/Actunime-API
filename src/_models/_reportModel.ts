@@ -1,8 +1,8 @@
-import { IReport } from "../_types/reportType";
-import { genPublicID } from "../_utils/genID";
-import { TargetPathArray } from "../_utils/global";
-import { ReportStatusArray, ReportSubjectArray } from "../_utils/reportUtil";
-import { Model, Schema, model, models } from "mongoose";
+import { IReport } from '../_types/reportType';
+import { genPublicID } from '../_utils/genID';
+import { TargetPathArray } from '../_utils/global';
+import { ReportStatusArray, ReportSubjectArray } from '../_utils/reportUtil';
+import { Schema, model } from 'mongoose';
 
 const ReportSchema = new Schema<IReport>(
   {
@@ -10,25 +10,25 @@ const ReportSchema = new Schema<IReport>(
     status: {
       type: String,
       enum: ReportStatusArray,
-      default: "PENDING",
+      default: 'PENDING'
     },
-    by: { type: Schema.Types.ObjectId, ref: "User" },
+    by: { type: Schema.Types.ObjectId, ref: 'User' },
     target: {
       type: Schema.Types.ObjectId,
-      refPath: "targetPath",
+      refPath: 'targetPath',
       default: undefined,
-      required: true,
+      required: true
     },
     targetPath: {
       type: String,
       enum: TargetPathArray,
-      required: true,
+      required: true
     },
     subject: { type: String, enum: ReportSubjectArray, required: true },
     message: { type: String, required: true },
-    author: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    author: { type: Schema.Types.ObjectId, ref: 'User', required: true }
   },
   { timestamps: true, id: false }
 );
 
-export const ReportModel = model("Report", ReportSchema);
+export const ReportModel = model('Report', ReportSchema);

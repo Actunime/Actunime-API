@@ -1,20 +1,27 @@
-import { MediaGenresArray, MediaParentLabelArray, MediaStatusArray, MediaStatusObj, dateTimeToZod, dateToZod } from "../_utils/mediaUtil";
-import { z } from "zod";
-import { Add_Character_ZOD } from "./characterZOD";
-import { Add_Company_ZOD } from "./companyZOD";
-import { Add_Groupe_ZOD } from "./groupeZOD";
-import { Add_Manga_ZOD } from "./mangaZOD";
+import {
+  MediaGenresArray,
+  MediaParentLabelArray,
+  MediaStatusArray,
+  MediaStatusObj,
+  dateTimeToZod,
+  dateToZod
+} from '../_utils/mediaUtil';
+import { z } from 'zod';
+import { Add_Character_ZOD } from './characterZOD';
+import { Add_Company_ZOD } from './companyZOD';
+import { Add_Groupe_ZOD } from './groupeZOD';
+import { Add_Manga_ZOD } from './mangaZOD';
 import {
   Create_Link_ZOD,
   MediaDate_validation,
   MediaImage_validation,
-  MediaTitle_validation,
-} from "./media";
-import { Add_Person_ZOD } from "./personZOD";
-import { Add_Track_ZOD } from "./trackZOD";
-import { zodBoolean, zodNumber } from "./util";
-import { AnimeFormatArray } from "../_utils/animeUtil";
-import { IAnime } from "../_types/animeType";
+  MediaTitle_validation
+} from './media';
+import { Add_Person_ZOD } from './personZOD';
+import { Add_Track_ZOD } from './trackZOD';
+import { zodBoolean, zodNumber } from './util';
+import { AnimeFormatArray } from '../_utils/animeUtil';
+import { IAnime } from '../_types/animeType';
 
 export const Anime_Pagination_ZOD = z
   .object({
@@ -23,27 +30,30 @@ export const Anime_Pagination_ZOD = z
     strict: z.boolean().optional(),
     sort: z
       .object({
-        "episodes.nextAiringDate": z.enum(["DESC", "ASC"]).optional(),
-        updaptedAt: z.enum(["DESC", "ASC"]).optional(),
-        createdAt: z.enum(["DESC", "ASC"]).optional(),
+        'episodes.nextAiringDate': z.enum(['DESC', 'ASC']).optional(),
+        updaptedAt: z.enum(['DESC', 'ASC']).optional(),
+        createdAt: z.enum(['DESC', 'ASC']).optional()
       })
       .partial()
       .strict(),
     query: z
       .object({
-        name: z.string().optional(),
+        name: z.string().optional()
       })
       .partial()
       .strict(),
-    with: z.object({
-      groupe: z.boolean().optional(),
-      parent: z.boolean().optional(),
-      source: z.boolean().optional(),
-      staffs: z.boolean().optional(),
-      companys: z.boolean().optional(),
-      characters: z.boolean().optional(),
-      tracks: z.boolean().optional(),
-    }).partial().strict(),
+    with: z
+      .object({
+        groupe: z.boolean().optional(),
+        parent: z.boolean().optional(),
+        source: z.boolean().optional(),
+        staffs: z.boolean().optional(),
+        companys: z.boolean().optional(),
+        characters: z.boolean().optional(),
+        tracks: z.boolean().optional()
+      })
+      .partial()
+      .strict()
   })
   .partial()
   .strict();
@@ -54,12 +64,12 @@ const Anime_Episode_ZOD = z.object({
   airing: z.optional(zodNumber()),
   nextAiringDate: z.optional(z.string()),
   total: z.optional(zodNumber()),
-  durationMinute: z.optional(zodNumber()),
+  durationMinute: z.optional(zodNumber())
 });
 
 export const Add_Anime_ZOD = z.object({
   id: z.string(),
-  parentLabel: z.optional(z.enum(MediaParentLabelArray)),
+  parentLabel: z.optional(z.enum(MediaParentLabelArray))
 });
 
 export type IAdd_Anime_ZOD = z.infer<typeof Add_Anime_ZOD>;
@@ -85,8 +95,9 @@ export const Create_Anime_ZOD = z
     companys: z.optional(z.array(Add_Company_ZOD)),
     staffs: z.optional(z.array(Add_Person_ZOD)),
     characters: z.optional(z.array(Add_Character_ZOD)),
-    tracks: z.optional(z.array(Add_Track_ZOD)),
-  }).strict()
+    tracks: z.optional(z.array(Add_Track_ZOD))
+  })
+  .strict()
   .refine(
     (data) => {
       if (data.parent?.id) {
@@ -94,16 +105,16 @@ export const Create_Anime_ZOD = z
           return false;
         }
       }
-      let status = data.status;
+      const status = data.status;
 
-      if (status && !["SOON", "UNKNOWN"].includes(status)) {
+      if (status && !['SOON', 'any'].includes(status)) {
         if (!data.episodes?.airing) {
           return false;
         }
         if (!data.episodes?.durationMinute) {
           return false;
         }
-        if (status === "AIRING" && !data.episodes?.nextAiringDate) {
+        if (status === 'AIRING' && !data.episodes?.nextAiringDate) {
           return false;
         }
         if (!data.episodes?.total) {
@@ -116,45 +127,44 @@ export const Create_Anime_ZOD = z
       if (data.parent?.id) {
         if (!data.parent?.parentLabel) {
           return {
-            message:
-              "Ce champ est obligatoire si vous avez spécifié un parent.",
-            path: ["parentLabel"],
+            message: 'Ce champ est obligatoire si vous avez spécifié un parent.',
+            path: ['parentLabel']
           };
         }
       }
-      let status = data.status;
+      const status = data.status;
 
-      if (status && !["SOON", "UNKNOWN"].includes(status)) {
-        let message = `Le statut spécifié est: "${MediaStatusObj[status].label}", alors remplir ce champ est obligatoire !`;
+      if (status && !['SOON', 'any'].includes(status)) {
+        const message = `Le statut spécifié est: "${MediaStatusObj[status].label}", alors remplir ce champ est obligatoire !`;
         if (!data.episodes?.airing) {
           return {
             message,
-            path: ["episodes.airing"],
+            path: ['episodes.airing']
           };
         }
         if (!data.episodes?.durationMinute) {
           return {
             message,
-            path: ["episodes.durationMinute"],
+            path: ['episodes.durationMinute']
           };
         }
-        if (status === "AIRING" && !data.episodes?.nextAiringDate) {
+        if (status === 'AIRING' && !data.episodes?.nextAiringDate) {
           return {
             message,
-            path: ["episodes.nextEpisodeDate"],
+            path: ['episodes.nextEpisodeDate']
           };
         }
         if (!data.episodes?.total) {
           return {
             message,
-            path: ["episodes.total"],
+            path: ['episodes.total']
           };
         }
       }
 
       return {
-        message: "Nous avons un problème.",
-        path: ["CreateAnime"],
+        message: 'Nous avons un problème.',
+        path: ['CreateAnime']
       };
     }
   );
@@ -162,19 +172,19 @@ export const Create_Anime_ZOD = z
 export type ICreate_Anime_ZOD = z.infer<typeof Create_Anime_ZOD>;
 
 export const PreCreateAnime_validation = z.object({
-  title: MediaTitle_validation,
+  title: MediaTitle_validation
 });
 
 export const Create_Anime_Update_ZOD = z.object({
   groupe: z.optional(Add_Groupe_ZOD),
   parent: z.optional(Add_Anime_ZOD),
-  parentPath: z.optional(z.enum(["Anime", "Manga"])),
+  parentPath: z.optional(z.enum(['Anime', 'Manga'])),
   title: z.optional(MediaTitle_validation),
   date: z.optional(MediaDate_validation),
   image: z.optional(MediaImage_validation),
   synopsis: z.optional(z.string()),
   source: z.optional(z.string().optional()),
-  sourcePath: z.optional(z.enum(["Anime", "Manga"])),
+  sourcePath: z.optional(z.enum(['Anime', 'Manga'])),
   format: z.optional(z.enum(AnimeFormatArray)),
   vf: z.optional(z.boolean()),
   genres: z.optional(z.array(z.string())),
@@ -187,16 +197,13 @@ export const Create_Anime_Update_ZOD = z.object({
   companys: z.optional(z.array(Add_Company_ZOD)),
   staffs: z.optional(z.array(Add_Person_ZOD)),
   characters: z.optional(z.array(Add_Character_ZOD)),
-  tracks: z.optional(z.array(Add_Track_ZOD)),
+  tracks: z.optional(z.array(Add_Track_ZOD))
 });
 
-
 export const AnimeDataToZOD = (data: IAnime): Partial<ICreate_Anime_ZOD> => {
+  if (!data) return {};
 
-  if (!data)
-    return {}
-
-  let toZOD: Partial<ICreate_Anime_ZOD> = {
+  const toZOD: Partial<ICreate_Anime_ZOD> = {
     groupe: data.groupe,
     parent: data.parent,
     source: data.source,
@@ -204,21 +211,25 @@ export const AnimeDataToZOD = (data: IAnime): Partial<ICreate_Anime_ZOD> => {
     title: data.title,
     synopsis: data.synopsis,
     image: data.image,
-    ...data.date ? {
-      date: {
-        start: dateToZod(data.date.start),
-        end: dateToZod(data.date.end)
-      }
-    } : {},
+    ...(data.date
+      ? {
+          date: {
+            start: dateToZod(data.date.start),
+            end: dateToZod(data.date.end)
+          }
+        }
+      : {}),
     status: data.status,
     format: data.format,
     vf: data.vf,
-    ...data.episodes ? {
-      episodes: {
-        ...data.episodes,
-        nextAiringDate: dateTimeToZod(data.episodes.nextAiringDate)
-      }
-    } : {},
+    ...(data.episodes
+      ? {
+          episodes: {
+            ...data.episodes,
+            nextAiringDate: dateTimeToZod(data.episodes.nextAiringDate)
+          }
+        }
+      : {}),
     adult: data.adult,
     explicit: data.explicit,
     genres: data.genres || [],
@@ -226,15 +237,12 @@ export const AnimeDataToZOD = (data: IAnime): Partial<ICreate_Anime_ZOD> => {
     companys: data.companys || [],
     staffs: data.staffs || [],
     characters: data.characters || [],
-    tracks: data.tracks || [],
-  }
+    tracks: data.tracks || []
+  };
 
-  let safeParse = Create_Anime_ZOD.safeParse(toZOD);
+  const safeParse = Create_Anime_ZOD.safeParse(toZOD);
 
-  if (safeParse.success)
-    return safeParse.data
+  if (safeParse.success) return safeParse.data;
 
   return toZOD;
-}
-
-
+};
