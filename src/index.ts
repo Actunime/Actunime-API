@@ -21,12 +21,10 @@ import Fastify_Cors from "@fastify/cors";
     fastify
         .register(Fastify_Cors, {
             origin: (origin, cb) => {
-                console.log("Origine", origin);
                 if (checkOrigin(origin))
                     return cb(null, true);
                 return cb(null, false);
             },
-            // credentials: true
         })
         .register(Fastify_RateLimit, {
             global: false,
@@ -44,11 +42,6 @@ import Fastify_Cors from "@fastify/cors";
 
     try {
         await connectDB();
-
-        fastify.get('/', async (request, reply) => {
-            console.log("request from", request.ip);
-            return { hello: 'world' }
-        })
 
         for await (const [key, route] of Object.entries(v1)) {
             await fastify.register(route, { prefix: '/v1' });
