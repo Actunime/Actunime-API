@@ -1,4 +1,4 @@
-import { IUserRoles, userPermissionIsHigherThan } from "../_utils/userUtil";
+import { IUserRoles } from '../_utils/userUtil';
 export async function RestrictedAPIRoute<T>(
   roles: IUserRoles | IUserRoles[],
   onBlock: () => any,
