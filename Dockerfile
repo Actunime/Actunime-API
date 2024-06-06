@@ -28,7 +28,6 @@
 # CMD [ "pnpm", "run", "start" ]
 
 FROM node:22 AS base
-ENV NODE_ENV production
 
 FROM base AS deps
  
@@ -57,4 +56,5 @@ COPY --from=build /app/build /app/build
 
 EXPOSE 3000
 
+ENV NODE_ENV production
 CMD ["pnpm", "run", "start"]
