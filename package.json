@@ -10,7 +10,7 @@
     "build": "tsc --pretty --locale fr",
     "dev": "node build",
     "dev-watch": "tsc -w --pretty --locale fr",
-    "prepare": "husky"
+    "prepare": "node .husky/install.mjs"
   },
   "keywords": [],
   "author": "",
