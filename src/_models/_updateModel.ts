@@ -29,7 +29,7 @@ const UpdateSchema = new Schema<IUpdate>(
     beforeChanges: { type: Schema.Types.Mixed, default: undefined },
     author: { type: withSchema }
   },
-  { timestamps: true, toJSON: { virtuals: true } }
+  { timestamps: true, id: false, toJSON: { virtuals: true } }
 );
 
 UpdateSchema.virtual('target.data', {

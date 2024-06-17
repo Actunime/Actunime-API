@@ -1,40 +1,37 @@
-import { AnimeSaveDB } from "../../../_server-utils/anime";
-import { ErrorHandled } from "../../../_server-utils/errorHandling";
-import { RestrictedAPIRoute } from "../../../_server-utils/restricted";
-import { Create_Anime_ZOD, ICreate_Anime_ZOD } from "../../../_validation/animeZOD";
-import { FastifyRequest } from "fastify";
+import { AnimeSaveDB } from '../../../_server-utils/anime';
+import { ErrorHandled } from '../../../_server-utils/errorHandling';
+import { Create_Anime_ZOD, ICreate_Anime_ZOD } from '../../../_validation/animeZOD';
+import { FastifyRequest } from 'fastify';
 
-export async function Update(req: FastifyRequest<{ Params: { id: string }, Body: ICreate_Anime_ZOD }>) {
-    return RestrictedAPIRoute("ANIME_MODERATOR",
-        () => new Response(JSON.stringify({ error: "Vous n'etes pas autorisé." }), { status: 401 }),
-        async (user) => {
-            let data;
-            let parsedZOD;
+export async function Update(
+  req: FastifyRequest<{ Params: { id: string }; Body: ICreate_Anime_ZOD }>
+) {
+  const user = req.user;
 
-            try {
-                data = req.body;
-                parsedZOD = Create_Anime_ZOD.parse(data);
-            } catch (error: any) {
-                return new Response("Bad request", { status: 400 });
-            }
+  if (!user) throw new Error('user est requis mettre une restriction dans le index.ts du dossier');
 
-            try {
+  let data;
+  let parsedZOD;
 
-                const init = await AnimeSaveDB(parsedZOD, user);
+  try {
+    data = req.body;
+    parsedZOD = Create_Anime_ZOD.parse(data);
+  } catch (error: any) {
+    return new Response('Bad request', { status: 400 });
+  }
 
-                await init.update(req.params.id);
+  try {
+    const init = await AnimeSaveDB(parsedZOD, user);
 
-                return Response.json({ id: req.params.id }, { status: 200 });
+    await init.update(req.params.id);
 
-            } catch (error: any) {
-                console.error("erreur", error.message)
+    return Response.json({ id: req.params.id }, { status: 200 });
+  } catch (error: any) {
+    console.error('erreur', error.message);
 
-                if (error instanceof ErrorHandled) {
-                    return new Response(JSON.stringify({ error: error.message }), { status: 502 });
-                }
-                return new Response("Server error", { status: 502 });
-            }
-
-            return new Response(JSON.stringify({ data: "Ok" }), { status: 200 });
-        })
+    if (error instanceof ErrorHandled) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 502 });
+    }
+    return new Response('Server error', { status: 502 });
+  }
 }

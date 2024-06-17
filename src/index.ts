@@ -6,6 +6,15 @@ import { connectDB } from './_utils/mongoose';
 import * as v1 from './api/v1';
 import Fastify_RateLimit from '@fastify/rate-limit';
 import Fastify_Cors from '@fastify/cors';
+import { IUser } from './_types/userType';
+
+declare module 'fastify' {
+  export interface FastifyRequest {
+    user: IUser;
+    isFetchedUser?: boolean;
+    getFullUser?: () => Promise<Partial<IUser> | undefined>;
+  }
+}
 
 (async () => {
   const fastify = Fastify({

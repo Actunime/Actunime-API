@@ -1,30 +1,30 @@
-import { FastifyInstance } from "fastify";
+import { FastifyInstance } from 'fastify';
 import { Filter } from './_filter';
-import { Get } from "./_get";
+import { Get } from './_get';
 // import { Create } from "./_create";
-import { Update } from "./_update";
-
-
+import { Update } from './_update';
+import { AuthValidation } from '../../../_utils/authUtil';
 
 export async function Updates_V1(fastify: FastifyInstance) {
-    fastify.route({
-        method: "GET",
-        url: "/updates",
-        handler: Filter
-    })
-    fastify.route({
-        method: "GET",
-        url: "/updates/:id",
-        handler: Get
-    })
-    // fastify.route({
-    //     method: "POST",
-    //     url: "/updates/create",
-    //     handler: Create
-    // })
-    fastify.route({
-        method: "POST",
-        url: "/updates/:id",
-        handler: Update
-    })
+  fastify.route({
+    method: 'GET',
+    url: '/updates',
+    handler: Filter
+  });
+  fastify.route({
+    method: 'GET',
+    url: '/updates/:id',
+    handler: Get
+  });
+  // fastify.route({
+  //     method: "POST",
+  //     url: "/updates/create",
+  //     handler: Create
+  // })
+  fastify.route({
+    method: 'POST',
+    url: '/updates/:id/update',
+    preValidation: AuthValidation(['MODERATOR']),
+    handler: Update
+  });
 }
