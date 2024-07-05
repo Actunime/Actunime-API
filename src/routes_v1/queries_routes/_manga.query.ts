@@ -11,7 +11,7 @@ export const GetMangaRouter = async (req: FastifyRequest<GetRouter>, res: Fastif
     session.startTransaction();
 
     const paramWithMedia = req.query.withMedia;
-    const JSONWithMedia = JSON.parse(paramWithMedia || 'object');
+    const JSONWithMedia = JSON.parse(paramWithMedia || '{}');
     const manga = await new MangaManager(session).get(req.params.id, JSONWithMedia);
 
     await session.commitTransaction();

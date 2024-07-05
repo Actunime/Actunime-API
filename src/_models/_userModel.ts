@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models } from 'mongoose';
 import type {
   IUser,
   IUserLinkedAccount,
@@ -38,7 +38,7 @@ const userAccountSchema = new Schema<IUserAccount>({
   verified: { type: Date, default: undefined }
 });
 
-export const UserAccountModel = model('UserAccount', userAccountSchema);
+export const UserAccountModel = models.UserAccount || model('UserAccount', userAccountSchema);
 
 const userSchema = new Schema<IUser>(
   {
@@ -89,7 +89,7 @@ userSchema.virtual('disabled', {
 //   justOne: true
 // })
 
-export const UserModel = model('User', userSchema);
+export const UserModel = models.User || model('User', userSchema);
 
 // const UserContributions = new Schema({
 //   id: {
@@ -137,7 +137,7 @@ UserDisabledSchema.virtual('user.data', {
   justOne: true
 });
 
-export const UserDisabledModel = model('UserDisabled', UserDisabledSchema);
+export const UserDisabledModel = models.UserDisabled || model('UserDisabled', UserDisabledSchema);
 
 /**
  *
@@ -160,7 +160,7 @@ const UserPremiumSchema = new Schema<IUserPremium>(
   { timestamps: true, id: false, toJSON: { virtuals: true } }
 );
 
-export const UserPremiumModel = model('UserPremium', UserPremiumSchema);
+export const UserPremiumModel = models.UserPremium || model('UserPremium', UserPremiumSchema);
 
 /**
  *
@@ -182,4 +182,5 @@ const UserAuthTokenSchema = new Schema<IUserAuthToken>(
   { timestamps: true }
 );
 
-export const UserAuthTokenModel = model('UserAuthToken', UserAuthTokenSchema);
+export const UserAuthTokenModel =
+  models.UserAuthToken || model('UserAuthToken', UserAuthTokenSchema);

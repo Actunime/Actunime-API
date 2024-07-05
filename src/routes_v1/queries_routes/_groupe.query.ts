@@ -11,7 +11,7 @@ export const GetGroupeRouter = async (req: FastifyRequest<GetRouter>, res: Fasti
     session.startTransaction();
 
     const paramWithMedia = req.query.withMedia;
-    const JSONWithMedia = JSON.parse(paramWithMedia || 'object');
+    const JSONWithMedia = JSON.parse(paramWithMedia || '{}');
     const groupe = await new GroupeManager(session).get(req.params.id, JSONWithMedia);
 
     await session.commitTransaction();

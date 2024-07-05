@@ -11,7 +11,7 @@ export const GetCompanyRouter = async (req: FastifyRequest<GetRouter>, res: Fast
     session.startTransaction();
 
     const paramWithMedia = req.query.withMedia;
-    const JSONWithMedia = JSON.parse(paramWithMedia || 'object');
+    const JSONWithMedia = JSON.parse(paramWithMedia || '{}');
     const company = await new CompanyManager(session).get(req.params.id, JSONWithMedia);
 
     await session.commitTransaction();

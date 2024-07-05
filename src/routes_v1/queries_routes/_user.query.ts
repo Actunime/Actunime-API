@@ -11,7 +11,7 @@ export const GetUserRouter = async (req: FastifyRequest<GetRouter>, res: Fastify
     session.startTransaction();
 
     const paramWithMedia = req.query.withMedia;
-    const JSONWithMedia = JSON.parse(paramWithMedia || 'object');
+    const JSONWithMedia = JSON.parse(paramWithMedia || '{}');
     const user = await new UserManager(session).get(req.params.id, JSONWithMedia);
 
     await session.commitTransaction();

@@ -9,6 +9,7 @@ import Fastify_Cors from '@fastify/cors';
 import { IUser } from './_types/userType';
 import fastifyStatic from '@fastify/static';
 import path from 'path';
+// import { UserAccountModel, UserModel } from './_models/_userModel';
 
 declare module 'fastify' {
   export interface FastifyRequest {
@@ -51,6 +52,21 @@ declare module 'fastify' {
 
   try {
     await connectDB();
+
+    // const user = await UserModel.findOneAndReplace({
+    //   username: "Actunime",
+    // }, {
+    //   username: "Actunime",
+    //   displayName: "Actunime",
+    //   roles: ["ACTUNIME"],
+    // }, { upsert: true, new: true })
+
+    // await UserAccountModel.findOneAndReplace(
+    //   { user: user._id },
+    //   {
+    //     user: user._id,
+    //     email: "proxdevxkill@gmail.com",
+    //   }, { upsert: true, new: true })
 
     for await (const [key, route] of Object.entries(routes_v1)) {
       await fastify.register(route, { prefix: '/v1' });

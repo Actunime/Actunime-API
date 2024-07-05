@@ -11,7 +11,7 @@ export const GetActivityRouter = async (req: FastifyRequest<GetRouter>, res: Fas
     session.startTransaction();
 
     const paramWithMedia = req.query.withMedia;
-    const JSONWithMedia = JSON.parse(paramWithMedia || 'object');
+    const JSONWithMedia = JSON.parse(paramWithMedia || '{}');
     const activity = await new ActivityManager(session, req.user).get(req.params.id, JSONWithMedia);
 
     await session.commitTransaction();
