@@ -8,6 +8,7 @@ import { FilterTrackRouter, GetTrackRouter } from './_track.query';
 import { FilterUserRouter, GetUserRouter } from './_user.query';
 import { FilterPatchRouter, GetPatchRouter } from './_patch.query';
 import { AuthValidation } from '@/_utils/authUtil';
+import { FilterActivityRouter, GetActivityRouter } from './_activity.query';
 
 export async function Gets_Routes_V1(fastify: FastifyInstance) {
   // Userrs get/filter
@@ -36,6 +37,20 @@ export async function Gets_Routes_V1(fastify: FastifyInstance) {
     url: '/updates',
     preValidation: AuthValidation(['MODERATOR']),
     handler: FilterPatchRouter
+  });
+
+  // Activitys get/filter
+  fastify.route({
+    method: 'GET',
+    url: '/activitys/:id',
+    preValidation: AuthValidation(['MODERATOR']),
+    handler: GetActivityRouter
+  });
+  fastify.route({
+    method: 'GET',
+    url: '/activitys',
+    preValidation: AuthValidation(['MODERATOR']),
+    handler: FilterActivityRouter
   });
 
   // Animes get/filter
