@@ -2,7 +2,6 @@ import {
   MediaGenresArray,
   MediaParentLabelArray,
   MediaStatusArray,
-  MediaStatusObj,
   dateTimeToZod,
   dateToZod
 } from '../_utils/mediaUtil';
@@ -77,8 +76,8 @@ export type IAdd_Anime_ZOD = z.infer<typeof Add_Anime_ZOD>;
 export const Create_Anime_ZOD = z
   .object({
     groupe: Add_Groupe_ZOD,
-    parent: z.optional(Add_Anime_ZOD.partial()),
-    source: z.optional(Add_Manga_ZOD.partial()),
+    parent: z.optional(Add_Anime_ZOD.partial({ parentLabel: true })),
+    source: z.optional(Add_Manga_ZOD.partial({ parentLabel: true, sourceLabel: true })),
     title: MediaTitle_validation,
     date: z.optional(MediaDate_validation),
     image: z.optional(MediaImage_validation),
@@ -97,77 +96,102 @@ export const Create_Anime_ZOD = z
     characters: z.optional(z.array(Add_Character_ZOD)),
     tracks: z.optional(z.array(Add_Track_ZOD))
   })
-  .strict()
-  .refine(
-    (data) => {
-      if (data.parent?.id) {
-        if (!data.parent.parentLabel) {
-          return false;
-        }
-      }
-      const status = data.status;
+  .strict();
 
-      if (status && !['SOON', 'any'].includes(status)) {
-        if (!data.episodes?.airing) {
-          return false;
-        }
-        if (!data.episodes?.durationMinute) {
-          return false;
-        }
-        if (status === 'AIRING' && !data.episodes?.nextAiringDate) {
-          return false;
-        }
-        if (!data.episodes?.total) {
-          return false;
-        }
-      }
-      return true;
-    },
-    (data) => {
-      if (data.parent?.id) {
-        if (!data.parent?.parentLabel) {
-          return {
-            message: 'Ce champ est obligatoire si vous avez spécifié un parent.',
-            path: ['parentLabel']
-          };
-        }
-      }
-      const status = data.status;
+// export const Create_Anime_ZOD = z
+//   .object({
+//     groupe: Add_Groupe_ZOD,
+//     parent: z.optional(Add_Anime_ZOD.partial()),
+//     source: z.optional(Add_Manga_ZOD.partial()),
+//     title: MediaTitle_validation,
+//     date: z.optional(MediaDate_validation),
+//     image: z.optional(MediaImage_validation),
+//     synopsis: z.optional(z.string()),
+//     format: z.enum(AnimeFormatArray),
+//     vf: z.optional(zodBoolean()),
+//     genres: z.optional(z.array(z.enum(MediaGenresArray))),
+//     // themes: z.optional(z.array(z.string())),
+//     status: z.enum(MediaStatusArray),
+//     episodes: z.optional(Anime_Episode_ZOD),
+//     adult: zodBoolean(),
+//     explicit: zodBoolean(),
+//     links: z.optional(z.array(Create_Link_ZOD)),
+//     companys: z.optional(z.array(Add_Company_ZOD)),
+//     persons: z.optional(z.array(Add_Person_ZOD)),
+//     characters: z.optional(z.array(Add_Character_ZOD)),
+//     tracks: z.optional(z.array(Add_Track_ZOD))
+//   })
+//   .strict()
+//   .refine(
+//     (data) => {
+//       if (data.parent?.id) {
+//         if (!data.parent.parentLabel) {
+//           return false;
+//         }
+//       }
+//       const status = data.status;
 
-      if (status && !['SOON', 'any'].includes(status)) {
-        const message = `Le statut spécifié est: "${MediaStatusObj[status].label}", alors remplir ce champ est obligatoire !`;
-        if (!data.episodes?.airing) {
-          return {
-            message,
-            path: ['episodes.airing']
-          };
-        }
-        if (!data.episodes?.durationMinute) {
-          return {
-            message,
-            path: ['episodes.durationMinute']
-          };
-        }
-        if (status === 'AIRING' && !data.episodes?.nextAiringDate) {
-          return {
-            message,
-            path: ['episodes.nextEpisodeDate']
-          };
-        }
-        if (!data.episodes?.total) {
-          return {
-            message,
-            path: ['episodes.total']
-          };
-        }
-      }
+//       if (status && !['SOON', 'any'].includes(status)) {
+//         if (!data.episodes?.airing) {
+//           return false;
+//         }
+//         if (!data.episodes?.durationMinute) {
+//           return false;
+//         }
+//         if (status === 'AIRING' && !data.episodes?.nextAiringDate) {
+//           return false;
+//         }
+//         if (!data.episodes?.total) {
+//           return false;
+//         }
+//       }
+//       return true;
+//     },
+//     (data) => {
+//       if (data.parent?.id) {
+//         if (!data.parent?.parentLabel) {
+//           return {
+//             message: 'Ce champ est obligatoire si vous avez spécifié un parent.',
+//             path: ['parentLabel']
+//           };
+//         }
+//       }
+//       const status = data.status;
 
-      return {
-        message: 'Nous avons un problème.',
-        path: ['CreateAnime']
-      };
-    }
-  );
+//       if (status && !['SOON', 'any'].includes(status)) {
+//         const message = `Le statut spécifié est: "${MediaStatusObj[status].label}", alors remplir ce champ est obligatoire !`;
+//         if (!data.episodes?.airing) {
+//           return {
+//             message,
+//             path: ['episodes.airing']
+//           };
+//         }
+//         if (!data.episodes?.durationMinute) {
+//           return {
+//             message,
+//             path: ['episodes.durationMinute']
+//           };
+//         }
+//         if (status === 'AIRING' && !data.episodes?.nextAiringDate) {
+//           return {
+//             message,
+//             path: ['episodes.nextEpisodeDate']
+//           };
+//         }
+//         if (!data.episodes?.total) {
+//           return {
+//             message,
+//             path: ['episodes.total']
+//           };
+//         }
+//       }
+
+//       return {
+//         message: 'Nous avons un problème.',
+//         path: ['CreateAnime']
+//       };
+//     }
+//   );
 
 export type ICreate_Anime_ZOD = z.infer<typeof Create_Anime_ZOD>;
 

@@ -8,5 +8,5 @@ export * from './_mediaModel';
 export * from './_personModel';
 export * from './_reportModel';
 export * from './_trackModel';
-export * from './_updateModel';
+export * from './_patchModel';
 export * from './_userModel';

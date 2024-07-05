@@ -1,12 +1,16 @@
-import type { IMediaBase, IMediaLink } from "./mediaType";
-import type { IPaginationResponse } from "./paginationType";
+import { IImage } from './imageType';
+import type { IMediaBase, IMediaLink } from './mediaType';
+import type { IPaginationResponse } from './paginationType';
 
 export interface IPerson extends IMediaBase {
-  name: { first: string, last: string, full: string, alias: string[] };
+  name: { first: string; last: string; full: string; alias: string[] };
   birthDate?: Date;
   deathDate?: Date;
   bio?: string;
-  image?: string;
+  image?: {
+    id: string;
+    data?: IImage; // Virtual
+  };
   links?: IMediaLink[];
 }
 

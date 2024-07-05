@@ -1,12 +1,14 @@
 import dotenv from 'dotenv';
-dotenv.config({ path: `.env.${process.env.NODE_ENV || 'development'}` });
+dotenv.config({ path: [`.env.${process.env.NODE_ENV || 'development'}`, '.env.local'] });
 
 import Fastify from 'fastify';
 import { connectDB } from './_utils/mongoose';
-import * as v1 from './api/v1';
+import * as routes_v1 from '@/routes_v1';
 import Fastify_RateLimit from '@fastify/rate-limit';
 import Fastify_Cors from '@fastify/cors';
 import { IUser } from './_types/userType';
+import fastifyStatic from '@fastify/static';
+import path from 'path';
 
 declare module 'fastify' {
   export interface FastifyRequest {
@@ -23,7 +25,7 @@ declare module 'fastify' {
 
   const checkOrigin = (url: string | undefined): boolean => {
     const hostname = url ? new URL(url).hostname : '';
-    return ['localhost', 'actunime.fr'].includes(hostname);
+    return ['localhost', 'actunime.fr', '172.25.22.201'].includes(hostname);
   };
 
   fastify
@@ -50,10 +52,19 @@ declare module 'fastify' {
   try {
     await connectDB();
 
-    for await (const [key, route] of Object.entries(v1)) {
+    for await (const [key, route] of Object.entries(routes_v1)) {
       await fastify.register(route, { prefix: '/v1' });
       console.log('Route', key, 'chargé!');
     }
+
+    if (process.env.NODE_ENV !== 'production') {
+      fastify.register(fastifyStatic, {
+        prefix: '/img',
+        root: path.join(__dirname, '..', 'img')
+      });
+    }
+
+    console.log(fastify.printRoutes());
 
     await fastify.listen({ host: '0.0.0.0', port: 3005 });
   } catch (err) {

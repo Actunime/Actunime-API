@@ -5,6 +5,14 @@ import { IUser } from '../_types/userType';
 import jwt, { JwtPayload, VerifyCallback } from 'jsonwebtoken';
 import { IUserRoles, userPermissionIsHigherThan } from './userUtil';
 
+declare module 'fastify' {
+  export interface FastifyRequest {
+    user: IUser;
+    isFetchedUser?: boolean;
+    getFullUser?: () => Promise<Partial<IUser> | undefined>;
+  }
+}
+
 export const AuthValidation = (authorizedRoles?: IUserRoles | IUserRoles[]) => {
   return (req: FastifyRequest, res: FastifyReply, next: HookHandlerDoneFunction) => {
     const auth = new AuthUserMiddleware(authorizedRoles);

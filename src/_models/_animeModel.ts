@@ -46,32 +46,28 @@ const withAnimeSchema = new Schema(
 const AnimeSchema = new Schema<IAnime>(
   {
     id: { type: String, default: () => genPublicID(8) },
-    isVerified: { type: Boolean, default: false },
-    isPreAdded: { type: Boolean, default: false },
-    groupe: { type: withGroupeSchema, required: true },
+    isVerified: { type: Boolean, default: undefined },
+    isPreAdded: { type: Boolean, default: undefined },
+    groupe: { type: withGroupeSchema, required: true, default: undefined },
     parent: { type: withAnimeSchema, default: undefined },
-    title: { type: MediaTitleSchema, required: true },
+    title: { type: MediaTitleSchema, required: true, default: undefined },
     date: { type: MediaDateSchema, default: undefined },
     image: { type: MediaImageSchema, default: undefined },
     synopsis: { type: String, default: undefined },
     source: { type: withMangaSchema, default: undefined },
-    format: {
-      type: String,
-      enum: AnimeFormatArray,
-      required: true
-    },
-    vf: { type: Boolean, default: false },
-    genres: { type: [String], default: [] },
+    format: { type: String, enum: AnimeFormatArray, required: true, default: undefined },
+    vf: { type: Boolean, default: undefined },
+    genres: { type: [String], default: undefined },
     // themes: { type: [String], default: undefined },
-    status: { type: String, enum: MediaStatusArray },
+    status: { type: String, enum: MediaStatusArray, default: undefined },
     episodes: { type: AnimeEpisodeSchema, default: undefined },
-    adult: { type: Boolean, default: false },
-    explicit: { type: Boolean, default: false },
-    links: { type: [MediaLinkSchema], default: [] },
-    companys: { type: [withCompanySchema], default: [] },
-    staffs: { type: [withPersonSchema], default: [] },
-    characters: { type: [withCharacterSchema], default: [] },
-    tracks: { type: [withTrackSchema], default: [] }
+    adult: { type: Boolean, default: undefined },
+    explicit: { type: Boolean, default: undefined },
+    links: { type: [MediaLinkSchema], default: undefined },
+    companys: { type: [withCompanySchema], default: undefined },
+    staffs: { type: [withPersonSchema], default: undefined },
+    characters: { type: [withCharacterSchema], default: undefined },
+    tracks: { type: [withTrackSchema], default: undefined }
   },
   { timestamps: true, id: false }
 );

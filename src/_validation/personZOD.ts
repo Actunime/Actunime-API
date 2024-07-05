@@ -4,6 +4,7 @@ import { Create_Link_ZOD } from './media';
 import { zodNumber } from './util';
 import { IPerson } from '../_types/personType';
 import { dateToZod } from '../_utils/mediaUtil';
+import { Add_Image_ZOD } from './imageZOD';
 
 export const PersonName_validation = z.object({
   first: z.string().min(2, 'le prénom dois contenir au moins 2 caractères'),
@@ -17,7 +18,7 @@ export const Create_Person_ZOD = z
     birthDate: z.optional(z.string()),
     deathDate: z.optional(z.string()),
     bio: z.optional(z.string()),
-    image: z.optional(z.string()),
+    image: z.optional(Add_Image_ZOD),
     links: z.optional(z.array(Create_Link_ZOD))
   })
   .strict();

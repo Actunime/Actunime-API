@@ -1,28 +1,21 @@
-import type { IAnimeFormat } from "../_utils/animeUtil";
-import type { ICharacterRole } from "../_utils/characterUtil";
-import type { ICharacter } from "./characterType";
-import type { ICompany } from "./companyType";
-import type { IGroupe } from "./groupeType";
-import type { IManga } from "./mangaType";
-import type {
-  IMediaBase,
-  IMediaDate,
-  IMediaImage,
-  IMediaLink,
-  IMediaTitle,
-} from "./mediaType";
+import type { IAnimeFormat } from '../_utils/animeUtil';
+import type { ICharacterRole } from '../_utils/characterUtil';
+import type { ICharacter } from './characterType';
+import type { ICompany } from './companyType';
+import type { IGroupe } from './groupeType';
+import type { IManga } from './mangaType';
+import type { IMediaBase, IMediaDate, IMediaImage, IMediaLink, IMediaTitle } from './mediaType';
 import type {
   IMediaGenres,
   IMediaParentLabel,
   IMediaSource,
   IMediaStatus
-} from "../_utils/mediaUtil";
+} from '../_utils/mediaUtil';
 
-import type { IPaginationResponse } from "./paginationType";
-import type { IPerson } from "./personType";
-import type { ITrack } from "./trackType";
-import { IPersonRole } from "../_utils/personUtil";
-
+import type { IPaginationResponse } from './paginationType';
+import type { IPerson } from './personType';
+import type { ITrack } from './trackType';
+import { IPersonRole } from '../_utils/personUtil';
 
 export interface IAnimeEpisode {
   airing?: number;
@@ -33,20 +26,20 @@ export interface IAnimeEpisode {
 
 export interface IAnime extends IMediaBase {
   groupe: {
-    id: string,
-    data?: IGroupe // Virtual
+    id: string;
+    data?: IGroupe; // Virtual
   };
 
   parent: {
-    id: string
+    id: string;
     parentLabel?: IMediaParentLabel;
-    data?: IAnime // Virtual
+    data?: IAnime; // Virtual
   };
 
   source: {
-    id: string,
+    id: string;
     sourceLabel?: IMediaSource;
-    data?: IManga // Virtual
+    data?: IManga; // Virtual
   };
 
   title: IMediaTitle;
@@ -64,26 +57,25 @@ export interface IAnime extends IMediaBase {
   links?: IMediaLink[];
 
   companys: {
-    id: string,
-    data?: ICompany // Virtual
+    id: string;
+    data?: ICompany; // Virtual
   }[];
 
   staffs: {
     id: string;
-    role: IPersonRole,
-    data?: IPerson // Virtual 
-  }[]
+    role?: IPersonRole;
+    data?: IPerson; // Virtual
+  }[];
 
   characters: {
     id: string;
     role: ICharacterRole;
-    data?: ICharacter // Virtual
+    data?: ICharacter; // Virtual
   }[];
 
   tracks: {
-    id: string,
-    data?: ITrack // Virtual
-
+    id: string;
+    data?: ITrack; // Virtual
   }[];
 }
 
