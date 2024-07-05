@@ -8,7 +8,7 @@ import type { ICreate_Manga_ZOD, IManga_Pagination_ZOD } from '../_validation/ma
 import type { ICreate_Person_ZOD, IPerson_Pagination_ZOD } from '../_validation/personZOD';
 import { IReport_Pagination_ZOD } from '../_validation/reportZOD';
 import type { ICreate_Track_ZOD, ITrack_Pagination_ZOD } from '../_validation/trackZOD';
-import { IPatch_Pagination_ZOD } from '../_validation/updateZOD';
+import { IPatch_Pagination_ZOD } from '../_validation/patchZOD';
 import { IUser_Pagination_ZOD, IUser_Update_ZOD } from '../_validation/userZOD';
 
 export type ITargetPathZODType<T extends ITargetPath> = T extends 'Groupe'
