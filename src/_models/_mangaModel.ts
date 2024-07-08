@@ -8,9 +8,9 @@ import { withCompanySchema } from './_companyModel';
 import { withGroupeSchema } from './_groupeModel';
 import {
   MediaDateSchema,
-  MediaImageSchema,
   MediaLinkSchema,
-  MediaTitleSchema
+  MediaTitleSchema,
+  withSchema
 } from './_mediaModel';
 import { withPersonSchema } from './_personModel';
 
@@ -48,7 +48,7 @@ const MangaSchema = new Schema<IManga>(
 
     title: { type: MediaTitleSchema, required: true },
     date: { type: MediaDateSchema, default: undefined },
-    image: { type: MediaImageSchema, default: undefined },
+    images: { type: [withSchema], default: undefined },
     synopsis: { type: String, default: undefined },
     source: { type: withMangaSchema, default: undefined },
     format: {

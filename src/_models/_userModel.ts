@@ -1,4 +1,4 @@
-import { Schema, model, models } from 'mongoose';
+import { Model, Schema, model, models } from 'mongoose';
 import type {
   IUser,
   IUserLinkedAccount,
@@ -53,10 +53,7 @@ const userSchema = new Schema<IUser>(
     displayName: { type: String },
     bio: { type: String },
     roles: { type: [String], default: ['MEMBER'] },
-    image: {
-      avatar: { type: String, default: undefined },
-      banner: { type: String, default: undefined }
-    }
+    images: [withSchema],
   },
   { timestamps: true, id: false, toJSON: { virtuals: true } }
 );
@@ -89,7 +86,7 @@ userSchema.virtual('disabled', {
 //   justOne: true
 // })
 
-export const UserModel = models.User || model('User', userSchema);
+export const UserModel = models.User as Model<IUser> || model('User', userSchema);
 
 // const UserContributions = new Schema({
 //   id: {

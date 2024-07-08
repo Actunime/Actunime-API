@@ -17,7 +17,7 @@ const PersonSchema = new Schema<IPerson>(
     birthDate: { type: Date, default: undefined },
     deathDate: { type: Date, default: undefined },
     bio: String,
-    image: { type: withSchema, default: undefined },
+    images: { type: [withSchema], default: undefined },
     links: { type: [MediaLinkSchema], default: undefined }
   },
   { timestamps: true, id: false, toJSON: { virtuals: true } }
@@ -40,9 +40,7 @@ PersonSchema.virtual('image.data.url', {
   foreignField: 'id',
   justOne: true
 }).get(function () {
-  return process.env.NODE_ENV === 'production'
-    ? `/img/person/${this.image?.id}.webp`
-    : `/img/person/${this.image?.id}.webp`;
+  return this.images?.[0]?.id && `/img/person/${this.images[0]?.id}.webp`
 });
 
 export const withPersonSchema = new Schema(

@@ -1,7 +1,7 @@
 export const ImageLabelObj = {
   COVER: 'Couverture',
   BANNER: 'Bannière',
-  PROFILE: 'Profil',
+  AVATAR: 'Avatar',
   LOGO: 'Logo'
 };
 

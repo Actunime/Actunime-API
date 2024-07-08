@@ -1,6 +1,7 @@
 import { UserRolesArray } from '../_utils/userUtil';
 import { z } from 'zod';
 import { zodNumber } from './util';
+import { Add_Image_ZOD } from './imageZOD';
 
 export const User_Pagination_ZOD = z
   .object({
@@ -64,3 +65,17 @@ export const User_Update_ZOD = z.object({
 });
 
 export type IUser_Update_ZOD = z.infer<typeof User_Update_ZOD>;
+
+
+export const Patch_User_ZOD = z
+  .object({
+    username: z.string().optional(),
+    displayName: z.string().optional(),
+    bio: z.string().optional(),
+    roles: z.array(z.enum(UserRolesArray)).optional(),
+    images: z.array(Add_Image_ZOD).optional()
+  })
+  .strict()
+  .partial();
+
+export type IPatch_User_ZOD = z.infer<typeof Patch_User_ZOD>;

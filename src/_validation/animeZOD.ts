@@ -21,6 +21,7 @@ import { Add_Track_ZOD } from './trackZOD';
 import { zodBoolean, zodNumber } from './util';
 import { AnimeFormatArray } from '../_utils/animeUtil';
 import { IAnime } from '../_types/animeType';
+import { Add_Image_ZOD } from './imageZOD';
 
 export const Anime_Pagination_ZOD = z
   .object({
@@ -80,7 +81,7 @@ export const Create_Anime_ZOD = z
     source: z.optional(Add_Manga_ZOD.partial({ parentLabel: true, sourceLabel: true })),
     title: MediaTitle_validation,
     date: z.optional(MediaDate_validation),
-    image: z.optional(MediaImage_validation),
+    images: z.optional(z.array(Add_Image_ZOD)),
     synopsis: z.optional(z.string()),
     format: z.enum(AnimeFormatArray),
     vf: z.optional(zodBoolean()),
@@ -234,25 +235,25 @@ export const AnimeDataToZOD = (data: IAnime): Partial<ICreate_Anime_ZOD> => {
 
     title: data.title,
     synopsis: data.synopsis,
-    image: data.image,
+    images: data.images,
     ...(data.date
       ? {
-          date: {
-            start: dateToZod(data.date.start),
-            end: dateToZod(data.date.end)
-          }
+        date: {
+          start: dateToZod(data.date.start),
+          end: dateToZod(data.date.end)
         }
+      }
       : {}),
     status: data.status,
     format: data.format,
     vf: data.vf,
     ...(data.episodes
       ? {
-          episodes: {
-            ...data.episodes,
-            nextAiringDate: dateTimeToZod(data.episodes.nextAiringDate)
-          }
+        episodes: {
+          ...data.episodes,
+          nextAiringDate: dateTimeToZod(data.episodes.nextAiringDate)
         }
+      }
       : {}),
     adult: data.adult,
     explicit: data.explicit,

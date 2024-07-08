@@ -3,13 +3,18 @@ import { ClientSession, Document } from 'mongoose';
 import { ReportModel } from '../_models';
 import { IReport, IReportCreateProps } from '../_types/reportType';
 import { IPaginationResponse } from '@/_types/paginationType';
-import { IReport_Pagination_ZOD } from '@/_validation/reportZOD';
+import { ICreate_Report_ZOD, IReport_Pagination_ZOD } from '@/_validation/reportZOD';
 import { MediaPagination } from './pagination';
 import { ActivityManager } from './activity';
+import { getChangedData } from '@/_utils/getObjChangeUtil';
+import { IPatchActionList } from '@/_types/patchType';
+import { PatchManager } from './patch';
 
 export class ReportManager {
   public session: ClientSession;
   public user: IUser;
+  private newData!: Partial<IReport>;
+
 
   constructor(session: ClientSession, user: IUser) {
     this.user = user;
@@ -96,5 +101,52 @@ export class ReportManager {
     );
 
     return saved;
+  }
+
+  public init(data: Partial<ICreate_Report_ZOD>) {
+    this.newData = data;
+
+    return this;
+  }
+
+  public async update(reportID: string, note?: string) {
+    const newReportData = new ReportModel(this.newData);
+
+    const reportToUpdate = await ReportModel.findOne(
+      { id: reportID },
+      {},
+      { session: this.session }
+    );
+
+    if (!reportToUpdate) throw new Error('Report not found');
+
+    newReportData._id = reportToUpdate._id;
+    newReportData.id = reportToUpdate.id;
+
+    const changes = await getChangedData(reportToUpdate.toJSON(), newReportData, [
+      '_id',
+      'id',
+      'createdAt',
+      'updatedAt'
+    ]);
+
+    if (!changes) throw new Error('No changes found');
+
+    await reportToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
+
+    const actions: IPatchActionList[] = [{ note, label: 'DIRECT_PATCH', user: this.user! }];
+
+    await new PatchManager(this.session, this.user!).PatchCreate({
+      type: 'UPDATE',
+      status: 'ACCEPTED',
+      target: { id: newReportData.id },
+      actions,
+      targetPath: 'Report',
+      changes: changes?.newValues,
+      beforeChanges: changes?.oldValues,
+      author: { id: this.user!.id }
+    });
+
+    return newReportData;
   }
 }

@@ -8,6 +8,7 @@ import { PatchManager } from './patch';
 import { getChangedData } from '../_utils/getObjChangeUtil';
 import { IPaginationResponse } from '@/_types/paginationType';
 import { MediaPagination } from './pagination';
+import { ImageManager } from './image';
 
 export class CompanyManager {
   private session: ClientSession;
@@ -22,7 +23,7 @@ export class CompanyManager {
   private async populate(
     doc: Document | IPaginationResponse<ICompany>,
     withMedia: ICompany_Pagination_ZOD['with']
-  ) {}
+  ) { }
 
   public async get(id: string, withMedia?: ICompany_Pagination_ZOD['with']) {
     const findCompany = await CompanyModel.findOne({ id }, null, { session: this.session }).select(
@@ -59,8 +60,16 @@ export class CompanyManager {
     return response;
   }
 
-  public init(data: Partial<ICreate_Company_ZOD>) {
-    this.newData = data;
+  public async init(data: Partial<ICreate_Company_ZOD>) {
+    const { images, ...rawData } = data;
+
+    this.newData = rawData as Partial<IUser>;
+
+    const { newData, user, session } = this;
+
+    if (images)
+      newData.images = await new ImageManager(session, 'User', user)
+        .createMultipleRelation(images);
 
     return this;
   }
@@ -194,7 +203,8 @@ export class CompanyManager {
 
   public async createRelation(relation: { id?: string; newCompany?: ICreate_Company_ZOD }) {
     if (relation.newCompany) {
-      const newCompany = await this.init(relation.newCompany).create();
+      const newCompanyInit = await this.init(relation.newCompany);
+      const newCompany = await newCompanyInit.create();
       return { id: newCompany.id };
     } else if (relation.id && (await CompanyModel.exists({ id: relation.id }))) {
       return { id: relation.id };

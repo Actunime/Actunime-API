@@ -1,10 +1,11 @@
-// import onChange from 'on-change';
+
+import onChange from 'on-change';
 
 async function getChangedData(previousData: any, changedData: any, ignoreKeys?: string[]) {
   const newValues = {};
   const oldValues = {};
 
-  const { default: onChange } = await import('on-change');
+  // const { default: onChange } = await import('on-change');
 
   const watchChange = onChange(
     previousData,

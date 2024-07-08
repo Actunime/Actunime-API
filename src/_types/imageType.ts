@@ -7,8 +7,9 @@ export interface IImage<T = any> {
   id: string;
   label: IImageLabel;
   url: string; // Virtual
+  isVerified: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export interface IImagePaginationResponse extends IPaginationResponse<IImage> {}
+export interface IImagePaginationResponse extends IPaginationResponse<IImage> { }

@@ -39,3 +39,20 @@ export const Report_Pagination_ZOD = z
   .strict();
 
 export type IReport_Pagination_ZOD = z.infer<typeof Report_Pagination_ZOD>;
+
+export const Create_Report_ZOD = z
+  .object({
+    status: z.enum(ReportStatusArray),
+  })
+  .strict();
+
+export type ICreate_Report_ZOD = z.infer<typeof Create_Report_ZOD>;
+
+export const Patch_Report_ZOD = z
+  .object({
+    status: z.enum(ReportStatusArray),
+  })
+  .strict()
+  .partial();
+
+export type IPatch_Report_ZOD = z.infer<typeof Patch_Report_ZOD>;

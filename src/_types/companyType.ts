@@ -1,3 +1,4 @@
+import { IImage } from "./imageType";
 import type { IMediaBase, IMediaLink } from "./mediaType";
 import type { IPaginationResponse } from "./paginationType";
 
@@ -6,7 +7,10 @@ export interface ICompany extends IMediaBase {
   name: string;
   bio?: string;
   links?: IMediaLink[];
-  image?: string;
+  images?: {
+    id: string;
+    data?: IImage; // Virtual
+  }[];
   createdDate?: Date | string;
 }
 

@@ -2,7 +2,7 @@ import { ICompany } from '../_types/companyType';
 import { CompanyTypeArray } from '../_utils/companyUtil';
 import { genPublicID } from '../_utils/genID';
 import { Schema, model } from 'mongoose';
-import { MediaLinkSchema } from './_mediaModel';
+import { MediaLinkSchema, withSchema } from './_mediaModel';
 
 const CompanySchema = new Schema<ICompany>(
   {
@@ -12,7 +12,7 @@ const CompanySchema = new Schema<ICompany>(
     name: { type: String, required: true, unique: true, index: 'text' },
     type: { type: String, enum: CompanyTypeArray, default: undefined },
     links: { type: [MediaLinkSchema], default: undefined },
-    image: { type: String, default: undefined },
+    images: { type: [withSchema], default: undefined },
     createdDate: { type: Date, default: undefined }
   },
   { timestamps: true, id: false }

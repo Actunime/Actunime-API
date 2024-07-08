@@ -21,7 +21,7 @@ export const CreateCompanyRouter = async (
       .parse(req.body);
 
     session.startTransaction();
-    const initCompany = new CompanyManager(session, req.user).init(data);
+    const initCompany = await new CompanyManager(session, req.user).init(data);
     const company = await initCompany.create(note);
 
     await session.commitTransaction();
@@ -51,7 +51,7 @@ export const RequestCreateCompanyRouter = async (
       .parse(req.body);
 
     session.startTransaction();
-    const initCompany = new CompanyManager(session, req.user).init(data);
+    const initCompany = await new CompanyManager(session, req.user).init(data);
     const company = await initCompany.createRequest(note);
 
     await session.commitTransaction();

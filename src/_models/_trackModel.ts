@@ -2,7 +2,7 @@ import { ITrack } from '../_types/trackType';
 import { genPublicID } from '../_utils/genID';
 import { TrackTypeArray } from '../_utils/trackUtil';
 import { Schema, model } from 'mongoose';
-import { MediaLinkSchema } from './_mediaModel';
+import { MediaLinkSchema, withSchema } from './_mediaModel';
 import { withPersonSchema } from './_personModel';
 
 const TrackSchema = new Schema<ITrack>(
@@ -17,7 +17,7 @@ const TrackSchema = new Schema<ITrack>(
     },
     name: { type: { default: { type: String, required: true }, native: String }, required: true },
     pubDate: { type: Date, default: undefined },
-    image: { type: String, default: undefined },
+    images: { type: [withSchema], default: undefined },
     artists: { type: [withPersonSchema], default: [] },
     links: { type: [MediaLinkSchema], default: [] }
   },

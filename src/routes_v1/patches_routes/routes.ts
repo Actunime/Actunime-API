@@ -6,8 +6,18 @@ import { PatchCompanyRouter, RequestPatchCompanyRouter } from './_company.patch'
 import { PatchGroupeRouter, RequestPatchGroupeRouter } from './_groupe.patch';
 import { PatchPersonRouter, RequestPatchPersonRouter } from './_person.patch';
 import { PatchTrackRouter, RequestPatchTrackRouter } from './_track.patch';
+import { PatchReportRouter } from './_report.patch';
+import { PatchUserRouter } from './_user.patch';
 
 export async function Patchs_Routes_V1(fastify: FastifyInstance) {
+  // Patch User
+  fastify.route({
+    method: 'POST',
+    url: '/users/update/:id',
+    preValidation: AuthValidation(['MODERATOR']),
+    handler: PatchUserRouter
+  });
+
   // Patch/Request Anime
   fastify.route({
     method: 'POST',
@@ -90,5 +100,13 @@ export async function Patchs_Routes_V1(fastify: FastifyInstance) {
     url: '/tracks/update/request/:id',
     preValidation: AuthValidation(['MODERATOR']),
     handler: RequestPatchTrackRouter
+  });
+
+  // Patch Report
+  fastify.route({
+    method: 'POST',
+    url: '/reports/update/:id',
+    preValidation: AuthValidation(['MODERATOR']),
+    handler: PatchReportRouter
   });
 }

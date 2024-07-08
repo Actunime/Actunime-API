@@ -24,7 +24,7 @@ export const PatchCompanyRouter = async (
       .parse(req.body);
 
     session.startTransaction();
-    const initCompany = new CompanyManager(session, req.user).init(data);
+    const initCompany = await new CompanyManager(session, req.user).init(data);
     const company = await initCompany.update(req.params.id, note);
 
     await session.commitTransaction();
@@ -58,7 +58,7 @@ export const RequestPatchCompanyRouter = async (
       .parse(req.body);
 
     session.startTransaction();
-    const initCompany = new CompanyManager(session, req.user).init(data);
+    const initCompany = await new CompanyManager(session, req.user).init(data);
     const company = await initCompany.updateRequest(req.params.id, note);
 
     await session.commitTransaction();

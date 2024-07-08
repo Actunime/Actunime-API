@@ -6,9 +6,10 @@ import { ImageLabelArray } from '../_utils/imageUtil';
 const ImageSchema = new Schema<IImage>(
   {
     id: { type: String, default: () => genPublicID(5) },
-    label: { type: String, enum: ImageLabelArray, required: true }
+    label: { type: String, enum: ImageLabelArray, required: true },
     // target: { type: withSchema, default: undefined },
     // targetPath: { type: String, enum: TargetPathArray, required: true }
+    isVerified: { type: Boolean, default: false },
   },
   { timestamps: true, id: false, toJSON: { virtuals: true } }
 );

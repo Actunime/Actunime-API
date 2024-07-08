@@ -1,12 +1,14 @@
 import { ClientSession, Document } from 'mongoose';
 import { IUser } from '../_types/userType';
-import { IUser_Pagination_ZOD } from '../_validation/userZOD';
+import { IPatch_User_ZOD, IUser_Pagination_ZOD } from '../_validation/userZOD';
 import { PatchManager } from './patch';
 import { UserModel } from '../_models';
 import { getChangedData } from '../_utils/getObjChangeUtil';
 import { IPatchActionList } from '../_types/patchType';
 import { MediaPagination } from './pagination';
 import { IPaginationResponse } from '@/_types/paginationType';
+import { IUserRoles, userPermissionIsHigherThan } from '@/_utils/userUtil';
+import { ImageManager } from './image';
 
 export class UserManager {
   private user?: IUser;
@@ -66,103 +68,174 @@ export class UserManager {
     return response;
   }
 
-  // public async init(data: Partial<ICreate_User_ZOD>) {
-  //     const {
-  //         // Relations
-  //         actors,
-  //         // Data
-  //         ...rawData
-  //     } = data;
-  //     this.newData = rawData as Partial<IUser>;
+  public async init(data: Partial<IPatch_User_ZOD>) {
+    const { images, ...rawData } = data;
 
-  //     const { newData, user, session } = this;
+    this.newData = rawData as Partial<IUser>;
 
-  //     if (actors)
-  //         newData.actors = await new PersonManager(session, user).createMultipleRelation(actors);
+    const { newData, user, session } = this;
 
-  //     return this;
-  // }
+    if (images)
+      newData.images = await new ImageManager(session, 'User', user)
+        .createMultipleRelation(images);
 
-  public async create(note?: string) {
-    const newUser = new UserModel(this.newData);
-    // newUser.isVerified = true;
-    await newUser.save({ session: this.session });
-
-    const actions: IPatchActionList[] = [{ note, label: 'DIRECT_CREATE', user: this.user! }];
-
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'CREATE',
-      status: 'ACCEPTED',
-      target: { id: newUser.id },
-      actions,
-      targetPath: 'User',
-      changes: newUser.toJSON(),
-      beforeChanges: null,
-      author: { id: this.user!.id }
-    });
-
-    return newUser;
+    return this;
   }
 
-  public async createRequest(note?: string) {
-    const newUser = new UserModel(this.newData);
-
-    // newUser.isVerified = false;
-
-    // Pré-disposition d'un user qui est en cours de création.
-    await newUser.save({ session: this.session });
-
-    const actions: IPatchActionList[] = [{ note, label: 'REQUEST', user: this.user! }];
-
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'CREATE_REQUEST',
-      status: 'PENDING',
-      target: { id: newUser.id },
-      actions,
-      targetPath: 'User',
-      changes: newUser.toJSON(),
-      beforeChanges: null,
-      author: { id: this.user!.id }
-    });
-
-    return newUser;
-  }
-
-  public async update(userID: string, note?: string) {
-    const newUserData = new UserModel(this.newData);
-
+  private async updateUsername(userID: string, username: string, note?: string) {
     const userToUpdate = await UserModel.findOne({ id: userID }, {}, { session: this.session });
 
     if (!userToUpdate) throw new Error('User not found');
 
-    newUserData._id = userToUpdate._id;
-    newUserData.id = userToUpdate.id;
+    await userToUpdate.updateOne({ username }, { session: this.session });
 
-    const changes = await getChangedData(userToUpdate.toJSON(), newUserData, [
-      '_id',
-      'id',
-      'createdAt',
-      'updatedAt'
-    ]);
+    const actions: IPatchActionList[] = [{ note: note || "Mise a jour du nom d'utilisateur", label: 'DIRECT_PATCH', user: this.user! }];
+
+    const changes = await getChangedData({ username: userToUpdate.username }, { username });
 
     if (!changes) throw new Error('No changes found');
 
-    await userToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
+    await new PatchManager(this.session, this.user!)
+      .PatchCreate({
+        type: 'UPDATE',
+        status: 'ACCEPTED',
+        target: { id: userToUpdate.id },
+        actions,
+        targetPath: 'User',
+        changes: changes?.newValues,
+        beforeChanges: changes?.oldValues,
+        author: { id: this.user!.id }
+      });
+  }
 
-    const actions: IPatchActionList[] = [{ note, label: 'DIRECT_PATCH', user: this.user! }];
+  private async updateDisplayName(userID: string, displayName: string, note?: string) {
+    const userToUpdate = await UserModel.findOne({ id: userID }, {}, { session: this.session });
 
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'UPDATE',
-      status: 'ACCEPTED',
-      target: { id: newUserData.id },
-      actions,
-      targetPath: 'User',
-      changes: changes?.newValues,
-      beforeChanges: changes?.oldValues,
-      author: { id: this.user!.id }
-    });
+    if (!userToUpdate) throw new Error('User not found');
 
-    return newUserData;
+    await userToUpdate.updateOne({ displayName }, { session: this.session });
+
+    const actions: IPatchActionList[] = [{ note: note || "Mise a jour du pseudonyme", label: 'DIRECT_PATCH', user: this.user! }];
+
+    const changes = await getChangedData({ displayName: userToUpdate.displayName }, { displayName });
+
+    if (!changes) throw new Error('No changes found');
+
+    await new PatchManager(this.session, this.user!)
+      .PatchCreate({
+        type: 'UPDATE',
+        status: 'ACCEPTED',
+        target: { id: userToUpdate.id },
+        actions,
+        targetPath: 'User',
+        changes: changes?.newValues,
+        beforeChanges: changes?.oldValues,
+        author: { id: this.user!.id }
+      });
+  }
+
+  private async updateBio(userID: string, bio: string, note?: string) {
+    const userToUpdate = await UserModel.findOne({ id: userID }, {}, { session: this.session });
+
+    if (!userToUpdate) throw new Error('User not found');
+
+    await userToUpdate.updateOne({ bio }, { session: this.session });
+
+    const actions: IPatchActionList[] = [{ note: note || "Mise a jour de la bio", label: 'DIRECT_PATCH', user: this.user! }];
+
+    const changes = await getChangedData({ bio: userToUpdate.bio }, { bio });
+
+    if (!changes) throw new Error('No changes found');
+
+    await new PatchManager(this.session, this.user!)
+      .PatchCreate({
+        type: 'UPDATE',
+        status: 'ACCEPTED',
+        target: { id: userToUpdate.id },
+        actions,
+        targetPath: 'User',
+        changes: changes?.newValues,
+        beforeChanges: changes?.oldValues,
+        author: { id: this.user!.id }
+      });
+  }
+
+  private async updateRoles(userID: string, roles: IUserRoles[], note?: string) {
+    const userToUpdate = await UserModel.findOne({ id: userID }, {}, { session: this.session });
+
+    if (!userToUpdate) throw new Error('User not found');
+
+    const changes = await getChangedData({ roles: userToUpdate.roles }, { roles });
+
+    if (!changes) throw new Error('No changes found');
+
+    if (userPermissionIsHigherThan(userToUpdate.roles, this.user!.roles))
+      throw new Error("Le(s) rôle(s) de l'utilisateurs que vous souhaitez modifier sont plus hauts que vous");
+
+    if (!userPermissionIsHigherThan(this.user!.roles, roles))
+      throw new Error('Vous n\'avez pas les permissions pour ajouter ces rôles');
+
+    await userToUpdate.updateOne({ roles }, { session: this.session });
+
+    const actions: IPatchActionList[] = [{ note: note || "Mise a jour des rôles", label: 'DIRECT_PATCH', user: this.user! }];
+
+    await new PatchManager(this.session, this.user!)
+      .PatchCreate({
+        type: 'UPDATE',
+        status: 'ACCEPTED',
+        target: { id: userToUpdate.id },
+        actions,
+        targetPath: 'User',
+        changes: changes?.newValues,
+        beforeChanges: changes?.oldValues,
+        author: { id: this.user!.id }
+      });
+  }
+
+  private async updateImages(userID: string, images: IUser['images'], note?: string) {
+    const userToUpdate = await UserModel.findOne({ id: userID }, {}, { session: this.session });
+
+    if (!userToUpdate) throw new Error('User not found');
+
+    // const changes = await getChangedData({ images: userToUpdate.images }, { images });
+
+    // if (!changes) throw new Error('No changes found');
+
+    await userToUpdate.updateOne({ images }, { session: this.session });
+
+    const actions: IPatchActionList[] = [{ note: note || "Mise a jour de(s) l'image(s)", label: 'DIRECT_PATCH', user: this.user! }];
+
+    await new PatchManager(this.session, this.user!)
+      .PatchCreate({
+        type: 'UPDATE',
+        status: 'ACCEPTED',
+        target: { id: userToUpdate.id },
+        actions,
+        targetPath: 'User',
+        // changes: changes?.newValues,
+        // beforeChanges: changes?.oldValues,
+        author: { id: this.user!.id }
+      });
+  }
+
+
+  public async update(userID: string, note?: string) {
+    const { username, displayName, bio, roles, images } = this.newData;
+
+    if (username)
+      await this.updateUsername(userID, username, note);
+
+    if (displayName)
+      await this.updateDisplayName(userID, displayName, note);
+
+    if (bio)
+      await this.updateBio(userID, bio, note);
+
+    if (roles)
+      await this.updateRoles(userID, roles, note);
+
+    if (images) 
+      await this.updateImages(userID, images, note);
   }
 
   public async updateRequest(userID: string, note?: string) {

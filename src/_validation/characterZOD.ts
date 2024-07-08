@@ -8,6 +8,7 @@ import { Add_Person_ZOD } from './personZOD';
 import { zodNumber } from './util';
 import { ICharacter } from '../_types/characterType';
 import { dateToZod } from '../_utils/mediaUtil';
+import { Add_Image_ZOD } from './imageZOD';
 
 export const Character_Pagination_ZOD = z
   .object({
@@ -53,7 +54,7 @@ export const Create_Character_ZOD = z
     gender: z.enum(CharacterGenderArray),
     species: z.enum(CharacterSpeciesArray),
     bio: z.optional(z.string()),
-    image: z.optional(z.string()),
+    images: z.optional(z.array(Add_Image_ZOD)),
     actors: z.optional(z.array(Add_Person_ZOD))
   })
   .strict();
@@ -78,7 +79,7 @@ export const CharacterDataToZOD = (data: ICharacter): Partial<ICreate_Character_
     gender: data.gender,
     species: data.species,
     bio: data.bio,
-    image: data.image,
+    images: data.images,
     actors: data.actors
   };
 

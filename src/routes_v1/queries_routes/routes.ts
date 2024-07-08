@@ -10,6 +10,7 @@ import { FilterPatchRouter, GetPatchRouter } from './_patch.query';
 import { AuthValidation } from '@/_utils/authUtil';
 import { FilterActivityRouter, GetActivityRouter } from './_activity.query';
 import { GetReportRouter, FilterReportRouter } from './_report.query';
+import { GetStatsByPathRouter, GetStatsRouter } from './_stats.query';
 
 export async function Gets_Routes_V1(fastify: FastifyInstance) {
   // Userrs get/filter
@@ -150,5 +151,19 @@ export async function Gets_Routes_V1(fastify: FastifyInstance) {
     url: '/tracks',
     // preValidation: AuthValidation(['MODERATOR']),
     handler: FilterTrackRouter
+  });
+
+  // Stats get
+  fastify.route({
+    method: 'GET',
+    url: '/mediaStats',
+    // preValidation: AuthValidation(['MODERATOR']),
+    handler: GetStatsRouter
+  });
+  fastify.route({
+    method: 'GET',
+    url: '/mediaStats/:path',
+    // preValidation: AuthValidation(['MODERATOR']),
+    handler: GetStatsByPathRouter
   });
 }

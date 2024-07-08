@@ -6,7 +6,8 @@ import { IAnime } from './animeType';
 import { ICharacter } from './characterType';
 import { ICompany } from './companyType';
 import { IGroupe } from './groupeType';
-import { IMediaBase, IMediaDate, IMediaImage, IMediaLink, IMediaTitle } from './mediaType';
+import { IImage } from './imageType';
+import { IMediaBase, IMediaDate, IMediaLink, IMediaTitle } from './mediaType';
 import { IPaginationResponse } from './paginationType';
 import { IPerson } from './personType';
 
@@ -29,7 +30,6 @@ export interface IManga extends IMediaBase {
 
   title: IMediaTitle;
   date?: IMediaDate;
-  image?: IMediaImage;
   synopsis?: string;
 
   source?: {
@@ -48,6 +48,11 @@ export interface IManga extends IMediaBase {
   adult?: boolean;
   explicit?: boolean;
   links?: IMediaLink[];
+
+  images?: {
+    id: string;
+    data?: IImage; // Virtual
+  }[];
 
   companys?: {
     id: string;

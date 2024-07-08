@@ -1,6 +1,7 @@
 import { IUserRoles } from "../_utils/userUtil";
 import { Schema } from "mongoose";
 import { IPaginationResponse } from "./paginationType";
+import { IImage } from "./imageType";
 
 export interface IUserLinkedAccount {
   providerAccountId: string;
@@ -32,7 +33,10 @@ export interface IUser {
   displayName: string;
   bio?: string;
   roles: IUserRoles[];
-  image?: { avatar?: string | undefined; banner?: string | undefined };
+  images?: {
+    id: string;
+    data?: IImage; // Virtual
+  }[];
   disabled?: IUserDisabled // Virtual
   premium?: IUserPremium // Virtual
 

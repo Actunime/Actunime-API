@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { zodNumber } from './util';
 import { IImage } from '../_types/imageType';
+import { ImageLabelArray } from '@/_utils/imageUtil';
 
 export const Image_Pagination_ZOD = z
   .object({
@@ -23,6 +24,7 @@ export const Image_Pagination_ZOD = z
 export type IImage_Pagination_ZOD = z.infer<typeof Image_Pagination_ZOD>;
 
 export const Create_Image_ZOD = z.object({
+  label: z.optional(z.enum(ImageLabelArray)),
   value: z.string()
 });
 

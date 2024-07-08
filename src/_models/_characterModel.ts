@@ -7,6 +7,7 @@ import {
 import { genPublicID } from '../_utils/genID';
 import { Schema, model } from 'mongoose';
 import { withPersonSchema } from './_personModel';
+import { withSchema } from './_mediaModel';
 
 const CharacterSchema = new Schema<ICharacter>(
   {
@@ -27,7 +28,7 @@ const CharacterSchema = new Schema<ICharacter>(
       required: true
     },
     bio: String,
-    image: String,
+    images: [{ type: withSchema, default: [] }],
     actors: [{ type: withPersonSchema, default: [] }]
   },
   { timestamps: true, id: false, toJSON: { virtuals: true } }

@@ -15,12 +15,12 @@ import { Add_Groupe_ZOD } from './groupeZOD';
 import {
   Create_Link_ZOD,
   MediaDate_validation,
-  MediaImage_validation,
   MediaTitle_validation
 } from './media';
 import { Add_Person_ZOD } from './personZOD';
 import { Add_Track_ZOD } from './trackZOD';
 import { zodBoolean, zodNumber } from './util';
+import { Add_Image_ZOD } from './imageZOD';
 
 export const Manga_Pagination_ZOD = z
   .object({
@@ -78,7 +78,7 @@ export const Create_Manga_ZOD = z
     source: z.optional(Add_Manga_ZOD),
     title: MediaTitle_validation,
     date: z.optional(MediaDate_validation),
-    image: z.optional(MediaImage_validation),
+    images: z.optional(z.array(Add_Image_ZOD)),
     synopsis: z.optional(z.string()),
     format: z.enum(MangaFormatArray),
     vf: z.optional(zodBoolean()),
@@ -109,7 +109,7 @@ export const MangaDataToZOD = (data: IManga): Partial<ICreate_Manga_ZOD> => {
 
     title: data.title,
     synopsis: data.synopsis,
-    image: data.image,
+    images: data.images,
     ...(data.date
       ? {
           date: {

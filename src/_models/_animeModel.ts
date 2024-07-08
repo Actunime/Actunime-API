@@ -9,9 +9,9 @@ import { withGroupeSchema } from './_groupeModel';
 import { withMangaSchema } from './_mangaModel';
 import {
   MediaDateSchema,
-  MediaImageSchema,
   MediaLinkSchema,
-  MediaTitleSchema
+  MediaTitleSchema,
+  withSchema
 } from './_mediaModel';
 import { withPersonSchema } from './_personModel';
 import { withTrackSchema } from './_trackModel';
@@ -52,7 +52,7 @@ const AnimeSchema = new Schema<IAnime>(
     parent: { type: withAnimeSchema, default: undefined },
     title: { type: MediaTitleSchema, required: true, default: undefined },
     date: { type: MediaDateSchema, default: undefined },
-    image: { type: MediaImageSchema, default: undefined },
+    images: { type: [withSchema], default: undefined },
     synopsis: { type: String, default: undefined },
     source: { type: withMangaSchema, default: undefined },
     format: { type: String, enum: AnimeFormatArray, required: true, default: undefined },

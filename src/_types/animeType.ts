@@ -4,7 +4,7 @@ import type { ICharacter } from './characterType';
 import type { ICompany } from './companyType';
 import type { IGroupe } from './groupeType';
 import type { IManga } from './mangaType';
-import type { IMediaBase, IMediaDate, IMediaImage, IMediaLink, IMediaTitle } from './mediaType';
+import type { IMediaBase, IMediaDate, IMediaLink, IMediaTitle } from './mediaType';
 import type {
   IMediaGenres,
   IMediaParentLabel,
@@ -16,6 +16,7 @@ import type { IPaginationResponse } from './paginationType';
 import type { IPerson } from './personType';
 import type { ITrack } from './trackType';
 import { IPersonRole } from '../_utils/personUtil';
+import { IImage } from './imageType';
 
 export interface IAnimeEpisode {
   airing?: number;
@@ -44,7 +45,6 @@ export interface IAnime extends IMediaBase {
 
   title: IMediaTitle;
   synopsis?: string;
-  image?: IMediaImage;
   date?: IMediaDate;
   status: IMediaStatus;
   format: IAnimeFormat;
@@ -52,6 +52,12 @@ export interface IAnime extends IMediaBase {
   episodes?: IAnimeEpisode;
   adult?: boolean;
   explicit?: boolean;
+
+  images?: {
+    id: string;
+    data?: IImage; // Virtual
+  }[];
+
   genres?: IMediaGenres[];
   // themes?: string[];
   links?: IMediaLink[];
