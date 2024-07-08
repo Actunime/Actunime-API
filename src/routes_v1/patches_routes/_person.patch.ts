@@ -24,7 +24,7 @@ export const PatchPersonRouter = async (
       .parse(req.body);
 
     session.startTransaction();
-    const initPerson = new PersonManager(session, req.user).init(data);
+    const initPerson = await new PersonManager(session, req.user).init(data);
     const person = await initPerson.update(req.params.id, note);
 
     await session.commitTransaction();
@@ -57,7 +57,7 @@ export const RequestPatchPersonRouter = async (
       .parse(req.body);
 
     session.startTransaction();
-    const initPerson = new PersonManager(session, req.user).init(data);
+    const initPerson = await new PersonManager(session, req.user).init(data);
     const person = await initPerson.updateRequest(req.params.id, note);
 
     await session.commitTransaction();

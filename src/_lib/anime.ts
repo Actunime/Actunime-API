@@ -9,7 +9,6 @@ import { CompanyManager } from './company';
 import { PersonManager } from './person';
 import { CharacterManager } from './character';
 import { TrackManager } from './track';
-import { IPatchActionList } from '../_types/patchType';
 import { getChangedData } from '../_utils/getObjChangeUtil';
 import { MediaPagination } from './pagination';
 import { IPaginationResponse } from '@/_types/paginationType';
@@ -176,16 +175,14 @@ export class AnimeManager {
     newAnime.isVerified = true;
     await newAnime.save({ session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'DIRECT_CREATE', user: this.user! }];
-
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'CREATE',
       status: 'ACCEPTED',
       target: { id: newAnime.id },
-      actions,
+      note,
       targetPath: 'Anime',
-      changes: newAnime.toJSON(),
-      beforeChanges: null,
+      newValues: newAnime.toJSON(),
+      oldValues: null,
       author: { id: this.user!.id }
     });
 
@@ -200,16 +197,14 @@ export class AnimeManager {
     // Pré-disposition d'un anime qui est en cours de création.
     await newAnime.save({ session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'REQUEST', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'CREATE_REQUEST',
       status: 'PENDING',
       target: { id: newAnime.id },
-      actions,
       targetPath: 'Anime',
-      changes: newAnime.toJSON(),
-      beforeChanges: null,
+      newValues: newAnime.toJSON(),
+      oldValues: null,
       author: { id: this.user!.id }
     });
 
@@ -237,16 +232,13 @@ export class AnimeManager {
 
     await animeToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'DIRECT_PATCH', user: this.user! }];
-
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'UPDATE',
       status: 'ACCEPTED',
       target: { id: newAnimeData.id },
-      actions,
       targetPath: 'Anime',
-      changes: changes?.newValues,
-      beforeChanges: changes?.oldValues,
+      newValues: changes?.newValues,
+      oldValues: changes?.oldValues,
       author: { id: this.user!.id }
     });
 
@@ -274,16 +266,14 @@ export class AnimeManager {
 
     await animeToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'REQUEST', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'UPDATE_REQUEST',
       status: 'PENDING',
       target: { id: newAnimeData.id },
-      actions,
       targetPath: 'Anime',
-      changes: changes?.newValues,
-      beforeChanges: changes?.oldValues,
+      newValues: changes?.newValues,
+      oldValues: changes?.oldValues,
       author: { id: this.user!.id }
     });
 

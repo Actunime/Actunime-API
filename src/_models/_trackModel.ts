@@ -1,7 +1,7 @@
 import { ITrack } from '../_types/trackType';
 import { genPublicID } from '../_utils/genID';
 import { TrackTypeArray } from '../_utils/trackUtil';
-import { Schema, model } from 'mongoose';
+import { Model, Schema, model, models } from 'mongoose';
 import { MediaLinkSchema, withSchema } from './_mediaModel';
 import { withPersonSchema } from './_personModel';
 
@@ -38,4 +38,4 @@ export const withTrackSchema = new Schema(
   { _id: false, toJSON: { virtuals: true } }
 );
 
-export const TrackModel = model('Track', TrackSchema);
+export const TrackModel = models.Track as Model<ITrack> || model('Track', TrackSchema);

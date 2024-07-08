@@ -1,7 +1,7 @@
 import { ICompany } from '../_types/companyType';
 import { CompanyTypeArray } from '../_utils/companyUtil';
 import { genPublicID } from '../_utils/genID';
-import { Schema, model } from 'mongoose';
+import { Model, Schema, model, models } from 'mongoose';
 import { MediaLinkSchema, withSchema } from './_mediaModel';
 
 const CompanySchema = new Schema<ICompany>(
@@ -25,4 +25,4 @@ export const withCompanySchema = new Schema(
   { _id: false, toJSON: { virtuals: true } }
 );
 
-export const CompanyModel = model('Company', CompanySchema);
+export const CompanyModel = models.Company as Model<ICompany> || model('Company', CompanySchema);

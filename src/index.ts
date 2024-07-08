@@ -9,6 +9,9 @@ import Fastify_Cors from '@fastify/cors';
 import { IUser } from './_types/userType';
 import fastifyStatic from '@fastify/static';
 import path from 'path';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+import { PatchModel, PersonModel, ImageModel } from './_models';
 // import { UserAccountModel, UserModel } from './_models/_userModel';
 
 declare module 'fastify' {
@@ -67,6 +70,10 @@ declare module 'fastify' {
     //     user: user._id,
     //     email: "proxdevxkill@gmail.com",
     //   }, { upsert: true, new: true })
+
+    // await PersonModel.deleteMany();
+    // await ImageModel.deleteMany();
+    // await PatchModel.deleteMany();
 
     for await (const [key, route] of Object.entries(routes_v1)) {
       await fastify.register(route, { prefix: '/v1' });

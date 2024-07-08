@@ -10,7 +10,7 @@ import { PersonManager } from './person';
 import { PatchManager } from './patch';
 import { CharacterModel } from '../_models';
 import { getChangedData } from '../_utils/getObjChangeUtil';
-import { IPatchActionList } from '../_types/patchType';
+
 import { MediaPagination } from './pagination';
 import { IPaginationResponse } from '@/_types/paginationType';
 
@@ -99,16 +99,16 @@ export class CharacterManager {
     newCharacter.isVerified = true;
     await newCharacter.save({ session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'DIRECT_CREATE', user: this.user! }];
+
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'CREATE',
       status: 'ACCEPTED',
       target: { id: newCharacter.id },
-      actions,
+      note,
       targetPath: 'Character',
-      changes: newCharacter.toJSON(),
-      beforeChanges: null,
+      newValues: newCharacter.toJSON(),
+      oldValues: null,
       author: { id: this.user!.id }
     });
 
@@ -123,16 +123,15 @@ export class CharacterManager {
     // Pré-disposition d'un character qui est en cours de création.
     await newCharacter.save({ session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'REQUEST', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'CREATE_REQUEST',
       status: 'PENDING',
       target: { id: newCharacter.id },
-      actions,
+      note,
       targetPath: 'Character',
-      changes: newCharacter.toJSON(),
-      beforeChanges: null,
+      newValues: newCharacter.toJSON(),
+      oldValues: null,
       author: { id: this.user!.id }
     });
 
@@ -164,16 +163,15 @@ export class CharacterManager {
 
     await characterToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'DIRECT_PATCH', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'UPDATE',
       status: 'ACCEPTED',
       target: { id: newCharacterData.id },
-      actions,
+      note,
       targetPath: 'Character',
-      changes: changes?.newValues,
-      beforeChanges: changes?.oldValues,
+      newValues: changes?.newValues,
+      oldValues: changes?.oldValues,
       author: { id: this.user!.id }
     });
 
@@ -205,16 +203,15 @@ export class CharacterManager {
 
     await characterToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'REQUEST', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'UPDATE_REQUEST',
       status: 'PENDING',
       target: { id: newCharacterData.id },
-      actions,
+      note,
       targetPath: 'Character',
-      changes: changes?.newValues,
-      beforeChanges: changes?.oldValues,
+      newValues: changes?.newValues,
+      oldValues: changes?.oldValues,
       author: { id: this.user!.id }
     });
 

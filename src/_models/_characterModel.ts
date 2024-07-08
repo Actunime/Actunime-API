@@ -5,7 +5,7 @@ import {
   CharacterSpeciesArray
 } from '../_utils/characterUtil';
 import { genPublicID } from '../_utils/genID';
-import { Schema, model } from 'mongoose';
+import { Model, Schema, model, models } from 'mongoose';
 import { withPersonSchema } from './_personModel';
 import { withSchema } from './_mediaModel';
 
@@ -53,4 +53,4 @@ CharacterSchema.virtual('actors.data', {
   justOne: true
 });
 
-export const CharacterModel = model('Character', CharacterSchema);
+export const CharacterModel = models.Character as Model<ICharacter> || model('Character', CharacterSchema);

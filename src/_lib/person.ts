@@ -8,10 +8,11 @@ import {
   IPerson_Pagination_ZOD
 } from '../_validation/personZOD';
 import { PatchManager } from './patch';
-import { IPatchActionList } from '../_types/patchType';
+
 import { getChangedData } from '../_utils/getObjChangeUtil';
 import { IPaginationResponse } from '@/_types/paginationType';
 import { MediaPagination } from './pagination';
+import { ImageManager } from './image';
 
 export class PersonManager {
   private user?: IUser;
@@ -71,30 +72,46 @@ export class PersonManager {
     return response;
   }
 
-  public init(data: Partial<ICreate_Person_ZOD>) {
-    this.newData = data as Partial<IPerson>;
+  public async init(data: Partial<ICreate_Person_ZOD>) {
+    const { images, ...rawData } = data;
+
+    this.newData = rawData as Partial<IPerson>;
+
+    const { newData, user, session } = this;
+
+    if (images)
+      newData.images = await new ImageManager(session, 'Person', user, 'AVATAR')
+        .createMultipleRelation(images);
+
     return this;
   }
 
   public async create(note?: string) {
-    const newPerson = new PersonModel(this.newData);
-    newPerson.isVerified = true;
-    await newPerson.save({ session: this.session });
+    try {
+      const newPerson = new PersonModel(this.newData);
+      newPerson.isVerified = true;
 
-    const actions: IPatchActionList[] = [{ note, label: 'DIRECT_CREATE', user: this.user! }];
+      console.log(newPerson.toJSON());
+      await newPerson.save({ session: this.session });
 
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'CREATE',
-      status: 'ACCEPTED',
-      target: { id: newPerson.id },
-      actions,
-      targetPath: 'Person',
-      changes: newPerson.toJSON(),
-      beforeChanges: null,
-      author: { id: this.user!.id }
-    });
 
-    return newPerson;
+
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'CREATE',
+        status: 'ACCEPTED',
+        target: { id: newPerson.id },
+
+        targetPath: 'Person',
+        newValues: newPerson.toJSON(),
+        oldValues: null,
+        author: { id: this.user!.id }
+      });
+
+      return newPerson;
+    } catch (err) {
+      console.error("lors de la création d'une personne", err)
+      throw err;
+    }
   }
 
   public async createRequest(note?: string) {
@@ -105,16 +122,15 @@ export class PersonManager {
     // Pré-disposition d'un person qui est en cours de création.
     await newPerson.save({ session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'REQUEST', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'CREATE_REQUEST',
       status: 'PENDING',
       target: { id: newPerson.id },
-      actions,
+      note,
       targetPath: 'Person',
-      changes: newPerson.toJSON(),
-      beforeChanges: null,
+      newValues: newPerson.toJSON(),
+      oldValues: null,
       author: { id: this.user!.id }
     });
 
@@ -146,16 +162,15 @@ export class PersonManager {
 
     await personToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'DIRECT_PATCH', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'UPDATE',
       status: 'ACCEPTED',
       target: { id: newPersonData.id },
-      actions,
+      note,
       targetPath: 'Person',
-      changes: changes?.newValues,
-      beforeChanges: changes?.oldValues,
+      newValues: changes?.newValues,
+      oldValues: changes?.oldValues,
       author: { id: this.user!.id }
     });
 
@@ -187,16 +202,15 @@ export class PersonManager {
 
     await personToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'REQUEST', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'UPDATE_REQUEST',
       status: 'PENDING',
       target: { id: newPersonData.id },
-      actions,
+      note,
       targetPath: 'Person',
-      changes: changes?.newValues,
-      beforeChanges: changes?.oldValues,
+      newValues: changes?.newValues,
+      oldValues: changes?.oldValues,
       author: { id: this.user!.id }
     });
 
@@ -207,7 +221,8 @@ export class PersonManager {
     relation: IAdd_Person_ZOD
   ): Promise<Omit<IAdd_Person_ZOD, 'newPerson'> & Required<Pick<IAdd_Person_ZOD, 'id'>>> {
     if (relation.newPerson) {
-      const newPerson = await this.init(relation.newPerson).create();
+      const newPersonInit = await this.init(relation.newPerson);
+      const newPerson = await newPersonInit.create();
       return { id: newPerson.id, role: relation.role };
     } else if (relation.id && (await PersonModel.exists({ id: relation.id }))) {
       return { id: relation.id };

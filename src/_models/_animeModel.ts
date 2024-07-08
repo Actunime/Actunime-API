@@ -2,7 +2,7 @@ import { IAnime, IAnimeEpisode } from '../_types/animeType';
 import { AnimeFormatArray } from '../_utils/animeUtil';
 import { genPublicID } from '../_utils/genID';
 import { MediaSourceArray, MediaStatusArray } from '../_utils/mediaUtil';
-import { Schema, model } from 'mongoose';
+import { Model, Schema, model, models } from 'mongoose';
 import { withCharacterSchema } from './_characterModel';
 import { withCompanySchema } from './_companyModel';
 import { withGroupeSchema } from './_groupeModel';
@@ -180,4 +180,4 @@ AnimeSchema.virtual('tracks.data', {
   justOne: true
 });
 
-export const AnimeModel = model<IAnime>('Anime', AnimeSchema);
+export const AnimeModel = models.Anime as Model<IAnime> || model<IAnime>('Anime', AnimeSchema);

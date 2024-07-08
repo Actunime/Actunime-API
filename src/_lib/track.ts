@@ -5,7 +5,7 @@ import { IUser } from '../_types/userType';
 import { ICreate_Track_ZOD, IAdd_Track_ZOD, ITrack_Pagination_ZOD } from '../_validation/trackZOD';
 import { PersonManager } from './person';
 import { PatchManager } from './patch';
-import { IPatchActionList } from '../_types/patchType';
+
 import { getChangedData } from '../_utils/getObjChangeUtil';
 import { IPaginationResponse } from '@/_types/paginationType';
 import { MediaPagination } from './pagination';
@@ -90,16 +90,16 @@ export class TrackManager {
     newTrack.isVerified = true;
     await newTrack.save({ session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'DIRECT_CREATE', user: this.user! }];
+
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'CREATE',
       status: 'ACCEPTED',
       target: { id: newTrack.id },
-      actions,
+      note,
       targetPath: 'Track',
-      changes: newTrack.toJSON(),
-      beforeChanges: null,
+      newValues: newTrack.toJSON(),
+      oldValues: null,
       author: { id: this.user!.id }
     });
 
@@ -114,16 +114,15 @@ export class TrackManager {
     // Pré-disposition d'un track qui est en cours de création.
     await newTrack.save({ session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'REQUEST', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'CREATE_REQUEST',
       status: 'PENDING',
       target: { id: newTrack.id },
-      actions,
+      note,
       targetPath: 'Track',
-      changes: newTrack.toJSON(),
-      beforeChanges: null,
+      newValues: newTrack.toJSON(),
+      oldValues: null,
       author: { id: this.user!.id }
     });
 
@@ -151,16 +150,15 @@ export class TrackManager {
 
     await trackToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'DIRECT_PATCH', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'UPDATE',
       status: 'ACCEPTED',
       target: { id: newTrackData.id },
-      actions,
+      note,
       targetPath: 'Track',
-      changes: changes?.newValues,
-      beforeChanges: changes?.oldValues,
+      newValues: changes?.newValues,
+      oldValues: changes?.oldValues,
       author: { id: this.user!.id }
     });
 
@@ -188,16 +186,15 @@ export class TrackManager {
 
     await trackToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'REQUEST', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'UPDATE_REQUEST',
       status: 'PENDING',
       target: { id: newTrackData.id },
-      actions,
+      note,
       targetPath: 'Track',
-      changes: changes?.newValues,
-      beforeChanges: changes?.oldValues,
+      newValues: changes?.newValues,
+      oldValues: changes?.oldValues,
       author: { id: this.user!.id }
     });
 

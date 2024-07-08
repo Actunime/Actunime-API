@@ -1,32 +1,23 @@
-import { IPatch, IPatchActionList } from '../_types/patchType';
+import { IPatch } from '../_types/patchType';
 import { genPublicID } from '../_utils/genID';
 import { TargetPathArray } from '../_utils/global';
-import { PatchActionArray, PatchStatusArray, PatchTypeArray } from '../_utils/patchUtil';
-import { Schema, model } from 'mongoose';
+import { PatchStatusArray, PatchTypeArray } from '../_utils/patchUtil';
+import { Model, Schema, model, models } from 'mongoose';
 import { withSchema } from './_mediaModel';
-
-const PatchActionListSchema = new Schema<IPatchActionList>(
-  {
-    user: { type: withSchema, required: true },
-    label: { type: String, enum: PatchActionArray, default: undefined },
-    note: { type: String, default: undefined },
-    at: { type: Date, default: Date.now() }
-  },
-  { _id: false, toJSON: { virtuals: true } }
-);
 
 const PatchSchema = new Schema<IPatch>(
   {
     id: { type: String, unique: true, default: () => genPublicID(8) },
     type: { type: String, enum: PatchTypeArray, required: true },
-    actions: { type: [PatchActionListSchema], default: [] },
+    note: { type: String, default: undefined },
     status: { type: String, enum: PatchStatusArray, default: 'PENDING' },
     target: { type: withSchema, default: undefined },
     targetPath: { type: String, enum: TargetPathArray, required: true },
     ref: { type: withSchema, default: undefined },
-    changes: { type: Schema.Types.Mixed, default: undefined },
-    beforeChanges: { type: Schema.Types.Mixed, default: undefined },
-    author: { type: withSchema }
+    newValues: { type: Schema.Types.Mixed, default: undefined },
+    oldValues: { type: Schema.Types.Mixed, default: undefined },
+    author: { type: withSchema },
+    currentModerator: { type: withSchema, default: undefined },
   },
   { timestamps: true, id: false, toJSON: { virtuals: true } }
 );
@@ -52,11 +43,12 @@ PatchSchema.virtual('author.data', {
   justOne: true
 });
 
-PatchSchema.virtual('actions.user.data', {
+PatchSchema.virtual('currentModerator.data', {
   ref: 'User',
-  localField: 'actions.user.id',
+  localField: 'author.id',
   foreignField: 'id',
   justOne: true
 });
 
-export const PatchModel = model<IPatch>('Patch', PatchSchema);
+
+export const PatchModel = models.Patch as Model<IPatch> || model<IPatch>('Patch', PatchSchema);

@@ -8,7 +8,7 @@ import { GroupeManager } from './groupe';
 import { CompanyManager } from './company';
 import { PersonManager } from './person';
 import { CharacterManager } from './character';
-import { IPatchActionList } from '../_types/patchType';
+
 import { getChangedData } from '../_utils/getObjChangeUtil';
 import { IPaginationResponse } from '@/_types/paginationType';
 import { MediaPagination } from './pagination';
@@ -164,16 +164,16 @@ export class MangaManager {
     newManga.isVerified = true;
     await newManga.save({ session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'DIRECT_CREATE', user: this.user! }];
+
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'CREATE',
       status: 'ACCEPTED',
       target: { id: newManga.id },
-      actions,
+      note,
       targetPath: 'Manga',
-      changes: newManga.toJSON(),
-      beforeChanges: null,
+      newValues: newManga.toJSON(),
+      oldValues: null,
       author: { id: this.user!.id }
     });
 
@@ -188,16 +188,15 @@ export class MangaManager {
     // Pré-disposition d'un manga qui est en cours de création.
     await newManga.save({ session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'REQUEST', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'CREATE_REQUEST',
       status: 'PENDING',
       target: { id: newManga.id },
-      actions,
+      note,
       targetPath: 'Manga',
-      changes: newManga.toJSON(),
-      beforeChanges: null,
+      newValues: newManga.toJSON(),
+      oldValues: null,
       author: { id: this.user!.id }
     });
 
@@ -225,16 +224,15 @@ export class MangaManager {
 
     await mangaToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'DIRECT_PATCH', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'UPDATE',
       status: 'ACCEPTED',
       target: { id: newMangaData.id },
-      actions,
+      note,
       targetPath: 'Manga',
-      changes: changes?.newValues,
-      beforeChanges: changes?.oldValues,
+      newValues: changes?.newValues,
+      oldValues: changes?.oldValues,
       author: { id: this.user!.id }
     });
 
@@ -262,16 +260,15 @@ export class MangaManager {
 
     await mangaToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'REQUEST', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'UPDATE_REQUEST',
       status: 'PENDING',
       target: { id: newMangaData.id },
-      actions,
+      note,
       targetPath: 'Manga',
-      changes: changes?.newValues,
-      beforeChanges: changes?.oldValues,
+      newValues: changes?.newValues,
+      oldValues: changes?.oldValues,
       author: { id: this.user!.id }
     });
 

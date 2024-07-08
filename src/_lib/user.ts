@@ -4,7 +4,7 @@ import { IPatch_User_ZOD, IUser_Pagination_ZOD } from '../_validation/userZOD';
 import { PatchManager } from './patch';
 import { UserModel } from '../_models';
 import { getChangedData } from '../_utils/getObjChangeUtil';
-import { IPatchActionList } from '../_types/patchType';
+
 import { MediaPagination } from './pagination';
 import { IPaginationResponse } from '@/_types/paginationType';
 import { IUserRoles, userPermissionIsHigherThan } from '@/_utils/userUtil';
@@ -48,16 +48,13 @@ export class UserManager {
     const sort = paginationInput.sort;
 
     if (query?.name) {
-      pagination.searchByName(query.name, 'name.first');
-      pagination.searchByName(query.name, 'name.last');
+      pagination.searchByName(query.name, 'username');
+      pagination.searchByName(query.name, 'displayName');
     }
 
     if (paginationInput.strict) {
       pagination.setStrict(paginationInput.strict);
-    } else if (query?.name)
-      // Si c'est pas en strict chercher aussi dans les alias
-      pagination.searchByName(query.name, 'name.alias');
-    // Le strict risque de faire que les noms doivent correspondre tout les deux a la recherche
+    }
 
     if (sort) pagination.setSort(sort);
 
@@ -89,8 +86,6 @@ export class UserManager {
 
     await userToUpdate.updateOne({ username }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note: note || "Mise a jour du nom d'utilisateur", label: 'DIRECT_PATCH', user: this.user! }];
-
     const changes = await getChangedData({ username: userToUpdate.username }, { username });
 
     if (!changes) throw new Error('No changes found');
@@ -100,10 +95,10 @@ export class UserManager {
         type: 'UPDATE',
         status: 'ACCEPTED',
         target: { id: userToUpdate.id },
-        actions,
+
         targetPath: 'User',
-        changes: changes?.newValues,
-        beforeChanges: changes?.oldValues,
+        newValues: changes?.newValues,
+        oldValues: changes?.oldValues,
         author: { id: this.user!.id }
       });
   }
@@ -115,8 +110,6 @@ export class UserManager {
 
     await userToUpdate.updateOne({ displayName }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note: note || "Mise a jour du pseudonyme", label: 'DIRECT_PATCH', user: this.user! }];
-
     const changes = await getChangedData({ displayName: userToUpdate.displayName }, { displayName });
 
     if (!changes) throw new Error('No changes found');
@@ -126,10 +119,10 @@ export class UserManager {
         type: 'UPDATE',
         status: 'ACCEPTED',
         target: { id: userToUpdate.id },
-        actions,
+
         targetPath: 'User',
-        changes: changes?.newValues,
-        beforeChanges: changes?.oldValues,
+        newValues: changes?.newValues,
+        oldValues: changes?.oldValues,
         author: { id: this.user!.id }
       });
   }
@@ -141,8 +134,6 @@ export class UserManager {
 
     await userToUpdate.updateOne({ bio }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note: note || "Mise a jour de la bio", label: 'DIRECT_PATCH', user: this.user! }];
-
     const changes = await getChangedData({ bio: userToUpdate.bio }, { bio });
 
     if (!changes) throw new Error('No changes found');
@@ -152,10 +143,10 @@ export class UserManager {
         type: 'UPDATE',
         status: 'ACCEPTED',
         target: { id: userToUpdate.id },
-        actions,
+
         targetPath: 'User',
-        changes: changes?.newValues,
-        beforeChanges: changes?.oldValues,
+        newValues: changes?.newValues,
+        oldValues: changes?.oldValues,
         author: { id: this.user!.id }
       });
   }
@@ -177,17 +168,15 @@ export class UserManager {
 
     await userToUpdate.updateOne({ roles }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note: note || "Mise a jour des rôles", label: 'DIRECT_PATCH', user: this.user! }];
-
     await new PatchManager(this.session, this.user!)
       .PatchCreate({
         type: 'UPDATE',
         status: 'ACCEPTED',
         target: { id: userToUpdate.id },
-        actions,
+
         targetPath: 'User',
-        changes: changes?.newValues,
-        beforeChanges: changes?.oldValues,
+        newValues: changes?.newValues,
+        oldValues: changes?.oldValues,
         author: { id: this.user!.id }
       });
   }
@@ -203,14 +192,12 @@ export class UserManager {
 
     await userToUpdate.updateOne({ images }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note: note || "Mise a jour de(s) l'image(s)", label: 'DIRECT_PATCH', user: this.user! }];
-
     await new PatchManager(this.session, this.user!)
       .PatchCreate({
         type: 'UPDATE',
         status: 'ACCEPTED',
         target: { id: userToUpdate.id },
-        actions,
+
         targetPath: 'User',
         // changes: changes?.newValues,
         // beforeChanges: changes?.oldValues,
@@ -234,7 +221,7 @@ export class UserManager {
     if (roles)
       await this.updateRoles(userID, roles, note);
 
-    if (images) 
+    if (images)
       await this.updateImages(userID, images, note);
   }
 
@@ -259,16 +246,15 @@ export class UserManager {
 
     await userToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'REQUEST', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'UPDATE_REQUEST',
       status: 'PENDING',
       target: { id: newUserData.id },
-      actions,
+      note,
       targetPath: 'User',
-      changes: changes?.newValues,
-      beforeChanges: changes?.oldValues,
+      newValues: changes?.newValues,
+      oldValues: changes?.oldValues,
       author: { id: this.user!.id }
     });
 

@@ -4,7 +4,7 @@ import { IUser } from '../_types/userType';
 import { ICreate_Groupe_ZOD, IGroupe_Pagination_ZOD } from '../_validation/groupeZOD';
 import { PatchManager } from './patch';
 import { GroupeModel } from '../_models';
-import { IPatchActionList } from '../_types/patchType';
+
 import { getChangedData } from '../_utils/getObjChangeUtil';
 import { IPaginationResponse } from '@/_types/paginationType';
 import { MediaPagination } from './pagination';
@@ -73,16 +73,16 @@ export class GroupeManager {
     newGroupe.isVerified = true;
     await newGroupe.save({ session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'DIRECT_CREATE', user: this.user! }];
+
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'CREATE',
       status: 'ACCEPTED',
       target: { id: newGroupe.id },
-      actions,
+      note,
       targetPath: 'Groupe',
-      changes: newGroupe.toJSON(),
-      beforeChanges: null,
+      newValues: newGroupe.toJSON(),
+      oldValues: null,
       author: { id: this.user!.id }
     });
 
@@ -97,16 +97,15 @@ export class GroupeManager {
     // Pré-disposition d'un groupe qui est en cours de création.
     await newGroupe.save({ session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'REQUEST', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'CREATE_REQUEST',
       status: 'PENDING',
       target: { id: newGroupe.id },
-      actions,
+      note,
       targetPath: 'Groupe',
-      changes: newGroupe.toJSON(),
-      beforeChanges: null,
+      newValues: newGroupe.toJSON(),
+      oldValues: null,
       author: { id: this.user!.id }
     });
 
@@ -138,16 +137,15 @@ export class GroupeManager {
 
     await groupeToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'DIRECT_PATCH', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'UPDATE',
       status: 'ACCEPTED',
       target: { id: newGroupeData.id },
-      actions,
+      note,
       targetPath: 'Groupe',
-      changes: changes?.newValues,
-      beforeChanges: changes?.oldValues,
+      newValues: changes?.newValues,
+      oldValues: changes?.oldValues,
       author: { id: this.user!.id }
     });
 
@@ -179,16 +177,15 @@ export class GroupeManager {
 
     await groupeToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'REQUEST', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'UPDATE_REQUEST',
       status: 'PENDING',
       target: { id: newGroupeData.id },
-      actions,
+      note,
       targetPath: 'Groupe',
-      changes: changes?.newValues,
-      beforeChanges: changes?.oldValues,
+      newValues: changes?.newValues,
+      oldValues: changes?.oldValues,
       author: { id: this.user!.id }
     });
 

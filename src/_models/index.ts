@@ -10,3 +10,4 @@ export * from './_reportModel';
 export * from './_trackModel';
 export * from './_patchModel';
 export * from './_userModel';
+export * from './_imageModel';

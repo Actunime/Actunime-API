@@ -1,7 +1,7 @@
 import { IPerson } from '../_types/personType';
 import { genPublicID } from '../_utils/genID';
 import { PersonRoleArray } from '../_utils/personUtil';
-import { Schema, model } from 'mongoose';
+import { Model, Schema, model, models } from 'mongoose';
 import { MediaLinkSchema, withSchema } from './_mediaModel';
 
 const PersonSchema = new Schema<IPerson>(
@@ -51,4 +51,4 @@ export const withPersonSchema = new Schema(
   { _id: false, toJSON: { virtuals: true } }
 );
 
-export const PersonModel = model('Person', PersonSchema, 'persons');
+export const PersonModel = models.Person as Model<IPerson> || model('Person', PersonSchema, 'persons');

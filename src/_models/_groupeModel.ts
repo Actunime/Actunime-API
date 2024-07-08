@@ -1,6 +1,6 @@
 import { IGroupe } from '../_types/groupeType';
 import { genPublicID } from '../_utils/genID';
-import { Schema, model } from 'mongoose';
+import { Model, Schema, model, models } from 'mongoose';
 
 const GroupeSchema = new Schema<IGroupe>(
   {
@@ -33,4 +33,4 @@ export const withGroupeSchema = new Schema(
   { _id: false, toJSON: { virtuals: true } }
 );
 
-export const GroupeModel = model('Groupe', GroupeSchema);
+export const GroupeModel = models.Groupe as Model<IGroupe> || model('Groupe', GroupeSchema);

@@ -1,5 +1,4 @@
 {
-  "type": "module",
   "private": true,
   "name": "actunime-api",
   "version": "1.0.4",
@@ -9,7 +8,7 @@
     "start-prod": "tsc --pretty --locale fr && NODE_ENV=production node build",
     "start": "NODE_ENV=production node build",
     "build": "tsc --pretty --locale fr",
-    "dev": "ts-node -r tsconfig-paths/register build ",
+    "dev": "ts-node -r tsconfig-paths/register build --experimental-require-module",
     "dev-watch": "tsc -w --pretty --locale fr",
     "prepare": "husky || true"
   },
@@ -27,6 +26,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.4.0",
     "nanoid": "^3.3.4",
+    "observable-slim": "^0.1.6",
     "on-change": "^5.0.1",
     "sharp": "^0.33.4",
     "typescript": "^5.4.5",

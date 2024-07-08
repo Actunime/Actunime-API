@@ -2,7 +2,7 @@ import { IManga, IMangaChapterVolums } from '../_types/mangaType';
 import { genPublicID } from '../_utils/genID';
 import { MangaFormatArray } from '../_utils/mangaUtil';
 import { MediaParentLabelArray, MediaSourceArray, MediaStatusArray } from '../_utils/mediaUtil';
-import { Schema, model } from 'mongoose';
+import { Model, Schema, model, models } from 'mongoose';
 import { withCharacterSchema } from './_characterModel';
 import { withCompanySchema } from './_companyModel';
 import { withGroupeSchema } from './_groupeModel';
@@ -122,4 +122,4 @@ MangaSchema.virtual('tracks.data', {
   justOne: true
 });
 
-export const MangaModel = model('Manga', MangaSchema);
+export const MangaModel = models.Manga as Model<IManga> || model('Manga', MangaSchema);

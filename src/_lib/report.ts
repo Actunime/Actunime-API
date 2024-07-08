@@ -7,7 +7,6 @@ import { ICreate_Report_ZOD, IReport_Pagination_ZOD } from '@/_validation/report
 import { MediaPagination } from './pagination';
 import { ActivityManager } from './activity';
 import { getChangedData } from '@/_utils/getObjChangeUtil';
-import { IPatchActionList } from '@/_types/patchType';
 import { PatchManager } from './patch';
 
 export class ReportManager {
@@ -134,16 +133,15 @@ export class ReportManager {
 
     await reportToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'DIRECT_PATCH', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'UPDATE',
       status: 'ACCEPTED',
       target: { id: newReportData.id },
-      actions,
+      note,
       targetPath: 'Report',
-      changes: changes?.newValues,
-      beforeChanges: changes?.oldValues,
+      newValues: changes?.newValues,
+      oldValues: changes?.oldValues,
       author: { id: this.user!.id }
     });
 

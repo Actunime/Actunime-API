@@ -1,4 +1,4 @@
-import { model, Schema } from 'mongoose';
+import { Model, model, models, Schema } from 'mongoose';
 import { IImage } from '../_types/imageType';
 import { genPublicID } from '../_utils/genID';
 import { ImageLabelArray } from '../_utils/imageUtil';
@@ -25,4 +25,4 @@ ImageSchema.virtual('url').get(function () {
   return `${process.env.WEBSITE_URL}/img/${this.id}`;
 });
 
-export const ImageModel = model<IImage>('Image', ImageSchema);
+export const ImageModel = models.Image as Model<IImage> || model<IImage>('Image', ImageSchema);

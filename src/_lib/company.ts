@@ -3,7 +3,7 @@ import { IUser } from '../_types/userType';
 import { ICompany } from '../_types/companyType';
 import { ICompany_Pagination_ZOD, ICreate_Company_ZOD } from '../_validation/companyZOD';
 import { CompanyModel } from '../_models';
-import { IPatchActionList } from '../_types/patchType';
+
 import { PatchManager } from './patch';
 import { getChangedData } from '../_utils/getObjChangeUtil';
 import { IPaginationResponse } from '@/_types/paginationType';
@@ -79,16 +79,16 @@ export class CompanyManager {
     newCompany.isVerified = true;
     await newCompany.save({ session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'DIRECT_CREATE', user: this.user! }];
+
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'CREATE',
       status: 'ACCEPTED',
       target: { id: newCompany.id },
-      actions,
+      note,
       targetPath: 'Company',
-      changes: newCompany.toJSON(),
-      beforeChanges: null,
+      newValues: newCompany.toJSON(),
+      oldValues: null,
       author: { id: this.user!.id }
     });
 
@@ -103,16 +103,15 @@ export class CompanyManager {
     // Pré-disposition d'un company qui est en cours de création.
     await newCompany.save({ session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'REQUEST', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'CREATE_REQUEST',
       status: 'PENDING',
       target: { id: newCompany.id },
-      actions,
+      note,
       targetPath: 'Company',
-      changes: newCompany.toJSON(),
-      beforeChanges: null,
+      newValues: newCompany.toJSON(),
+      oldValues: null,
       author: { id: this.user!.id }
     });
 
@@ -144,16 +143,15 @@ export class CompanyManager {
 
     await companyToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'DIRECT_PATCH', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'UPDATE',
       status: 'ACCEPTED',
       target: { id: newCompanyData.id },
-      actions,
+      note,
       targetPath: 'Company',
-      changes: changes?.newValues,
-      beforeChanges: changes?.oldValues,
+      newValues: changes?.newValues,
+      oldValues: changes?.oldValues,
       author: { id: this.user!.id }
     });
 
@@ -185,16 +183,15 @@ export class CompanyManager {
 
     await companyToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-    const actions: IPatchActionList[] = [{ note, label: 'REQUEST', user: this.user! }];
 
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'UPDATE_REQUEST',
       status: 'PENDING',
       target: { id: newCompanyData.id },
-      actions,
+      note,
       targetPath: 'Company',
-      changes: changes?.newValues,
-      beforeChanges: changes?.oldValues,
+      newValues: changes?.newValues,
+      oldValues: changes?.oldValues,
       author: { id: this.user!.id }
     });
 

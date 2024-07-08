@@ -1,41 +1,22 @@
 import { ITargetPath } from '../_utils/global';
-import { IPatchAction, IPatchStatus, IPatchType } from '../_utils/patchUtil';
+import { IPatchStatus, IPatchType } from '../_utils/patchUtil';
 import { Schema } from 'mongoose';
 import { IPaginationResponse } from './paginationType';
 import { IUser } from './userType';
-
-export type IPatchActionList = {
-  user: {
-    id: string;
-    data?: IUser; // virtual
-  };
-  note?: string;
-  label: IPatchAction;
-  at?: Date;
-};
 
 export interface IPatch<T = any> {
   _id: Schema.Types.ObjectId;
   id: string;
   type: IPatchType;
-  actions: IPatchActionList[];
+  note: string;
   status: IPatchStatus;
-  target?: {
-    id: string;
-    data?: T; // Virtual
-  };
+  target?: { id: string; data?: T; };
   targetPath: ITargetPath;
-  ref?: {
-    id: string;
-    data?: IPatch; // Virtual
-  };
-  changes?: T;
-  beforeChanges?: T;
-  author: {
-    id: string;
-    data?: IUser; // Virtual
-  };
-
+  ref?: { id: string; data?: IPatch; };
+  newValues?: T;
+  oldValues?: T;
+  author: { id: string; data?: IUser; };
+  currentModerator: { id: string; at: Date; data?: IUser; };
   createdAt?: Date;
   updatedAt?: Date;
 }

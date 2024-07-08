@@ -1,7 +1,6 @@
 import { ImageModel } from "@/_models/_imageModel";
 import { IImage } from "@/_types/imageType";
 import { IPaginationResponse } from "@/_types/paginationType";
-import { IPatchActionList } from "@/_types/patchType";
 import { IUser } from "@/_types/userType";
 import { getChangedData } from "@/_utils/getObjChangeUtil";
 import { IImage_Pagination_ZOD, ICreate_Image_ZOD, IAdd_Image_ZOD } from "@/_validation/imageZOD";
@@ -12,6 +11,7 @@ import Sharp from "sharp";
 import fs from 'fs';
 import { ITargetPath } from "@/_utils/global";
 import path from "path";
+import { IImageLabel } from "@/_utils/imageUtil";
 
 const ImagePathRoot = process.env.NODE_ENV === 'production' ? '/actunime/img' : path.join(__dirname, '..', '..', 'img');
 
@@ -21,11 +21,13 @@ export class ImageManager {
     private newData!: Partial<IImage>;
     private imageValue!: string;
     private targetPath!: ITargetPath;
+    private imageLabel?: IImageLabel;
 
-    constructor(session: ClientSession, targetPath: ITargetPath, user?: IUser) {
+    constructor(session: ClientSession, targetPath: ITargetPath, user?: IUser, imageLabel?: IImageLabel) {
         this.user = user;
         this.session = session;
         this.targetPath = targetPath;
+        this.imageLabel = imageLabel;
     }
 
     private async populate(
@@ -101,21 +103,21 @@ export class ImageManager {
     }
 
     public async create(note?: string) {
-        const newImage = new ImageModel(this.newData);
+        const newImage = new ImageModel({ label: this.imageLabel, ...this.newData });
         newImage.isVerified = true;
         await newImage.save({ session: this.session });
         await this.createImageFile(newImage.id, this.imageValue);
 
-        const actions: IPatchActionList[] = [{ note, label: 'DIRECT_CREATE', user: this.user! }];
+
 
         await new PatchManager(this.session, this.user!).PatchCreate({
             type: 'CREATE',
             status: 'ACCEPTED',
             target: { id: newImage.id },
-            actions,
+
             targetPath: 'Image',
-            changes: newImage.toJSON(),
-            beforeChanges: null,
+            newValues: newImage.toJSON(),
+            oldValues: null,
             author: { id: this.user!.id }
         });
 
@@ -129,16 +131,16 @@ export class ImageManager {
         await newImage.save({ session: this.session });
         await this.createImageFile(newImage.id, this.imageValue);
 
-        const actions: IPatchActionList[] = [{ note, label: 'REQUEST', user: this.user! }];
+
 
         await new PatchManager(this.session, this.user!).PatchCreate({
             type: 'CREATE_REQUEST',
             status: 'PENDING',
             target: { id: newImage.id },
-            actions,
+
             targetPath: 'Image',
-            changes: newImage.toJSON(),
-            beforeChanges: null,
+            newValues: newImage.toJSON(),
+            oldValues: null,
             author: { id: this.user!.id }
         });
 
@@ -173,13 +175,13 @@ export class ImageManager {
 
         // await imageToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-        const actions: IPatchActionList[] = [{ note, label: 'DIRECT_PATCH', user: this.user! }];
+
 
         await new PatchManager(this.session, this.user!).PatchCreate({
             type: 'UPDATE',
             status: 'ACCEPTED',
             target: { id: newImageData.id },
-            actions,
+
             targetPath: 'Image',
             // changes: changes?.newValues,
             // beforeChanges: changes?.oldValues,
@@ -214,16 +216,16 @@ export class ImageManager {
 
         await imageToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-        const actions: IPatchActionList[] = [{ note, label: 'REQUEST', user: this.user! }];
+
 
         await new PatchManager(this.session, this.user!).PatchCreate({
             type: 'UPDATE_REQUEST',
             status: 'PENDING',
             target: { id: newImageData.id },
-            actions,
+
             targetPath: 'Image',
-            changes: changes?.newValues,
-            beforeChanges: changes?.oldValues,
+            newValues: changes?.newValues,
+            oldValues: changes?.oldValues,
             author: { id: this.user!.id }
         });
 
