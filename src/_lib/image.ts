@@ -12,6 +12,7 @@ import fs from 'fs';
 import { ITargetPath } from "@/_utils/global";
 import path from "path";
 import { IImageLabel } from "@/_utils/imageUtil";
+import { APIError } from "./Error";
 
 const ImagePathRoot = process.env.NODE_ENV === 'production' ? '/actunime/img' : path.join(__dirname, '..', '..', 'img');
 
@@ -97,31 +98,48 @@ export class ImageManager {
             .toFile(fullRootPath + '/' + id + '.webp');
     }
 
-    private async deleteImageFile(id: string) {
-        const fullRootPath = ImagePathRoot + '/' + this.targetPath.toLocaleLowerCase();
-        fs.unlinkSync(fullRootPath + '/' + id + '.webp');
+    public async deleteImageFile(id: string) {
+        try {
+            const fullRootPath = ImagePathRoot + '/' + this.targetPath.toLocaleLowerCase();
+            fs.unlinkSync(fullRootPath + '/' + id + '.webp');
+        } catch (err) {
+            console.error(err);
+        }
+    }
+    static async deleteImageFileIfExist(id?: string, targetPath?: ITargetPath) {
+        if (!id || !targetPath) return;
+        try {
+            const fullRootPath = ImagePathRoot + '/' + targetPath.toLocaleLowerCase();
+            fs.unlinkSync(fullRootPath + '/' + id + '.webp');
+        } catch (err) {
+            console.error(err);
+        }
     }
 
     public async create(note?: string) {
-        const newImage = new ImageModel({ label: this.imageLabel, ...this.newData });
-        newImage.isVerified = true;
-        await newImage.save({ session: this.session });
-        await this.createImageFile(newImage.id, this.imageValue);
+        const newImage = new ImageModel({ label: this.newData.label || this.imageLabel, ...this.newData });
+        try {
+            newImage.isVerified = true;
+            await newImage.save({ session: this.session });
+            await this.createImageFile(newImage.id, this.imageValue);
 
+            await new PatchManager(this.session, this.user!).PatchCreate({
+                type: 'CREATE',
+                status: 'ACCEPTED',
+                target: { id: newImage.id },
+                note,
+                targetPath: 'Image',
+                newValues: newImage.toJSON(),
+                oldValues: null,
+                author: { id: this.user!.id }
+            });
 
-
-        await new PatchManager(this.session, this.user!).PatchCreate({
-            type: 'CREATE',
-            status: 'ACCEPTED',
-            target: { id: newImage.id },
-
-            targetPath: 'Image',
-            newValues: newImage.toJSON(),
-            oldValues: null,
-            author: { id: this.user!.id }
-        });
-
-        return newImage;
+            return newImage;
+        } catch (err) {
+            this.deleteImageFile(newImage.id).catch(() => { });
+            console.error("lors de la création d'une image", err)
+            throw err;
+        }
     }
 
     public async createRequest(note?: string) {
@@ -156,7 +174,7 @@ export class ImageManager {
             { session: this.session }
         );
 
-        if (!imageToUpdate) throw new Error('Image not found');
+        if (!imageToUpdate) throw new APIError("Aucune image n'a été trouvé", "NOT_FOUND", 404);
 
         newImageData._id = imageToUpdate._id;
         newImageData.id = imageToUpdate.id;
@@ -171,7 +189,7 @@ export class ImageManager {
         //     'updatedAt'
         // ]);
 
-        // if (!changes) throw new Error('No changes found');
+        // if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);");
 
         // await imageToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
@@ -212,7 +230,7 @@ export class ImageManager {
             'updatedAt'
         ]);
 
-        if (!changes) throw new Error('No changes found');
+        if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
 
         await imageToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 

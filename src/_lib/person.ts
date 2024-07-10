@@ -2,22 +2,19 @@ import { ClientSession, Document } from 'mongoose';
 import { PersonModel } from '../_models';
 import { IPerson } from '../_types/personType';
 import { IUser } from '../_types/userType';
-import {
-  IAdd_Person_ZOD,
-  ICreate_Person_ZOD,
-  IPerson_Pagination_ZOD
-} from '../_validation/personZOD';
+import { IAdd_Person_ZOD, ICreate_Person_ZOD, IPerson_Pagination_ZOD } from '../_validation/personZOD';
 import { PatchManager } from './patch';
-
 import { getChangedData } from '../_utils/getObjChangeUtil';
 import { IPaginationResponse } from '@/_types/paginationType';
 import { MediaPagination } from './pagination';
 import { ImageManager } from './image';
+import { APIError } from './Error';
 
 export class PersonManager {
   private user?: IUser;
   private session: ClientSession;
   private newData!: Partial<IPerson>;
+  private newImageID?: string;
   constructor(session: ClientSession, user?: IUser) {
     this.user = user;
     this.session = session;
@@ -27,18 +24,17 @@ export class PersonManager {
     doc: Document | IPaginationResponse<IPerson>,
     withMedia: IPerson_Pagination_ZOD['with']
   ) {
-    // if (withMedia?.actors)
-    //   await PersonModel.populate(doc, { path: '', select: '-_id', justOne: true, options: { session: this.session } });
+
   }
 
   public async get(id: string, withMedia?: IPerson_Pagination_ZOD['with']) {
-    const findPerson = await PersonModel.findOne({ id }, null, { session: this.session }).select(
-      '-_id'
-    );
+    const findPerson = await PersonModel.findOne({ id }, null, { session: this.session }).select('-_id');
 
-    if (!findPerson) throw new Error('Person not found');
+    if (!findPerson)
+      throw new APIError("Aucune personnalité avec cet identifiant", "NOT_FOUND", 404);
 
-    if (withMedia) await this.populate(findPerson, withMedia);
+    if (withMedia)
+      await this.populate(findPerson, withMedia);
 
     return findPerson.toJSON();
   }
@@ -74,14 +70,15 @@ export class PersonManager {
 
   public async init(data: Partial<ICreate_Person_ZOD>) {
     const { images, ...rawData } = data;
-
     this.newData = rawData as Partial<IPerson>;
-
     const { newData, user, session } = this;
 
-    if (images)
+    if (images) {
       newData.images = await new ImageManager(session, 'Person', user, 'AVATAR')
         .createMultipleRelation(images);
+      if (images?.[0].newImage)
+        this.newImageID = newData.images[0].id;
+    }
 
     return this;
   }
@@ -91,16 +88,12 @@ export class PersonManager {
       const newPerson = new PersonModel(this.newData);
       newPerson.isVerified = true;
 
-      console.log(newPerson.toJSON());
       await newPerson.save({ session: this.session });
-
-
-
       await new PatchManager(this.session, this.user!).PatchCreate({
         type: 'CREATE',
         status: 'ACCEPTED',
         target: { id: newPerson.id },
-
+        note,
         targetPath: 'Person',
         newValues: newPerson.toJSON(),
         oldValues: null,
@@ -109,7 +102,7 @@ export class PersonManager {
 
       return newPerson;
     } catch (err) {
-      console.error("lors de la création d'une personne", err)
+      await ImageManager.deleteImageFileIfExist(this.newImageID, "Person");
       throw err;
     }
   }
@@ -117,104 +110,128 @@ export class PersonManager {
   public async createRequest(note?: string) {
     const newPerson = new PersonModel(this.newData);
 
-    newPerson.isVerified = false;
+    try {
+      newPerson.isVerified = false;
 
-    // Pré-disposition d'un person qui est en cours de création.
-    await newPerson.save({ session: this.session });
+      // Pré-disposition d'un person qui est en cours de création.
+      await newPerson.save({ session: this.session });
 
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'CREATE_REQUEST',
+        status: 'PENDING',
+        target: { id: newPerson.id },
+        note,
+        targetPath: 'Person',
+        newValues: newPerson.toJSON(),
+        oldValues: null,
+        author: { id: this.user!.id }
+      });
 
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'CREATE_REQUEST',
-      status: 'PENDING',
-      target: { id: newPerson.id },
-      note,
-      targetPath: 'Person',
-      newValues: newPerson.toJSON(),
-      oldValues: null,
-      author: { id: this.user!.id }
-    });
+      return newPerson;
 
-    return newPerson;
+    } catch (err) {
+      await ImageManager.deleteImageFileIfExist(this.newImageID, "Person");
+      throw err;
+    }
   }
 
   public async update(personID: string, note?: string) {
     const newPersonData = new PersonModel(this.newData);
 
-    const personToUpdate = await PersonModel.findOne(
-      { id: personID },
-      {},
-      { session: this.session }
-    );
+    try {
+      const personToUpdate = await PersonModel.findOne(
+        { id: personID },
+        {},
+        { session: this.session }
+      );
 
-    if (!personToUpdate) throw new Error('Person not found');
+      if (!personToUpdate)
+        throw new APIError("Aucune personnalité avec cet identifiant", "NOT_FOUND", 404);
 
-    newPersonData._id = personToUpdate._id;
-    newPersonData.id = personToUpdate.id;
+      newPersonData._id = personToUpdate._id;
+      newPersonData.id = personToUpdate.id;
 
-    const changes = await getChangedData(personToUpdate.toJSON(), newPersonData, [
-      '_id',
-      'id',
-      'createdAt',
-      'updatedAt'
-    ]);
+      const changes = getChangedData(personToUpdate.toJSON(), newPersonData, [
+        '_id',
+        'id',
+        'createdAt',
+        'updatedAt'
+      ]);
 
-    if (!changes) throw new Error('No changes found');
+      if (!changes)
+        throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
 
-    await personToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
+      await personToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'UPDATE',
+        status: 'ACCEPTED',
+        target: { id: newPersonData.id },
+        note,
+        targetPath: 'Person',
+        newValues: changes?.newValues,
+        oldValues: changes?.oldValues,
+        author: { id: this.user!.id }
+      });
 
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'UPDATE',
-      status: 'ACCEPTED',
-      target: { id: newPersonData.id },
-      note,
-      targetPath: 'Person',
-      newValues: changes?.newValues,
-      oldValues: changes?.oldValues,
-      author: { id: this.user!.id }
-    });
+      // Suppression de lancienne image.
+      if (personToUpdate.images?.[0].id) {
+        await new ImageManager(this.session, 'Person')
+          .deleteImageFile(personToUpdate.images[0].id);
+        console.log(`L'ancienne image ${personToUpdate.images[0].id} a été supprimé.`)
+      }
 
-    return newPersonData;
+      return newPersonData;
+    } catch (err) {
+      await ImageManager.deleteImageFileIfExist(this.newImageID, "Person");
+      throw err;
+    }
   }
 
   public async updateRequest(personID: string, note?: string) {
     const newPersonData = new PersonModel(this.newData);
 
-    const personToUpdate = await PersonModel.findOne(
-      { id: personID },
-      {},
-      { session: this.session }
-    );
+    try {
+      const personToUpdate = await PersonModel.findOne(
+        { id: personID },
+        {},
+        { session: this.session }
+      );
 
-    if (!personToUpdate) throw new Error('Person not found');
+      if (!personToUpdate)
+        throw new APIError("Aucune personnalité avec cet identifiant", "NOT_FOUND", 404);
 
-    newPersonData._id = personToUpdate._id;
-    newPersonData.id = personToUpdate.id;
+      newPersonData._id = personToUpdate._id;
+      newPersonData.id = personToUpdate.id;
 
-    const changes = await getChangedData(personToUpdate.toJSON(), newPersonData, [
-      '_id',
-      'id',
-      'createdAt',
-      'updatedAt'
-    ]);
+      const changes = getChangedData(personToUpdate.toJSON(), newPersonData, [
+        '_id',
+        'id',
+        'createdAt',
+        'updatedAt'
+      ]);
 
-    if (!changes) throw new Error('No changes found');
+      if (!changes)
+        throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
 
-    await personToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
+      await personToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'UPDATE_REQUEST',
+        status: 'PENDING',
+        target: { id: newPersonData.id },
+        note,
+        targetPath: 'Person',
+        newValues: changes?.newValues,
+        oldValues: changes?.oldValues,
+        author: { id: this.user!.id }
+      });
 
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'UPDATE_REQUEST',
-      status: 'PENDING',
-      target: { id: newPersonData.id },
-      note,
-      targetPath: 'Person',
-      newValues: changes?.newValues,
-      oldValues: changes?.oldValues,
-      author: { id: this.user!.id }
-    });
-
-    return newPersonData;
+      return newPersonData;
+    } catch (err) {
+      await ImageManager.deleteImageFileIfExist(this.newImageID, "Person");
+      throw err
+    }
   }
 
   public async createRelation(
@@ -227,7 +244,7 @@ export class PersonManager {
     } else if (relation.id && (await PersonModel.exists({ id: relation.id }))) {
       return { id: relation.id };
     } else {
-      throw new Error('Person invalide');
+      throw new APIError('Une relation de personnalité est invalide, il faut un identifiant ou une nouvelle personnalité.', 'BAD_ENTRY', 400);
     }
   }
 

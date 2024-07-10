@@ -12,11 +12,14 @@ import { CharacterManager } from './character';
 import { getChangedData } from '../_utils/getObjChangeUtil';
 import { IPaginationResponse } from '@/_types/paginationType';
 import { MediaPagination } from './pagination';
+import { ImageManager } from './image';
+import { APIError } from './Error';
 
 export class MangaManager {
   private user?: IUser;
   private session: ClientSession;
   private newData!: Partial<IManga>;
+  private newImageID?: string[];
 
   constructor(session: ClientSession, user?: IUser) {
     this.user = user;
@@ -81,7 +84,7 @@ export class MangaManager {
       '-_id'
     );
 
-    if (!findManga) throw new Error('Manga not found');
+    if (!findManga) throw new APIError('Aucun manga avec cet identifiant', 'NOT_FOUND', 404);
 
     if (withMedia) await this.populate(findManga, withMedia);
 
@@ -117,6 +120,7 @@ export class MangaManager {
   public async init(data: ICreate_Manga_ZOD) {
     const {
       // Relations
+      images,
       groupe,
       parent,
       source,
@@ -138,12 +142,12 @@ export class MangaManager {
     // ? Parent
     if (parent && parent.id && (await MangaModel.exists({ id: parent.id })))
       newData.parent = parent;
-    else throw new Error('Parent not found');
+    else throw new APIError('Aucun manga parent correspondant', 'NOT_FOUND', 404);
 
     // ? Source
     if (source && source.id && (await MangaModel.exists({ id: source.id })))
       newData.source = source;
-    else throw new Error('Source not found');
+    else throw new Error('Aucun manga source correspondant');
 
     if (companys)
       newData.companys = await new CompanyManager(session, user).createMultipleRelation(companys);
@@ -156,122 +160,148 @@ export class MangaManager {
         characters
       );
 
+    if (images) {
+      newData.images = await new ImageManager(session, 'Manga', user, 'AVATAR')
+        .createMultipleRelation(images);
+      this.newImageID = this.newImageID?.concat(newData.images.map(image => image.id))
+    }
+
     return this;
   }
 
   public async create(note?: string) {
     const newManga = new MangaModel(this.newData);
-    newManga.isVerified = true;
-    await newManga.save({ session: this.session });
+    try {
+      newManga.isVerified = true;
+      await newManga.save({ session: this.session });
 
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'CREATE',
+        status: 'ACCEPTED',
+        target: { id: newManga.id },
+        note,
+        targetPath: 'Manga',
+        newValues: newManga.toJSON(),
+        oldValues: null,
+        author: { id: this.user!.id }
+      });
 
-
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'CREATE',
-      status: 'ACCEPTED',
-      target: { id: newManga.id },
-      note,
-      targetPath: 'Manga',
-      newValues: newManga.toJSON(),
-      oldValues: null,
-      author: { id: this.user!.id }
-    });
-
-    return newManga;
+      return newManga;
+    } catch (err) {
+      for (let i = 0; i < (this.newImageID || []).length; i++)
+        await ImageManager.deleteImageFileIfExist(this.newImageID?.[i], "Manga");
+      throw err;
+    }
   }
 
   public async createRequest(note?: string) {
-    const newManga = new MangaModel(this.newData);
+    try {
+      const newManga = new MangaModel(this.newData);
+      newManga.isVerified = false;
 
-    newManga.isVerified = false;
+      // Pré-disposition d'un manga qui est en cours de création.
+      await newManga.save({ session: this.session });
 
-    // Pré-disposition d'un manga qui est en cours de création.
-    await newManga.save({ session: this.session });
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'CREATE_REQUEST',
+        status: 'PENDING',
+        target: { id: newManga.id },
+        note,
+        targetPath: 'Manga',
+        newValues: newManga.toJSON(),
+        oldValues: null,
+        author: { id: this.user!.id }
+      });
 
-
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'CREATE_REQUEST',
-      status: 'PENDING',
-      target: { id: newManga.id },
-      note,
-      targetPath: 'Manga',
-      newValues: newManga.toJSON(),
-      oldValues: null,
-      author: { id: this.user!.id }
-    });
-
-    return newManga;
+      return newManga;
+    } catch (err) {
+      for (let i = 0; i < (this.newImageID || []).length; i++)
+        await ImageManager.deleteImageFileIfExist(this.newImageID?.[i], "Manga");
+      throw err;
+    }
   }
 
   public async update(mangaID: string, note?: string) {
-    const newMangaData = new MangaModel(this.newData);
+    try {
+      const newMangaData = new MangaModel(this.newData);
 
-    const mangaToUpdate = await MangaModel.findOne({ id: mangaID }, {}, { session: this.session });
+      const mangaToUpdate = await MangaModel.findOne({ id: mangaID }, {}, { session: this.session });
 
-    if (!mangaToUpdate) throw new Error('Manga not found');
+      if (!mangaToUpdate) throw new APIError("Aucun manga correspondant", "NOT_FOUND", 404);
 
-    newMangaData._id = mangaToUpdate._id;
-    newMangaData.id = mangaToUpdate.id;
+      newMangaData._id = mangaToUpdate._id;
+      newMangaData.id = mangaToUpdate.id;
 
-    const changes = await getChangedData(mangaToUpdate.toJSON(), newMangaData, [
-      '_id',
-      'id',
-      'createdAt',
-      'updatedAt'
-    ]);
+      const changes = getChangedData(mangaToUpdate.toJSON(), newMangaData, [
+        '_id',
+        'id',
+        'createdAt',
+        'updatedAt'
+      ]);
 
-    if (!changes) throw new Error('No changes found');
+      if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
 
-    await mangaToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
+      await mangaToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
 
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'UPDATE',
-      status: 'ACCEPTED',
-      target: { id: newMangaData.id },
-      note,
-      targetPath: 'Manga',
-      newValues: changes?.newValues,
-      oldValues: changes?.oldValues,
-      author: { id: this.user!.id }
-    });
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'UPDATE',
+        status: 'ACCEPTED',
+        target: { id: newMangaData.id },
+        note,
+        targetPath: 'Manga',
+        newValues: changes?.newValues,
+        oldValues: changes?.oldValues,
+        author: { id: this.user!.id }
+      });
 
-    return newMangaData;
+      return newMangaData;
+    } catch (err) {
+      for (let i = 0; i < (this.newImageID || []).length; i++)
+        await ImageManager.deleteImageFileIfExist(this.newImageID?.[i], "Manga");
+      throw err;
+    }
   }
 
   public async updateRequest(mangaID: string, note?: string) {
-    const newMangaData = new MangaModel(this.newData);
+    try {
+      const newMangaData = new MangaModel(this.newData);
 
-    const mangaToUpdate = await MangaModel.findOne({ id: mangaID }, {}, { session: this.session });
+      const mangaToUpdate = await MangaModel.findOne({ id: mangaID }, {}, { session: this.session });
 
-    if (!mangaToUpdate) throw new Error('Manga not found');
+      if (!mangaToUpdate) throw new APIError("Aucun manga correspondant", "NOT_FOUND", 404);
 
-    newMangaData._id = mangaToUpdate._id;
-    newMangaData.id = mangaToUpdate.id;
+      newMangaData._id = mangaToUpdate._id;
+      newMangaData.id = mangaToUpdate.id;
 
-    const changes = await getChangedData(mangaToUpdate.toJSON(), newMangaData, [
-      '_id',
-      'id',
-      'createdAt',
-      'updatedAt'
-    ]);
+      const changes = getChangedData(mangaToUpdate.toJSON(), newMangaData, [
+        '_id',
+        'id',
+        'createdAt',
+        'updatedAt'
+      ]);
 
-    if (!changes) throw new Error('No changes found');
+      if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
 
-    await mangaToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
+      await mangaToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
 
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'UPDATE_REQUEST',
-      status: 'PENDING',
-      target: { id: newMangaData.id },
-      note,
-      targetPath: 'Manga',
-      newValues: changes?.newValues,
-      oldValues: changes?.oldValues,
-      author: { id: this.user!.id }
-    });
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'UPDATE_REQUEST',
+        status: 'PENDING',
+        target: { id: newMangaData.id },
+        note,
+        targetPath: 'Manga',
+        newValues: changes?.newValues,
+        oldValues: changes?.oldValues,
+        author: { id: this.user!.id }
+      });
 
-    return newMangaData;
+      return newMangaData;
+    } catch (err) {
+      for (let i = 0; i < (this.newImageID || []).length; i++)
+        await ImageManager.deleteImageFileIfExist(this.newImageID?.[i], "Manga");
+      throw err;
+    }
   }
 }

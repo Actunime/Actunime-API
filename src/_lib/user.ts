@@ -9,6 +9,7 @@ import { MediaPagination } from './pagination';
 import { IPaginationResponse } from '@/_types/paginationType';
 import { IUserRoles, userPermissionIsHigherThan } from '@/_utils/userUtil';
 import { ImageManager } from './image';
+import { APIError } from './Error';
 
 export class UserManager {
   private user?: IUser;
@@ -82,13 +83,13 @@ export class UserManager {
   private async updateUsername(userID: string, username: string, note?: string) {
     const userToUpdate = await UserModel.findOne({ id: userID }, {}, { session: this.session });
 
-    if (!userToUpdate) throw new Error('User not found');
+    if (!userToUpdate) throw new APIError("Aucun utilisateur n'a été trouvé", "NOT_FOUND", 404);
 
     await userToUpdate.updateOne({ username }, { session: this.session });
 
     const changes = await getChangedData({ username: userToUpdate.username }, { username });
 
-    if (!changes) throw new Error('No changes found');
+    if (!changes) throw new APIError("Aucun changement n'a été effectué", "NOT_FOUND", 404);
 
     await new PatchManager(this.session, this.user!)
       .PatchCreate({
@@ -112,7 +113,7 @@ export class UserManager {
 
     const changes = await getChangedData({ displayName: userToUpdate.displayName }, { displayName });
 
-    if (!changes) throw new Error('No changes found');
+    if (!changes) throw new APIError("Aucun changement n'a été effectué", "NOT_FOUND", 404);
 
     await new PatchManager(this.session, this.user!)
       .PatchCreate({
@@ -136,7 +137,7 @@ export class UserManager {
 
     const changes = await getChangedData({ bio: userToUpdate.bio }, { bio });
 
-    if (!changes) throw new Error('No changes found');
+    if (!changes) throw new APIError("Aucun changement n'a été effectué", "NOT_FOUND", 404);
 
     await new PatchManager(this.session, this.user!)
       .PatchCreate({
@@ -158,7 +159,7 @@ export class UserManager {
 
     const changes = await getChangedData({ roles: userToUpdate.roles }, { roles });
 
-    if (!changes) throw new Error('No changes found');
+    if (!changes) throw new APIError("Aucun changement n'a été effectué", "NOT_FOUND", 404);
 
     if (userPermissionIsHigherThan(userToUpdate.roles, this.user!.roles))
       throw new Error("Le(s) rôle(s) de l'utilisateurs que vous souhaitez modifier sont plus hauts que vous");
@@ -184,11 +185,11 @@ export class UserManager {
   private async updateImages(userID: string, images: IUser['images'], note?: string) {
     const userToUpdate = await UserModel.findOne({ id: userID }, {}, { session: this.session });
 
-    if (!userToUpdate) throw new Error('User not found');
+    if (!userToUpdate) throw new APIError("Aucun utilisateur n'a été trouvé", "NOT_FOUND", 404);
 
     // const changes = await getChangedData({ images: userToUpdate.images }, { images });
 
-    // if (!changes) throw new Error('No changes found');
+    // if (!changes) throw new APIError("Aucun changement n'a été effectué", "NOT_FOUND", 404);
 
     await userToUpdate.updateOne({ images }, { session: this.session });
 
@@ -235,18 +236,17 @@ export class UserManager {
     newUserData._id = userToUpdate._id;
     newUserData.id = userToUpdate.id;
 
-    const changes = await getChangedData(userToUpdate.toJSON(), newUserData, [
+    const changes = getChangedData(userToUpdate.toJSON(), newUserData, [
       '_id',
       'id',
       'createdAt',
       'updatedAt'
     ]);
 
-    if (!changes) throw new Error('No changes found');
+    if (!changes) throw new APIError("Aucun changement n'a été effectué", "NOT_FOUND", 404);
 
     await userToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
-
-
+  
     await new PatchManager(this.session, this.user!).PatchCreate({
       type: 'UPDATE_REQUEST',
       status: 'PENDING',

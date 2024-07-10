@@ -13,11 +13,15 @@ import { getChangedData } from '../_utils/getObjChangeUtil';
 
 import { MediaPagination } from './pagination';
 import { IPaginationResponse } from '@/_types/paginationType';
+import { ImageManager } from './image';
+import { APIError } from './Error';
 
 export class CharacterManager {
   private user?: IUser;
   private session: ClientSession;
   private newData!: Partial<ICharacter>;
+  private newImageID?: string;
+
   constructor(session: ClientSession, user?: IUser) {
     this.user = user;
     this.session = session;
@@ -41,7 +45,7 @@ export class CharacterManager {
       session: this.session
     }).select('-_id');
 
-    if (!findCharacter) throw new Error('Character not found');
+    if (!findCharacter) throw new APIError("Aucun personnage avec cet identifiant", "NOT_FOUND", 404);
 
     if (withMedia) await this.populate(findCharacter, withMedia);
 
@@ -80,6 +84,7 @@ export class CharacterManager {
   public async init(data: Partial<ICreate_Character_ZOD>) {
     const {
       // Relations
+      images,
       actors,
       // Data
       ...rawData
@@ -91,131 +96,153 @@ export class CharacterManager {
     if (actors)
       newData.actors = await new PersonManager(session, user).createMultipleRelation(actors);
 
+    if (images) {
+      newData.images = await new ImageManager(session, 'Character', user, 'AVATAR')
+        .createMultipleRelation(images);
+      if (images?.[0].newImage)
+        this.newImageID = newData.images[0].id;
+    }
+
     return this;
   }
 
   public async create(note?: string) {
     const newCharacter = new CharacterModel(this.newData);
-    newCharacter.isVerified = true;
-    await newCharacter.save({ session: this.session });
+    try {
+      newCharacter.isVerified = true;
+      await newCharacter.save({ session: this.session });
 
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'CREATE',
+        status: 'ACCEPTED',
+        target: { id: newCharacter.id },
+        note,
+        targetPath: 'Character',
+        newValues: newCharacter.toJSON(),
+        oldValues: null,
+        author: { id: this.user!.id }
+      });
 
-
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'CREATE',
-      status: 'ACCEPTED',
-      target: { id: newCharacter.id },
-      note,
-      targetPath: 'Character',
-      newValues: newCharacter.toJSON(),
-      oldValues: null,
-      author: { id: this.user!.id }
-    });
-
-    return newCharacter;
+      return newCharacter;
+    } catch (err) {
+      await ImageManager.deleteImageFileIfExist(this.newImageID, "Character");
+      throw err;
+    }
   }
 
   public async createRequest(note?: string) {
-    const newCharacter = new CharacterModel(this.newData);
+    try {
+      const newCharacter = new CharacterModel(this.newData);
 
-    newCharacter.isVerified = false;
+      newCharacter.isVerified = false;
 
-    // Pré-disposition d'un character qui est en cours de création.
-    await newCharacter.save({ session: this.session });
+      // Pré-disposition d'un character qui est en cours de création.
+      await newCharacter.save({ session: this.session });
 
 
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'CREATE_REQUEST',
-      status: 'PENDING',
-      target: { id: newCharacter.id },
-      note,
-      targetPath: 'Character',
-      newValues: newCharacter.toJSON(),
-      oldValues: null,
-      author: { id: this.user!.id }
-    });
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'CREATE_REQUEST',
+        status: 'PENDING',
+        target: { id: newCharacter.id },
+        note,
+        targetPath: 'Character',
+        newValues: newCharacter.toJSON(),
+        oldValues: null,
+        author: { id: this.user!.id }
+      });
 
-    return newCharacter;
+      return newCharacter;
+    } catch (err) {
+      await ImageManager.deleteImageFileIfExist(this.newImageID, "Character");
+      throw err;
+    }
   }
 
   public async update(characterID: string, note?: string) {
     const newCharacterData = new CharacterModel(this.newData);
+    try {
+      const characterToUpdate = await CharacterModel.findOne(
+        { id: characterID },
+        {},
+        { session: this.session }
+      );
 
-    const characterToUpdate = await CharacterModel.findOne(
-      { id: characterID },
-      {},
-      { session: this.session }
-    );
+      if (!characterToUpdate) throw new APIError("Aucun personnage correspondant.", "NOT_FOUND", 404);
 
-    if (!characterToUpdate) throw new Error('Character not found');
+      newCharacterData._id = characterToUpdate._id;
+      newCharacterData.id = characterToUpdate.id;
 
-    newCharacterData._id = characterToUpdate._id;
-    newCharacterData.id = characterToUpdate.id;
+      const changes = getChangedData(characterToUpdate.toJSON(), newCharacterData, [
+        '_id',
+        'id',
+        'createdAt',
+        'updatedAt'
+      ]);
 
-    const changes = await getChangedData(characterToUpdate.toJSON(), newCharacterData, [
-      '_id',
-      'id',
-      'createdAt',
-      'updatedAt'
-    ]);
+      if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
 
-    if (!changes) throw new Error('No changes found');
+      await characterToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-    await characterToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'UPDATE',
+        status: 'ACCEPTED',
+        target: { id: newCharacterData.id },
+        note,
+        targetPath: 'Character',
+        newValues: changes?.newValues,
+        oldValues: changes?.oldValues,
+        author: { id: this.user!.id }
+      });
 
-
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'UPDATE',
-      status: 'ACCEPTED',
-      target: { id: newCharacterData.id },
-      note,
-      targetPath: 'Character',
-      newValues: changes?.newValues,
-      oldValues: changes?.oldValues,
-      author: { id: this.user!.id }
-    });
-
-    return newCharacterData;
+      return newCharacterData;
+    } catch (err) {
+      await ImageManager.deleteImageFileIfExist(this.newImageID, "Character");
+      throw err;
+    }
   }
 
   public async updateRequest(characterID: string, note?: string) {
     const newCharacterData = new CharacterModel(this.newData);
+    try {
+      const characterToUpdate = await CharacterModel.findOne(
+        { id: characterID },
+        {},
+        { session: this.session }
+      );
 
-    const characterToUpdate = await CharacterModel.findOne(
-      { id: characterID },
-      {},
-      { session: this.session }
-    );
+      if (!characterToUpdate) throw new APIError("Aucun personnage correspondant.", "NOT_FOUND", 404);
 
-    if (!characterToUpdate) throw new Error('Character not found');
+      newCharacterData._id = characterToUpdate._id;
+      newCharacterData.id = characterToUpdate.id;
 
-    newCharacterData._id = characterToUpdate._id;
-    newCharacterData.id = characterToUpdate.id;
+      const changes = getChangedData(characterToUpdate.toJSON(), newCharacterData, [
+        '_id',
+        'id',
+        'createdAt',
+        'updatedAt'
+      ]);
 
-    const changes = await getChangedData(characterToUpdate.toJSON(), newCharacterData, [
-      '_id',
-      'id',
-      'createdAt',
-      'updatedAt'
-    ]);
+      if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
 
-    if (!changes) throw new Error('No changes found');
-
-    await characterToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
+      await characterToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
 
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'UPDATE_REQUEST',
-      status: 'PENDING',
-      target: { id: newCharacterData.id },
-      note,
-      targetPath: 'Character',
-      newValues: changes?.newValues,
-      oldValues: changes?.oldValues,
-      author: { id: this.user!.id }
-    });
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'UPDATE_REQUEST',
+        status: 'PENDING',
+        target: { id: newCharacterData.id },
+        note,
+        targetPath: 'Character',
+        newValues: changes?.newValues,
+        oldValues: changes?.oldValues,
+        author: { id: this.user!.id }
+      });
 
-    return newCharacterData;
+      return newCharacterData;
+    } catch (err) {
+      await ImageManager.deleteImageFileIfExist(this.newImageID, "Character");
+      throw err;
+    }
   }
 
   public async createRelation(relation: IAdd_Character_ZOD) {

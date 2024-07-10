@@ -12,11 +12,14 @@ import { TrackManager } from './track';
 import { getChangedData } from '../_utils/getObjChangeUtil';
 import { MediaPagination } from './pagination';
 import { IPaginationResponse } from '@/_types/paginationType';
+import { ImageManager } from './image';
+import { APIError } from './Error';
 
 export class AnimeManager {
   private user?: IUser;
   private session: ClientSession;
   private newData!: Partial<IAnime>;
+  private newImageID?: string[];
 
   constructor(session: ClientSession, user?: IUser) {
     this.user = user;
@@ -125,6 +128,7 @@ export class AnimeManager {
   public async init(data: ICreate_Anime_ZOD) {
     const {
       // Relations
+      images,
       groupe,
       parent,
       source,
@@ -167,116 +171,142 @@ export class AnimeManager {
     if (tracks)
       newData.tracks = await new TrackManager(session, user).createMultipleRelation(tracks);
 
+    if (images) {
+      newData.images = await new ImageManager(session, 'Anime', user, "COVER")
+        .createMultipleRelation(images);
+      this.newImageID = this.newImageID?.concat(newData.images.map(image => image.id))
+    }
+
     return this;
   }
 
   public async create(note?: string) {
     const newAnime = new AnimeModel(this.newData);
-    newAnime.isVerified = true;
-    await newAnime.save({ session: this.session });
+    try {
+      newAnime.isVerified = true;
+      await newAnime.save({ session: this.session });
 
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'CREATE',
-      status: 'ACCEPTED',
-      target: { id: newAnime.id },
-      note,
-      targetPath: 'Anime',
-      newValues: newAnime.toJSON(),
-      oldValues: null,
-      author: { id: this.user!.id }
-    });
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'CREATE',
+        status: 'ACCEPTED',
+        target: { id: newAnime.id },
+        note,
+        targetPath: 'Anime',
+        newValues: newAnime.toJSON(),
+        oldValues: null,
+        author: { id: this.user!.id }
+      });
 
-    return newAnime;
+      return newAnime;
+    } catch (err) {
+      for (let i = 0; i < (this.newImageID || []).length; i++)
+        await ImageManager.deleteImageFileIfExist(this.newImageID?.[i], "Anime");
+
+      throw err
+    }
   }
 
   public async createRequest(note?: string) {
     const newAnime = new AnimeModel(this.newData);
+    try {
+      newAnime.isVerified = false;
 
-    newAnime.isVerified = false;
-
-    // Pré-disposition d'un anime qui est en cours de création.
-    await newAnime.save({ session: this.session });
+      // Pré-disposition d'un anime qui est en cours de création.
+      await newAnime.save({ session: this.session });
 
 
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'CREATE_REQUEST',
-      status: 'PENDING',
-      target: { id: newAnime.id },
-      targetPath: 'Anime',
-      newValues: newAnime.toJSON(),
-      oldValues: null,
-      author: { id: this.user!.id }
-    });
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'CREATE_REQUEST',
+        status: 'PENDING',
+        target: { id: newAnime.id },
+        targetPath: 'Anime',
+        newValues: newAnime.toJSON(),
+        oldValues: null,
+        author: { id: this.user!.id }
+      });
 
-    return newAnime;
+      return newAnime;
+    } catch (err) {
+      for (let i = 0; i < (this.newImageID || []).length; i++)
+        await ImageManager.deleteImageFileIfExist(this.newImageID?.[i], "Anime");
+      throw err
+    }
   }
 
   public async update(animeID: string, note?: string) {
     const newAnimeData = new AnimeModel(this.newData);
+    try {
+      const animeToUpdate = await AnimeModel.findOne({ id: animeID }, {}, { session: this.session });
+      if (!animeToUpdate) throw new APIError("Aucun anime correspondent a cet identifiant", 'NOT_FOUND', 404);
 
-    const animeToUpdate = await AnimeModel.findOne({ id: animeID }, {}, { session: this.session });
+      newAnimeData._id = animeToUpdate._id;
+      newAnimeData.id = animeToUpdate.id;
 
-    if (!animeToUpdate) throw new Error('Anime not found');
+      const changes = getChangedData(animeToUpdate.toJSON(), newAnimeData, [
+        '_id',
+        'id',
+        'createdAt',
+        'updatedAt'
+      ]);
 
-    newAnimeData._id = animeToUpdate._id;
-    newAnimeData.id = animeToUpdate.id;
+      if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
 
-    const changes = await getChangedData(animeToUpdate.toJSON(), newAnimeData, [
-      '_id',
-      'id',
-      'createdAt',
-      'updatedAt'
-    ]);
+      await animeToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-    if (!changes) throw new Error('No changes found');
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'UPDATE',
+        status: 'ACCEPTED',
+        target: { id: newAnimeData.id },
+        targetPath: 'Anime',
+        newValues: changes?.newValues,
+        oldValues: changes?.oldValues,
+        author: { id: this.user!.id }
+      });
 
-    await animeToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
-
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'UPDATE',
-      status: 'ACCEPTED',
-      target: { id: newAnimeData.id },
-      targetPath: 'Anime',
-      newValues: changes?.newValues,
-      oldValues: changes?.oldValues,
-      author: { id: this.user!.id }
-    });
-
-    return newAnimeData;
+      return newAnimeData;
+    } catch (err) {
+      for (let i = 0; i < (this.newImageID || []).length; i++)
+        await ImageManager.deleteImageFileIfExist(this.newImageID?.[i], "Anime");
+      throw err
+    }
   }
 
   public async updateRequest(animeID: string, note?: string) {
     const newAnimeData = new AnimeModel(this.newData);
+    try {
+      const animeToUpdate = await AnimeModel.findOne({ id: animeID }, {}, { session: this.session });
 
-    const animeToUpdate = await AnimeModel.findOne({ id: animeID }, {}, { session: this.session });
+      if (!animeToUpdate) throw new APIError("Aucun anime correspondant", "NOT_FOUND", 404);
 
-    if (!animeToUpdate) throw new Error('Anime not found');
+      newAnimeData._id = animeToUpdate._id;
+      newAnimeData.id = animeToUpdate.id;
 
-    newAnimeData._id = animeToUpdate._id;
-    newAnimeData.id = animeToUpdate.id;
+      const changes = getChangedData(animeToUpdate.toJSON(), newAnimeData, [
+        '_id',
+        'id',
+        'createdAt',
+        'updatedAt'
+      ]);
 
-    const changes = await getChangedData(animeToUpdate.toJSON(), newAnimeData, [
-      '_id',
-      'id',
-      'createdAt',
-      'updatedAt'
-    ]);
+      if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
 
-    if (!changes) throw new Error('No changes found');
+      await animeToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
-    await animeToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'UPDATE_REQUEST',
+        status: 'PENDING',
+        target: { id: newAnimeData.id },
+        targetPath: 'Anime',
+        newValues: changes?.newValues,
+        oldValues: changes?.oldValues,
+        author: { id: this.user!.id }
+      });
 
-
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'UPDATE_REQUEST',
-      status: 'PENDING',
-      target: { id: newAnimeData.id },
-      targetPath: 'Anime',
-      newValues: changes?.newValues,
-      oldValues: changes?.oldValues,
-      author: { id: this.user!.id }
-    });
-
-    return newAnimeData;
+      return newAnimeData;
+    } catch (err) {
+      for (let i = 0; i < (this.newImageID || []).length; i++)
+        await ImageManager.deleteImageFileIfExist(this.newImageID?.[i], "Anime");
+      throw err
+    }
   }
 }

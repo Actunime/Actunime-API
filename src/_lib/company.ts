@@ -9,11 +9,13 @@ import { getChangedData } from '../_utils/getObjChangeUtil';
 import { IPaginationResponse } from '@/_types/paginationType';
 import { MediaPagination } from './pagination';
 import { ImageManager } from './image';
+import { APIError } from './Error';
 
 export class CompanyManager {
   private session: ClientSession;
   private user?: IUser;
   private newData!: Partial<ICompany>;
+  private newImageID?: string[];
 
   constructor(session: ClientSession, user?: IUser) {
     this.user = user;
@@ -30,7 +32,7 @@ export class CompanyManager {
       '-_id'
     );
 
-    if (!findCompany) throw new Error('Company not found');
+    if (!findCompany) throw new APIError("Aucune société avec cet identifiant", "NOT_FOUND", 404);
 
     if (withMedia) await this.populate(findCompany, withMedia);
 
@@ -67,9 +69,11 @@ export class CompanyManager {
 
     const { newData, user, session } = this;
 
-    if (images)
+    if (images) {
       newData.images = await new ImageManager(session, 'User', user)
         .createMultipleRelation(images);
+      this.newImageID = this.newImageID?.concat(newData.images.map(image => image.id))
+    }
 
     return this;
   }
@@ -127,19 +131,19 @@ export class CompanyManager {
       { session: this.session }
     );
 
-    if (!companyToUpdate) throw new Error('Company not found');
+    if (!companyToUpdate) throw new APIError("Aucune société avec cet identifiant", "NOT_FOUND", 404);
 
     newCompanyData._id = companyToUpdate._id;
     newCompanyData.id = companyToUpdate.id;
 
-    const changes = await getChangedData(companyToUpdate.toJSON(), newCompanyData, [
+    const changes = getChangedData(companyToUpdate.toJSON(), newCompanyData, [
       '_id',
       'id',
       'createdAt',
       'updatedAt'
     ]);
 
-    if (!changes) throw new Error('No changes found');
+    if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
 
     await companyToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
@@ -167,19 +171,19 @@ export class CompanyManager {
       { session: this.session }
     );
 
-    if (!companyToUpdate) throw new Error('Company not found');
+    if (!companyToUpdate) throw new APIError("Aucune société avec cet identifiant", "NOT_FOUND", 404);
 
     newCompanyData._id = companyToUpdate._id;
     newCompanyData.id = companyToUpdate.id;
 
-    const changes = await getChangedData(companyToUpdate.toJSON(), newCompanyData, [
+    const changes = getChangedData(companyToUpdate.toJSON(), newCompanyData, [
       '_id',
       'id',
       'createdAt',
       'updatedAt'
     ]);
 
-    if (!changes) throw new Error('No changes found');
+    if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
 
     await companyToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 

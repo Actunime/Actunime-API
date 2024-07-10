@@ -8,6 +8,7 @@ import { GroupeModel } from '../_models';
 import { getChangedData } from '../_utils/getObjChangeUtil';
 import { IPaginationResponse } from '@/_types/paginationType';
 import { MediaPagination } from './pagination';
+import { APIError } from './Error';
 
 export class GroupeManager {
   private user?: IUser;
@@ -32,7 +33,7 @@ export class GroupeManager {
       '-_id'
     );
 
-    if (!findGroupe) throw new Error('Groupe not found');
+    if (!findGroupe) throw new APIError("Aucun groupe avec cet identifiant", "NOT_FOUND", 404);
 
     if (withMedia) await this.populate(findGroupe, withMedia);
 
@@ -121,7 +122,7 @@ export class GroupeManager {
       { session: this.session }
     );
 
-    if (!groupeToUpdate) throw new Error('Groupe not found');
+    if (!groupeToUpdate) throw new APIError("Aucun groupe avec cet identifiant", "NOT_FOUND", 404);
 
     newGroupeData._id = groupeToUpdate._id;
     newGroupeData.id = groupeToUpdate.id;
@@ -133,7 +134,7 @@ export class GroupeManager {
       'updatedAt'
     ]);
 
-    if (!changes) throw new Error('No changes found');
+    if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
 
     await groupeToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
@@ -161,7 +162,7 @@ export class GroupeManager {
       { session: this.session }
     );
 
-    if (!groupeToUpdate) throw new Error('Groupe not found');
+    if (!groupeToUpdate) throw new APIError("Aucun groupe avec cet identifiant", "NOT_FOUND", 404);
 
     newGroupeData._id = groupeToUpdate._id;
     newGroupeData.id = groupeToUpdate.id;
@@ -173,7 +174,7 @@ export class GroupeManager {
       'updatedAt'
     ]);
 
-    if (!changes) throw new Error('No changes found');
+    if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
 
     await groupeToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 

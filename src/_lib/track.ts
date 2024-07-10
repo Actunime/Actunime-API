@@ -9,11 +9,14 @@ import { PatchManager } from './patch';
 import { getChangedData } from '../_utils/getObjChangeUtil';
 import { IPaginationResponse } from '@/_types/paginationType';
 import { MediaPagination } from './pagination';
+import { ImageManager } from './image';
+import { APIError } from './Error';
 
 export class TrackManager {
   private user?: IUser;
   private session: ClientSession;
   private newData!: Partial<ITrack>;
+  private newImageID?: string;
   constructor(session: ClientSession, user?: IUser) {
     this.user = user;
     this.session = session;
@@ -37,7 +40,7 @@ export class TrackManager {
       '-_id'
     );
 
-    if (!findTrack) throw new Error('Track not found');
+    if (!findTrack) throw new APIError("Aucune musique correspondante.", "NOT_FOUND", 404);
 
     if (withMedia) await this.populate(findTrack, withMedia);
 
@@ -70,6 +73,7 @@ export class TrackManager {
   public async init(data: Partial<ICreate_Track_ZOD>) {
     const {
       // Relations
+      images,
       artists,
       // Data
       ...rawData
@@ -79,6 +83,13 @@ export class TrackManager {
 
     const { newData, user, session } = this;
 
+    if (images) {
+      newData.images = await new ImageManager(session, 'Person', user, 'AVATAR')
+        .createMultipleRelation(images);
+      if (images?.[0].newImage)
+        this.newImageID = newData.images[0].id;
+    }
+
     if (artists)
       newData.artists = await new PersonManager(session, user).createMultipleRelation(artists);
 
@@ -86,119 +97,137 @@ export class TrackManager {
   }
 
   public async create(note?: string) {
-    const newTrack = new TrackModel(this.newData);
-    newTrack.isVerified = true;
-    await newTrack.save({ session: this.session });
+    try {
+      const newTrack = new TrackModel(this.newData);
+      newTrack.isVerified = true;
+      await newTrack.save({ session: this.session });
 
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'CREATE',
+        status: 'ACCEPTED',
+        target: { id: newTrack.id },
+        note,
+        targetPath: 'Track',
+        newValues: newTrack.toJSON(),
+        oldValues: null,
+        author: { id: this.user!.id }
+      });
 
-
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'CREATE',
-      status: 'ACCEPTED',
-      target: { id: newTrack.id },
-      note,
-      targetPath: 'Track',
-      newValues: newTrack.toJSON(),
-      oldValues: null,
-      author: { id: this.user!.id }
-    });
-
-    return newTrack;
+      return newTrack;
+    } catch (err) {
+      await ImageManager.deleteImageFileIfExist(this.newImageID, "Track");
+      throw err;
+    }
   }
 
   public async createRequest(note?: string) {
-    const newTrack = new TrackModel(this.newData);
+    try {
+      const newTrack = new TrackModel(this.newData);
 
-    newTrack.isVerified = false;
+      newTrack.isVerified = false;
 
-    // Pré-disposition d'un track qui est en cours de création.
-    await newTrack.save({ session: this.session });
+      // Pré-disposition d'un track qui est en cours de création.
+      await newTrack.save({ session: this.session });
 
 
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'CREATE_REQUEST',
-      status: 'PENDING',
-      target: { id: newTrack.id },
-      note,
-      targetPath: 'Track',
-      newValues: newTrack.toJSON(),
-      oldValues: null,
-      author: { id: this.user!.id }
-    });
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'CREATE_REQUEST',
+        status: 'PENDING',
+        target: { id: newTrack.id },
+        note,
+        targetPath: 'Track',
+        newValues: newTrack.toJSON(),
+        oldValues: null,
+        author: { id: this.user!.id }
+      });
 
-    return newTrack;
+      return newTrack;
+    } catch (err) {
+      await ImageManager.deleteImageFileIfExist(this.newImageID, "Track");
+      throw err;
+    }
   }
 
   public async update(trackID: string, note?: string) {
-    const newTrackData = new TrackModel(this.newData);
+    try {
+      const newTrackData = new TrackModel(this.newData);
 
-    const trackToUpdate = await TrackModel.findOne({ id: trackID }, {}, { session: this.session });
+      const trackToUpdate = await TrackModel.findOne({ id: trackID }, {}, { session: this.session });
 
-    if (!trackToUpdate) throw new Error('Track not found');
+      if (!trackToUpdate) throw new APIError("Aucune musique correspondante.", "NOT_FOUND", 404);
 
-    newTrackData._id = trackToUpdate._id;
-    newTrackData.id = trackToUpdate.id;
+      newTrackData._id = trackToUpdate._id;
+      newTrackData.id = trackToUpdate.id;
 
-    const changes = await getChangedData(trackToUpdate.toJSON(), newTrackData, [
-      '_id',
-      'id',
-      'createdAt',
-      'updatedAt'
-    ]);
+      const changes = getChangedData(trackToUpdate.toJSON(), newTrackData, [
+        '_id',
+        'id',
+        'createdAt',
+        'updatedAt'
+      ]);
 
-    if (!changes) throw new Error('No changes found');
+      if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
 
-    await trackToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
+      await trackToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
 
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'UPDATE',
-      status: 'ACCEPTED',
-      target: { id: newTrackData.id },
-      note,
-      targetPath: 'Track',
-      newValues: changes?.newValues,
-      oldValues: changes?.oldValues,
-      author: { id: this.user!.id }
-    });
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'UPDATE',
+        status: 'ACCEPTED',
+        target: { id: newTrackData.id },
+        note,
+        targetPath: 'Track',
+        newValues: changes?.newValues,
+        oldValues: changes?.oldValues,
+        author: { id: this.user!.id }
+      });
 
-    return newTrackData;
+      return newTrackData;
+    } catch (err) {
+      await ImageManager.deleteImageFileIfExist(this.newImageID, "Track");
+      throw err;
+    }
   }
 
   public async updateRequest(trackID: string, note?: string) {
-    const newTrackData = new TrackModel(this.newData);
+    try {
+      const newTrackData = new TrackModel(this.newData);
 
-    const trackToUpdate = await TrackModel.findOne({ id: trackID }, {}, { session: this.session });
+      const trackToUpdate = await TrackModel.findOne({ id: trackID }, {}, { session: this.session });
 
-    if (!trackToUpdate) throw new Error('Track not found');
+      if (!trackToUpdate) throw new APIError("Aucune musique correspondante.", "NOT_FOUND", 404);
 
-    newTrackData._id = trackToUpdate._id;
-    newTrackData.id = trackToUpdate.id;
+      newTrackData._id = trackToUpdate._id;
+      newTrackData.id = trackToUpdate.id;
 
-    const changes = await getChangedData(trackToUpdate.toJSON(), newTrackData, [
-      '_id',
-      'id',
-      'createdAt',
-      'updatedAt'
-    ]);
+      const changes = getChangedData(trackToUpdate.toJSON(), newTrackData, [
+        '_id',
+        'id',
+        'createdAt',
+        'updatedAt'
+      ]);
 
-    if (!changes) throw new Error('No changes found');
+      if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
 
-    await trackToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
+      await trackToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
 
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'UPDATE_REQUEST',
-      status: 'PENDING',
-      target: { id: newTrackData.id },
-      note,
-      targetPath: 'Track',
-      newValues: changes?.newValues,
-      oldValues: changes?.oldValues,
-      author: { id: this.user!.id }
-    });
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'UPDATE_REQUEST',
+        status: 'PENDING',
+        target: { id: newTrackData.id },
+        note,
+        targetPath: 'Track',
+        newValues: changes?.newValues,
+        oldValues: changes?.oldValues,
+        author: { id: this.user!.id }
+      });
 
-    return newTrackData;
+      return newTrackData;
+    } catch (err) {
+      await ImageManager.deleteImageFileIfExist(this.newImageID, "Track");
+      throw err;
+    }
   }
 
   public async createRelation(relation: IAdd_Track_ZOD) {
@@ -209,7 +238,7 @@ export class TrackManager {
     } else if (relation.id && (await TrackModel.exists({ id: relation.id }))) {
       return { id: relation.id };
     } else {
-      throw new Error('Track invalide');
+      throw new APIError("Relation, musique invalide, il faut un identifiant ou une nouvelle musique.", "BAD_ENTRY", 400);
     }
   }
 
