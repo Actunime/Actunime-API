@@ -23,6 +23,12 @@ export class MediaPagination<T = any> {
     if (page !== undefined) this.page = page;
   }
 
+  public getByIds(ids: string[]) {
+    this.searchQuery.push({
+      id: { $in: ids }
+    });
+  }
+
   private skipLength(): number {
     return this.page * this.limit;
   }

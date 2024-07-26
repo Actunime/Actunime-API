@@ -19,7 +19,7 @@ export class MangaManager {
   private user?: IUser;
   private session: ClientSession;
   private newData!: Partial<IManga>;
-  private newImageID?: string[];
+  private newImageID?: string;
 
   constructor(session: ClientSession, user?: IUser) {
     this.user = user;
@@ -120,7 +120,8 @@ export class MangaManager {
   public async init(data: ICreate_Manga_ZOD) {
     const {
       // Relations
-      images,
+      cover,
+      banner,
       groupe,
       parent,
       source,
@@ -160,10 +161,16 @@ export class MangaManager {
         characters
       );
 
-    if (images) {
-      newData.images = await new ImageManager(session, 'Manga', user, 'AVATAR')
-        .createMultipleRelation(images);
-      this.newImageID = this.newImageID?.concat(newData.images.map(image => image.id))
+    if (cover) {
+      newData.cover = await new ImageManager(session, 'Manga', user)
+        .createRelation(cover);
+      this.newImageID = newData.cover.id;
+    }
+
+    if (banner) {
+      newData.banner = await new ImageManager(session, 'Manga', user)
+        .createRelation(banner);
+      this.newImageID = newData.banner.id;
     }
 
     return this;
@@ -188,8 +195,7 @@ export class MangaManager {
 
       return newManga;
     } catch (err) {
-      for (let i = 0; i < (this.newImageID || []).length; i++)
-        await ImageManager.deleteImageFileIfExist(this.newImageID?.[i], "Manga");
+      await ImageManager.deleteImageFileIfExist(this.newImageID, "Manga");
       throw err;
     }
   }
@@ -215,8 +221,7 @@ export class MangaManager {
 
       return newManga;
     } catch (err) {
-      for (let i = 0; i < (this.newImageID || []).length; i++)
-        await ImageManager.deleteImageFileIfExist(this.newImageID?.[i], "Manga");
+      await ImageManager.deleteImageFileIfExist(this.newImageID, "Manga");
       throw err;
     }
   }
@@ -257,8 +262,7 @@ export class MangaManager {
 
       return newMangaData;
     } catch (err) {
-      for (let i = 0; i < (this.newImageID || []).length; i++)
-        await ImageManager.deleteImageFileIfExist(this.newImageID?.[i], "Manga");
+      await ImageManager.deleteImageFileIfExist(this.newImageID, "Manga");
       throw err;
     }
   }
@@ -299,8 +303,7 @@ export class MangaManager {
 
       return newMangaData;
     } catch (err) {
-      for (let i = 0; i < (this.newImageID || []).length; i++)
-        await ImageManager.deleteImageFileIfExist(this.newImageID?.[i], "Manga");
+      await ImageManager.deleteImageFileIfExist(this.newImageID, "Manga");
       throw err;
     }
   }

@@ -15,7 +15,9 @@ export const Image_Pagination_ZOD = z
       })
       .partial()
       .strict(),
-    query: z.object({}).partial().strict(),
+    query: z.object({
+      ids: z.optional(z.array(z.string())),
+    }).partial().strict(),
     with: z.object({}).partial().strict()
   })
   .partial()
@@ -32,6 +34,7 @@ export type ICreate_Image_ZOD = z.infer<typeof Create_Image_ZOD>;
 
 export const Add_Image_ZOD = z.object({
   id: z.optional(z.string()),
+  label: z.optional(z.enum(ImageLabelArray)),
   newImage: z.optional(Create_Image_ZOD)
 });
 

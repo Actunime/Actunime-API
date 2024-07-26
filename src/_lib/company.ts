@@ -15,7 +15,7 @@ export class CompanyManager {
   private session: ClientSession;
   private user?: IUser;
   private newData!: Partial<ICompany>;
-  private newImageID?: string[];
+  private newImageID?: string;
 
   constructor(session: ClientSession, user?: IUser) {
     this.user = user;
@@ -63,143 +63,163 @@ export class CompanyManager {
   }
 
   public async init(data: Partial<ICreate_Company_ZOD>) {
-    const { images, ...rawData } = data;
+    const { logo, ...rawData } = data;
 
     this.newData = rawData as Partial<IUser>;
 
     const { newData, user, session } = this;
 
-    if (images) {
-      newData.images = await new ImageManager(session, 'User', user)
-        .createMultipleRelation(images);
-      this.newImageID = this.newImageID?.concat(newData.images.map(image => image.id))
+    if (logo) {
+      newData.logo = await new ImageManager(session, 'User', user)
+        .createRelation(logo);
+      this.newImageID = newData.logo.id;
     }
 
     return this;
   }
 
   public async create(note?: string) {
-    const newCompany = new CompanyModel(this.newData);
-    newCompany.isVerified = true;
-    await newCompany.save({ session: this.session });
+    try {
+      const newCompany = new CompanyModel(this.newData);
+      newCompany.isVerified = true;
+      await newCompany.save({ session: this.session });
 
 
 
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'CREATE',
-      status: 'ACCEPTED',
-      target: { id: newCompany.id },
-      note,
-      targetPath: 'Company',
-      newValues: newCompany.toJSON(),
-      oldValues: null,
-      author: { id: this.user!.id }
-    });
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'CREATE',
+        status: 'ACCEPTED',
+        target: { id: newCompany.id },
+        note,
+        targetPath: 'Company',
+        newValues: newCompany.toJSON(),
+        oldValues: null,
+        author: { id: this.user!.id }
+      });
 
-    return newCompany;
+      return newCompany;
+    } catch (err) {
+      await ImageManager.deleteImageFileIfExist(this.newImageID, "Company");
+      throw err;
+    }
   }
 
   public async createRequest(note?: string) {
-    const newCompany = new CompanyModel(this.newData);
+    try {
+      const newCompany = new CompanyModel(this.newData);
 
-    newCompany.isVerified = false;
+      newCompany.isVerified = false;
 
-    // Pré-disposition d'un company qui est en cours de création.
-    await newCompany.save({ session: this.session });
+      // Pré-disposition d'un company qui est en cours de création.
+      await newCompany.save({ session: this.session });
 
 
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'CREATE_REQUEST',
-      status: 'PENDING',
-      target: { id: newCompany.id },
-      note,
-      targetPath: 'Company',
-      newValues: newCompany.toJSON(),
-      oldValues: null,
-      author: { id: this.user!.id }
-    });
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'CREATE_REQUEST',
+        status: 'PENDING',
+        target: { id: newCompany.id },
+        note,
+        targetPath: 'Company',
+        newValues: newCompany.toJSON(),
+        oldValues: null,
+        author: { id: this.user!.id }
+      });
 
-    return newCompany;
+      return newCompany;
+    } catch (err) {
+      await ImageManager.deleteImageFileIfExist(this.newImageID, "Company");
+      throw err;
+    }
   }
 
   public async update(companyID: string, note?: string) {
-    const newCompanyData = new CompanyModel(this.newData);
+    try {
+      const newCompanyData = new CompanyModel(this.newData);
 
-    const companyToUpdate = await CompanyModel.findOne(
-      { id: companyID },
-      {},
-      { session: this.session }
-    );
+      const companyToUpdate = await CompanyModel.findOne(
+        { id: companyID },
+        {},
+        { session: this.session }
+      );
 
-    if (!companyToUpdate) throw new APIError("Aucune société avec cet identifiant", "NOT_FOUND", 404);
+      if (!companyToUpdate) throw new APIError("Aucune société avec cet identifiant", "NOT_FOUND", 404);
 
-    newCompanyData._id = companyToUpdate._id;
-    newCompanyData.id = companyToUpdate.id;
+      newCompanyData._id = companyToUpdate._id;
+      newCompanyData.id = companyToUpdate.id;
 
-    const changes = getChangedData(companyToUpdate.toJSON(), newCompanyData, [
-      '_id',
-      'id',
-      'createdAt',
-      'updatedAt'
-    ]);
+      const changes = getChangedData(companyToUpdate.toJSON(), newCompanyData, [
+        '_id',
+        'id',
+        'createdAt',
+        'updatedAt'
+      ]);
 
-    if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
+      if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
 
-    await companyToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
+      await companyToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
 
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'UPDATE',
-      status: 'ACCEPTED',
-      target: { id: newCompanyData.id },
-      note,
-      targetPath: 'Company',
-      newValues: changes?.newValues,
-      oldValues: changes?.oldValues,
-      author: { id: this.user!.id }
-    });
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'UPDATE',
+        status: 'ACCEPTED',
+        target: { id: newCompanyData.id },
+        note,
+        targetPath: 'Company',
+        newValues: changes?.newValues,
+        oldValues: changes?.oldValues,
+        author: { id: this.user!.id }
+      });
 
-    return newCompanyData;
+      return newCompanyData;
+    } catch (err) {
+      await ImageManager.deleteImageFileIfExist(this.newImageID, "Company");
+      throw err;
+    }
   }
 
   public async updateRequest(companyID: string, note?: string) {
-    const newCompanyData = new CompanyModel(this.newData);
+    try {
+      const newCompanyData = new CompanyModel(this.newData);
 
-    const companyToUpdate = await CompanyModel.findOne(
-      { id: companyID },
-      {},
-      { session: this.session }
-    );
+      const companyToUpdate = await CompanyModel.findOne(
+        { id: companyID },
+        {},
+        { session: this.session }
+      );
 
-    if (!companyToUpdate) throw new APIError("Aucune société avec cet identifiant", "NOT_FOUND", 404);
+      if (!companyToUpdate) throw new APIError("Aucune société avec cet identifiant", "NOT_FOUND", 404);
 
-    newCompanyData._id = companyToUpdate._id;
-    newCompanyData.id = companyToUpdate.id;
+      newCompanyData._id = companyToUpdate._id;
+      newCompanyData.id = companyToUpdate.id;
 
-    const changes = getChangedData(companyToUpdate.toJSON(), newCompanyData, [
-      '_id',
-      'id',
-      'createdAt',
-      'updatedAt'
-    ]);
+      const changes = getChangedData(companyToUpdate.toJSON(), newCompanyData, [
+        '_id',
+        'id',
+        'createdAt',
+        'updatedAt'
+      ]);
 
-    if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
+      if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
 
-    await companyToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
+      await companyToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
 
-    await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'UPDATE_REQUEST',
-      status: 'PENDING',
-      target: { id: newCompanyData.id },
-      note,
-      targetPath: 'Company',
-      newValues: changes?.newValues,
-      oldValues: changes?.oldValues,
-      author: { id: this.user!.id }
-    });
+      await new PatchManager(this.session, this.user!).PatchCreate({
+        type: 'UPDATE_REQUEST',
+        status: 'PENDING',
+        target: { id: newCompanyData.id },
+        note,
+        targetPath: 'Company',
+        newValues: changes?.newValues,
+        oldValues: changes?.oldValues,
+        author: { id: this.user!.id }
+      });
 
-    return newCompanyData;
+      return newCompanyData;
+    } catch (err) {
+      await ImageManager.deleteImageFileIfExist(this.newImageID, "Company");
+      throw err;
+    }
   }
 
   public async createRelation(relation: { id?: string; newCompany?: ICreate_Company_ZOD }) {

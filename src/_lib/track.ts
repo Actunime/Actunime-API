@@ -73,7 +73,7 @@ export class TrackManager {
   public async init(data: Partial<ICreate_Track_ZOD>) {
     const {
       // Relations
-      images,
+      cover,
       artists,
       // Data
       ...rawData
@@ -83,11 +83,11 @@ export class TrackManager {
 
     const { newData, user, session } = this;
 
-    if (images) {
-      newData.images = await new ImageManager(session, 'Person', user, 'AVATAR')
-        .createMultipleRelation(images);
-      if (images?.[0].newImage)
-        this.newImageID = newData.images[0].id;
+    if (cover) {
+      newData.cover = await new ImageManager(session, 'Person', user)
+        .createRelation(cover);
+      if (cover.newImage)
+        this.newImageID = newData.cover.id;
     }
 
     if (artists)

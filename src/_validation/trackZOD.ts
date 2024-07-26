@@ -43,7 +43,7 @@ export const Create_Track_ZOD = z
     type: z.enum(TrackTypeArray),
     pubDate: z.optional(z.string()),
     artists: z.optional(z.array(Add_Person_ZOD)),
-    images: z.optional(z.array(Add_Image_ZOD)),
+    cover: z.optional(Add_Image_ZOD),
     links: z.optional(z.array(Create_Link_ZOD))
   })
   .strict();
@@ -64,7 +64,7 @@ export const TrackDataToZOD = (data: ITrack): Partial<ICreate_Track_ZOD> => {
     name: data.name,
     type: data.type,
     pubDate: dateToZod(data.pubDate),
-    images: data.images,
+    cover: data.cover,
     artists: data.artists
   };
 

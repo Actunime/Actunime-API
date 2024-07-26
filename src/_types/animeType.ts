@@ -53,10 +53,15 @@ export interface IAnime extends IMediaBase {
   adult?: boolean;
   explicit?: boolean;
 
-  images?: {
+  cover?: {
     id: string;
     data?: IImage; // Virtual
-  }[];
+  };
+
+  banner?: {
+    id: string;
+    data?: IImage; // Virtual
+  }
 
   genres?: IMediaGenres[];
   // themes?: string[];

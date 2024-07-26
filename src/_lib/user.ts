@@ -1,15 +1,16 @@
-import { ClientSession, Document } from 'mongoose';
+import { ClientSession, Document, Schema } from 'mongoose';
 import { IUser } from '../_types/userType';
 import { IPatch_User_ZOD, IUser_Pagination_ZOD } from '../_validation/userZOD';
-import { PatchManager } from './patch';
 import { UserModel } from '../_models';
 import { getChangedData } from '../_utils/getObjChangeUtil';
 
 import { MediaPagination } from './pagination';
-import { IPaginationResponse } from '@/_types/paginationType';
 import { IUserRoles, userPermissionIsHigherThan } from '@/_utils/userUtil';
 import { ImageManager } from './image';
 import { APIError } from './Error';
+import { PatchManager } from './patch';
+
+type DocUser = Document<unknown, object, IUser> & IUser & Required<{ _id: Schema.Types.ObjectId }>
 
 export class UserManager {
   private user?: IUser;
@@ -21,21 +22,19 @@ export class UserManager {
   }
 
   private async populate(
-    doc: Document | IPaginationResponse<IUser>,
+    doc: DocUser,
     withMedia: IUser_Pagination_ZOD['with']
   ) {
-    // if (withMedia?.actors)
-    //     await UserModel.populate(doc, { path: '', select: '-_id', justOne: true, options: { session: this.session } });
+  
   }
 
   public async get(id: string, withMedia?: IUser_Pagination_ZOD['with']) {
-    const findUser = await UserModel.findOne({ id }, null, { session: this.session }).select(
-      '-_id'
-    );
+    const findUser = await UserModel.findOne({ id }, null, { session: this.session })
+    .select('-_id');
 
     if (!findUser) throw new Error('User not found');
 
-    if (withMedia) await this.populate(findUser, withMedia);
+    await this.populate(findUser, withMedia);
 
     return findUser.toJSON();
   }
@@ -61,196 +60,113 @@ export class UserManager {
 
     const response = await pagination.getResults();
 
-    if (paginationInput.with) await this.populate(response, paginationInput.with);
+    if (paginationInput.with) await this.populate(response as any, paginationInput.with);
 
     return response;
   }
 
   public async init(data: Partial<IPatch_User_ZOD>) {
-    const { images, ...rawData } = data;
+    console.log("INIT", data)
+    const { avatar, banner, ...rawData } = data;
 
     this.newData = rawData as Partial<IUser>;
 
     const { newData, user, session } = this;
 
-    if (images)
-      newData.images = await new ImageManager(session, 'User', user)
-        .createMultipleRelation(images);
+    if (avatar)
+      newData.avatar = await new ImageManager(session, 'User', user)
+        .createRelation(avatar);
 
     return this;
   }
 
-  private async updateUsername(userID: string, username: string, note?: string) {
-    const userToUpdate = await UserModel.findOne({ id: userID }, {}, { session: this.session });
+  private async updateUsername(userDoc: DocUser, username: string) {
 
-    if (!userToUpdate) throw new APIError("Aucun utilisateur n'a été trouvé", "NOT_FOUND", 404);
+    const changes = getChangedData({ username: userDoc.username }, { username });
+    if (!changes)
+      throw new APIError("Aucun changement n'a été effectué sur le nom d'utilisateur", "EMPTY_CHANGES", 400);
 
-    await userToUpdate.updateOne({ username }, { session: this.session });
-
-    const changes = await getChangedData({ username: userToUpdate.username }, { username });
-
-    if (!changes) throw new APIError("Aucun changement n'a été effectué", "NOT_FOUND", 404);
-
-    await new PatchManager(this.session, this.user!)
-      .PatchCreate({
-        type: 'UPDATE',
-        status: 'ACCEPTED',
-        target: { id: userToUpdate.id },
-
-        targetPath: 'User',
-        newValues: changes?.newValues,
-        oldValues: changes?.oldValues,
-        author: { id: this.user!.id }
-      });
+    await userDoc.updateOne({ username }, { session: this.session });
   }
 
-  private async updateDisplayName(userID: string, displayName: string, note?: string) {
-    const userToUpdate = await UserModel.findOne({ id: userID }, {}, { session: this.session });
+  private async updateDisplayName(userDoc: DocUser, displayName: string) {
 
-    if (!userToUpdate) throw new Error('User not found');
+    const changes = getChangedData({ displayName: userDoc.displayName }, { displayName });
+    if (!changes)
+      throw new APIError("Aucun changement n'a été effectué sur le pseudonyme", "EMPTY_CHANGES", 400);
 
-    await userToUpdate.updateOne({ displayName }, { session: this.session });
-
-    const changes = await getChangedData({ displayName: userToUpdate.displayName }, { displayName });
-
-    if (!changes) throw new APIError("Aucun changement n'a été effectué", "NOT_FOUND", 404);
-
-    await new PatchManager(this.session, this.user!)
-      .PatchCreate({
-        type: 'UPDATE',
-        status: 'ACCEPTED',
-        target: { id: userToUpdate.id },
-
-        targetPath: 'User',
-        newValues: changes?.newValues,
-        oldValues: changes?.oldValues,
-        author: { id: this.user!.id }
-      });
+    await userDoc.updateOne({ displayName }, { session: this.session });
   }
 
-  private async updateBio(userID: string, bio: string, note?: string) {
-    const userToUpdate = await UserModel.findOne({ id: userID }, {}, { session: this.session });
+  private async updateBio(userDoc: DocUser, bio: string) {
 
-    if (!userToUpdate) throw new Error('User not found');
+    const changes = getChangedData({ bio: userDoc.bio }, { bio });
 
-    await userToUpdate.updateOne({ bio }, { session: this.session });
+    if (!changes)
+      throw new APIError("Aucun changement n'a été effectué sur la biographie", "EMPTY_CHANGES", 400);
 
-    const changes = await getChangedData({ bio: userToUpdate.bio }, { bio });
-
-    if (!changes) throw new APIError("Aucun changement n'a été effectué", "NOT_FOUND", 404);
-
-    await new PatchManager(this.session, this.user!)
-      .PatchCreate({
-        type: 'UPDATE',
-        status: 'ACCEPTED',
-        target: { id: userToUpdate.id },
-
-        targetPath: 'User',
-        newValues: changes?.newValues,
-        oldValues: changes?.oldValues,
-        author: { id: this.user!.id }
-      });
+    await userDoc.updateOne({ bio }, { session: this.session });
   }
 
-  private async updateRoles(userID: string, roles: IUserRoles[], note?: string) {
-    const userToUpdate = await UserModel.findOne({ id: userID }, {}, { session: this.session });
+  private async updateRoles(userDoc: DocUser, roles: IUserRoles[]) {
+    const changes = getChangedData({ roles: userDoc.roles }, { roles });
+    if (!changes)
+      throw new APIError("Aucun changement n'a été effectué sur les rôles", "EMPTY_CHANGES", 400);
 
-    if (!userToUpdate) throw new Error('User not found');
-
-    const changes = await getChangedData({ roles: userToUpdate.roles }, { roles });
-
-    if (!changes) throw new APIError("Aucun changement n'a été effectué", "NOT_FOUND", 404);
-
-    if (userPermissionIsHigherThan(userToUpdate.roles, this.user!.roles))
-      throw new Error("Le(s) rôle(s) de l'utilisateurs que vous souhaitez modifier sont plus hauts que vous");
+    if (userPermissionIsHigherThan(userDoc.roles, this.user!.roles))
+      throw new APIError("Le(s) rôle(s) de l'utilisateurs que vous souhaitez modifier sont plus hauts que vous", "FORBIDDEN", 403);
 
     if (!userPermissionIsHigherThan(this.user!.roles, roles))
-      throw new Error('Vous n\'avez pas les permissions pour ajouter ces rôles');
+      throw new APIError('Vous n\'avez pas les permissions pour ajouter ces rôles', 'FORBIDDEN', 403);
 
-    await userToUpdate.updateOne({ roles }, { session: this.session });
-
-    await new PatchManager(this.session, this.user!)
-      .PatchCreate({
-        type: 'UPDATE',
-        status: 'ACCEPTED',
-        target: { id: userToUpdate.id },
-
-        targetPath: 'User',
-        newValues: changes?.newValues,
-        oldValues: changes?.oldValues,
-        author: { id: this.user!.id }
-      });
+    await userDoc.updateOne({ roles }, { session: this.session });
   }
 
-  private async updateImages(userID: string, images: IUser['images'], note?: string) {
-    const userToUpdate = await UserModel.findOne({ id: userID }, {}, { session: this.session });
+  private async updateAvatar(userDoc: DocUser, avatar: IUser['avatar']) {
+    await userDoc.updateOne({ avatar }, { session: this.session });
+  }
+
+  private async updateBanner(userDoc: DocUser, banner: IUser['banner']) {
+    await userDoc.updateOne({ banner }, { session: this.session });
+  }
+
+  public async update(userID: string, note?: string) {
+    let userToUpdate = await UserModel.findOne({ id: userID }, {}, { session: this.session });
 
     if (!userToUpdate) throw new APIError("Aucun utilisateur n'a été trouvé", "NOT_FOUND", 404);
 
-    // const changes = await getChangedData({ images: userToUpdate.images }, { images });
-
-    // if (!changes) throw new APIError("Aucun changement n'a été effectué", "NOT_FOUND", 404);
-
-    await userToUpdate.updateOne({ images }, { session: this.session });
-
-    await new PatchManager(this.session, this.user!)
-      .PatchCreate({
-        type: 'UPDATE',
-        status: 'ACCEPTED',
-        target: { id: userToUpdate.id },
-
-        targetPath: 'User',
-        // changes: changes?.newValues,
-        // beforeChanges: changes?.oldValues,
-        author: { id: this.user!.id }
-      });
-  }
-
-
-  public async update(userID: string, note?: string) {
-    const { username, displayName, bio, roles, images } = this.newData;
-
-    if (username)
-      await this.updateUsername(userID, username, note);
-
-    if (displayName)
-      await this.updateDisplayName(userID, displayName, note);
-
-    if (bio)
-      await this.updateBio(userID, bio, note);
-
-    if (roles)
-      await this.updateRoles(userID, roles, note);
-
-    if (images)
-      await this.updateImages(userID, images, note);
-  }
-
-  public async updateRequest(userID: string, note?: string) {
-    const newUserData = new UserModel(this.newData);
-
-    const userToUpdate = await UserModel.findOne({ id: userID }, {}, { session: this.session });
-
-    if (!userToUpdate) throw new Error('User not found');
-
-    newUserData._id = userToUpdate._id;
-    newUserData.id = userToUpdate.id;
-
-    const changes = getChangedData(userToUpdate.toJSON(), newUserData, [
+    const changes = getChangedData<IUser>(userToUpdate.toJSON(), this.newData, [
       '_id',
       'id',
       'createdAt',
       'updatedAt'
     ]);
 
-    if (!changes) throw new APIError("Aucun changement n'a été effectué", "NOT_FOUND", 404);
 
-    await userToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
-  
+    if (!changes) throw new APIError("Aucun changement n'a été effectué", "EMPTY_CHANGES", 400);
+
+    if (changes.newValues.username)
+      await this.updateUsername(userToUpdate, changes.newValues.username);
+
+    if (changes.newValues.displayName)
+      await this.updateDisplayName(userToUpdate, changes.newValues.displayName);
+
+    if (changes.newValues.bio)
+      await this.updateBio(userToUpdate, changes.newValues.bio);
+
+    if (changes.newValues.roles)
+      await this.updateRoles(userToUpdate, changes.newValues.roles);
+
+    if (changes.newValues.avatar)
+      await this.updateAvatar(userToUpdate, changes.newValues.avatar);
+
+    if (changes.newValues.banner)
+      await this.updateBanner(userToUpdate, changes.newValues.banner);
+
     await new PatchManager(this.session, this.user!).PatchCreate({
-      type: 'UPDATE_REQUEST',
-      status: 'PENDING',
-      target: { id: newUserData.id },
+      type: "UPDATE",
+      status: "ACCEPTED",
+      target: { id: userToUpdate.id },
       note,
       targetPath: 'User',
       newValues: changes?.newValues,
@@ -258,27 +174,10 @@ export class UserManager {
       author: { id: this.user!.id }
     });
 
-    return newUserData;
+    userToUpdate = await UserModel.findOne({ id: userID }, {}, { session: this.session });
+    if (!userToUpdate) throw new APIError("Aucun utilisateur n'a été trouvé", "NOT_FOUND", 404);
+
+    return userToUpdate.toJSON();
   }
 
-  // public async createRelation(relation: IAdd_User_ZOD) {
-  //     if (relation.newUser) {
-  //         const initChataracter = await this.init(relation.newUser);
-  //         const newUser = await initChataracter.create();
-  //         return { id: newUser.id, role: relation.role };
-  //     } else if (relation.id && (await UserModel.exists({ id: relation.id }))) {
-  //         return { id: relation.id, role: relation.role };
-  //     } else {
-  //         throw new Error('User invalide');
-  //     }
-  // }
-
-  // public async createMultipleRelation(relations: IAdd_User_ZOD[]) {
-  //     const relList: { id: string; role: IAdd_User_ZOD['role'] }[] = [];
-  //     for await (const relation of relations) {
-  //         const rel = await this.createRelation(relation);
-  //         relList.push(rel);
-  //     }
-  //     return relList;
-  // }
 }

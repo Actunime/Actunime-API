@@ -10,11 +10,11 @@ import { withMangaSchema } from './_mangaModel';
 import {
   MediaDateSchema,
   MediaLinkSchema,
-  MediaTitleSchema,
-  withSchema
+  MediaTitleSchema
 } from './_mediaModel';
 import { withPersonSchema } from './_personModel';
 import { withTrackSchema } from './_trackModel';
+import { withImage } from './_imageModel';
 
 const AnimeEpisodeSchema = new Schema<IAnimeEpisode>(
   {
@@ -52,7 +52,8 @@ const AnimeSchema = new Schema<IAnime>(
     parent: { type: withAnimeSchema, default: undefined },
     title: { type: MediaTitleSchema, required: true, default: undefined },
     date: { type: MediaDateSchema, default: undefined },
-    images: { type: [withSchema], default: undefined },
+    cover: { type: withImage, default: undefined },
+    banner: { type: withImage, default: undefined },
     synopsis: { type: String, default: undefined },
     source: { type: withMangaSchema, default: undefined },
     format: { type: String, enum: AnimeFormatArray, required: true, default: undefined },

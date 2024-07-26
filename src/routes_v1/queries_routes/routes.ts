@@ -11,8 +11,24 @@ import { AuthValidation } from '@/_utils/authUtil';
 import { FilterActivityRouter, GetActivityRouter } from './_activity.query';
 import { GetReportRouter, FilterReportRouter } from './_report.query';
 import { GetStatsByPathRouter, GetStatsRouter } from './_stats.query';
+import { FilterImageRouter, GetImageRouter } from './_image.query';
 
 export async function Gets_Routes_V1(fastify: FastifyInstance) {
+  // Images get/filter
+  fastify.route({
+    method: 'GET',
+    url: '/images/:id',
+    // preValidation: AuthValidation(['MODERATOR']),
+    handler: GetImageRouter
+  });
+  fastify.route({
+    method: 'GET',
+    url: '/images',
+    // preValidation: AuthValidation(['MODERATOR']),
+    handler: FilterImageRouter
+  });
+ 
+
   // Userrs get/filter
   fastify.route({
     method: 'GET',

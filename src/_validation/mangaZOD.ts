@@ -78,7 +78,8 @@ export const Create_Manga_ZOD = z
     source: z.optional(Add_Manga_ZOD),
     title: MediaTitle_validation,
     date: z.optional(MediaDate_validation),
-    images: z.optional(z.array(Add_Image_ZOD)),
+    cover: z.optional(Add_Image_ZOD),
+    banner: z.optional(Add_Image_ZOD),
     synopsis: z.optional(z.string()),
     format: z.enum(MangaFormatArray),
     vf: z.optional(zodBoolean()),
@@ -109,7 +110,8 @@ export const MangaDataToZOD = (data: IManga): Partial<ICreate_Manga_ZOD> => {
 
     title: data.title,
     synopsis: data.synopsis,
-    images: data.images,
+    cover: data.cover,
+    banner: data.banner,
     ...(data.date
       ? {
           date: {

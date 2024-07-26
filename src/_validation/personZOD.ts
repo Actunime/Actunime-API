@@ -18,7 +18,7 @@ export const Create_Person_ZOD = z
     birthDate: z.optional(z.string()),
     deathDate: z.optional(z.string()),
     bio: z.optional(z.string()),
-    images: z.optional(z.array(Add_Image_ZOD)),
+    avatar: z.optional(Add_Image_ZOD),
     links: z.optional(z.array(Create_Link_ZOD))
   })
   .strict();
@@ -66,7 +66,7 @@ export const PersonDataToZOD = (data: IPerson): Partial<ICreate_Person_ZOD> => {
     birthDate: dateToZod(data.birthDate),
     deathDate: dateToZod(data.deathDate),
     bio: data.bio,
-    images: data.images,
+    avatar: data.avatar,
     links: data.links
   };
 

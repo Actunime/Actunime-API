@@ -1,9 +1,9 @@
 import ObservableSlim from 'observable-slim';
 
 
-function getChangedData(previousData: any, changedData: any, ignoreKeys?: string[]) {
-  const newValues = {};
-  const oldValues = {};
+function getChangedData<T = object>(previousData: any, changedData: any, ignoreKeys?: string[]): Record<string, T> | undefined {
+  const newValues: any = {};
+  const oldValues: any = {};
 
   const listener = ObservableSlim.create({ ...previousData }, false, function ([changes]) {
     if (Array.isArray(changes.newValue)) {

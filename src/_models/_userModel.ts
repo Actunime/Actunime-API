@@ -10,6 +10,7 @@ import type {
 } from '../_types/userType';
 import { genPublicID } from '../_utils/genID';
 import { withSchema } from './_mediaModel';
+import { withImage } from './_imageModel';
 
 const userLinkedAccountSchema = new Schema<IUserLinkedAccount>(
   {
@@ -53,10 +54,19 @@ const userSchema = new Schema<IUser>(
     displayName: { type: String },
     bio: { type: String },
     roles: { type: [String], default: ['MEMBER'] },
-    images: [withSchema],
+    avatar: withImage,
+    banner: withImage,
   },
   { timestamps: true, id: false, toJSON: { virtuals: true } }
 );
+
+userSchema.virtual('images.data', {
+  ref: 'Image',
+  localField: 'images.id',
+  foreignField: 'id',
+  justOne: true
+});
+
 
 userSchema.virtual('disabled', {
   ref: 'UserDisabled',

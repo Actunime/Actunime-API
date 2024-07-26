@@ -10,9 +10,9 @@ import {
   MediaDateSchema,
   MediaLinkSchema,
   MediaTitleSchema,
-  withSchema
 } from './_mediaModel';
 import { withPersonSchema } from './_personModel';
+import { withImage } from './_imageModel';
 
 const MangaChapterVolumesSchema = new Schema<IMangaChapterVolums>({
   airing: { type: Number },
@@ -48,7 +48,8 @@ const MangaSchema = new Schema<IManga>(
 
     title: { type: MediaTitleSchema, required: true },
     date: { type: MediaDateSchema, default: undefined },
-    images: { type: [withSchema], default: undefined },
+    cover: { type: [withImage], default: undefined },
+    banner: { type: [withImage], default: undefined },
     synopsis: { type: String, default: undefined },
     source: { type: withMangaSchema, default: undefined },
     format: {

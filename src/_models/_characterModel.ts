@@ -28,8 +28,8 @@ const CharacterSchema = new Schema<ICharacter>(
       required: true
     },
     bio: String,
-    images: [{ type: withSchema, default: [] }],
-    actors: [{ type: withPersonSchema, default: [] }]
+    avatar: { type: withSchema, default: undefined },
+    actors: [{ type: withPersonSchema, default: undefined }]
   },
   { timestamps: true, id: false, toJSON: { virtuals: true } }
 );

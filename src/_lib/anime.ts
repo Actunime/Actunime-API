@@ -19,7 +19,7 @@ export class AnimeManager {
   private user?: IUser;
   private session: ClientSession;
   private newData!: Partial<IAnime>;
-  private newImageID?: string[];
+  private newImageID?: string;
 
   constructor(session: ClientSession, user?: IUser) {
     this.user = user;
@@ -128,7 +128,8 @@ export class AnimeManager {
   public async init(data: ICreate_Anime_ZOD) {
     const {
       // Relations
-      images,
+      cover,
+      banner,
       groupe,
       parent,
       source,
@@ -171,10 +172,16 @@ export class AnimeManager {
     if (tracks)
       newData.tracks = await new TrackManager(session, user).createMultipleRelation(tracks);
 
-    if (images) {
-      newData.images = await new ImageManager(session, 'Anime', user, "COVER")
-        .createMultipleRelation(images);
-      this.newImageID = this.newImageID?.concat(newData.images.map(image => image.id))
+    if (cover) {
+      newData.cover = await new ImageManager(session, 'Anime', user)
+        .createRelation(cover);
+      this.newImageID = newData.cover.id;
+    }
+
+    if (banner) {
+      newData.banner = await new ImageManager(session, 'Anime', user)
+        .createRelation(banner);
+      this.newImageID = newData.banner.id;
     }
 
     return this;

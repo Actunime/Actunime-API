@@ -73,7 +73,8 @@ export const Patch_User_ZOD = z
     displayName: z.string().optional(),
     bio: z.string().optional(),
     roles: z.array(z.enum(UserRolesArray)).optional(),
-    images: z.array(Add_Image_ZOD).optional()
+    avatar: z.optional(Add_Image_ZOD),
+    banner: z.optional(Add_Image_ZOD)
   })
   .strict()
   .partial();

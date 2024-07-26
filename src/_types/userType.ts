@@ -33,10 +33,14 @@ export interface IUser {
   displayName: string;
   bio?: string;
   roles: IUserRoles[];
-  images?: {
+  avatar?: {
     id: string;
     data?: IImage; // Virtual
-  }[];
+  };
+  banner?: {
+    id: string;
+    data?: IImage; // Virtual
+  };
   disabled?: IUserDisabled // Virtual
   premium?: IUserPremium // Virtual
 

@@ -7,10 +7,10 @@ export interface ICompany extends IMediaBase {
   name: string;
   bio?: string;
   links?: IMediaLink[];
-  images?: {
+  logo?: {
     id: string;
     data?: IImage; // Virtual
-  }[];
+  };
   createdDate?: Date | string;
 }
 

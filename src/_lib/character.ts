@@ -84,7 +84,7 @@ export class CharacterManager {
   public async init(data: Partial<ICreate_Character_ZOD>) {
     const {
       // Relations
-      images,
+      avatar,
       actors,
       // Data
       ...rawData
@@ -96,11 +96,11 @@ export class CharacterManager {
     if (actors)
       newData.actors = await new PersonManager(session, user).createMultipleRelation(actors);
 
-    if (images) {
-      newData.images = await new ImageManager(session, 'Character', user, 'AVATAR')
-        .createMultipleRelation(images);
-      if (images?.[0].newImage)
-        this.newImageID = newData.images[0].id;
+    if (avatar) {
+      newData.avatar = await new ImageManager(session, 'Character', user)
+        .createRelation(avatar);
+      if (avatar.newImage)
+        this.newImageID = newData.avatar.id;
     }
 
     return this;

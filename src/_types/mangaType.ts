@@ -49,11 +49,14 @@ export interface IManga extends IMediaBase {
   explicit?: boolean;
   links?: IMediaLink[];
 
-  images?: {
+  cover?: {
     id: string;
     data?: IImage; // Virtual
-  }[];
-
+  };
+  banner?: {
+    id: string;
+    data?: IImage; // Virtual
+  };
   companys?: {
     id: string;
     data?: ICompany;

@@ -11,10 +11,10 @@ export interface ICharacter extends IMediaBase {
   gender: ICharacterGender;
   species: ICharacterSpecies;
   bio: string;
-  images?: {
+  avatar?: {
     id: string;
     data?: IImage; // Virtual
-  }[];
+  };
   actors: {
     id: string,
     data?: IPerson  // Virtual

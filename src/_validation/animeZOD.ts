@@ -81,7 +81,8 @@ export const Create_Anime_ZOD = z
     source: z.optional(Add_Manga_ZOD.partial({ parentLabel: true, sourceLabel: true })),
     title: MediaTitle_validation,
     date: z.optional(MediaDate_validation),
-    images: z.optional(z.array(Add_Image_ZOD)),
+    cover: z.optional(Add_Image_ZOD),
+    banner: z.optional(Add_Image_ZOD),
     synopsis: z.optional(z.string()),
     format: z.enum(AnimeFormatArray),
     vf: z.optional(zodBoolean()),
@@ -235,7 +236,8 @@ export const AnimeDataToZOD = (data: IAnime): Partial<ICreate_Anime_ZOD> => {
 
     title: data.title,
     synopsis: data.synopsis,
-    images: data.images,
+    cover: data.cover,
+    banner: data.banner,
     ...(data.date
       ? {
         date: {

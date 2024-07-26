@@ -21,14 +21,12 @@ export class ImageManager {
     private user?: IUser;
     private newData!: Partial<IImage>;
     private imageValue!: string;
-    private targetPath!: ITargetPath;
-    private imageLabel?: IImageLabel;
+    private targetPath?: ITargetPath;
 
-    constructor(session: ClientSession, targetPath: ITargetPath, user?: IUser, imageLabel?: IImageLabel) {
+    constructor(session: ClientSession, targetPath?: ITargetPath, user?: IUser) {
         this.user = user;
         this.session = session;
         this.targetPath = targetPath;
-        this.imageLabel = imageLabel;
     }
 
     private async populate(
@@ -56,11 +54,16 @@ export class ImageManager {
         // const query = paginationInput.query;
         const sort = paginationInput.sort;
 
-        if (paginationInput.strict) {
-            pagination.setStrict(paginationInput.strict);
+        if (paginationInput.query) {
+            if (paginationInput.query?.ids?.length)
+                pagination.getByIds(paginationInput.query.ids as string[]);
         }
 
-        if (sort) pagination.setSort(sort);
+        if (paginationInput.strict)
+            pagination.setStrict(paginationInput.strict);
+
+        if (sort)
+            pagination.setSort(sort);
 
         const response = await pagination.getResults();
 
@@ -84,7 +87,7 @@ export class ImageManager {
 
     private async createImageFile(id: string, value: string) {
         console.log("Création de l'image...")
-        const fullRootPath = ImagePathRoot + '/' + this.targetPath.toLocaleLowerCase();
+        const fullRootPath = ImagePathRoot + '/' + this.targetPath?.toLocaleLowerCase();
 
         if (!fs.existsSync(fullRootPath)) {
             fs.mkdirSync(fullRootPath, { recursive: true });
@@ -100,7 +103,7 @@ export class ImageManager {
 
     public async deleteImageFile(id: string) {
         try {
-            const fullRootPath = ImagePathRoot + '/' + this.targetPath.toLocaleLowerCase();
+            const fullRootPath = ImagePathRoot + '/' + this.targetPath?.toLocaleLowerCase();
             fs.unlinkSync(fullRootPath + '/' + id + '.webp');
         } catch (err) {
             console.error(err);
@@ -117,7 +120,9 @@ export class ImageManager {
     }
 
     public async create(note?: string) {
-        const newImage = new ImageModel({ label: this.newData.label || this.imageLabel, ...this.newData });
+        const newImage = new ImageModel({
+            targetPath: this.targetPath
+        });
         try {
             newImage.isVerified = true;
             await newImage.save({ session: this.session });
@@ -253,19 +258,20 @@ export class ImageManager {
     public async createRelation(relation: IAdd_Image_ZOD) {
         if (relation.newImage) {
             const newImage = await this.init(relation.newImage).create();
-            return { id: newImage.id };
+            return { id: newImage.id, label: relation.label || relation.newImage.label };
         } else if (relation.id && (await ImageModel.exists({ id: relation.id }))) {
-            return { id: relation.id };
+            return { id: relation.id, label: relation.label };
         } else {
-            throw new Error('Image invalide');
+            console.error(relation);
+            throw new APIError("Le format des données de l'image sont invalides.", "BAD_ENTRY", 400);
         }
     }
 
     public async createMultipleRelation(
         relations: IAdd_Image_ZOD[]
     ) {
-        const relList: { id: string }[] = [];
-        for await (const relation of relations) {
+        const relList: { id: string, label?: IImageLabel }[] = [];
+        for await (const relation of relations.filter(rel => rel && Object.keys(rel).length > 0)) {
             const rel = await this.createRelation(relation);
             relList.push(rel);
         }

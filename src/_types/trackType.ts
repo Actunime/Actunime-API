@@ -9,10 +9,10 @@ export interface ITrack extends IMediaBase {
   name: { default: string; native: string };
   pubDate: Date | string;
   bio?: string;
-  images?: {
+  cover?: {
     id: string;
     data?: IImage; // Virtual
-  }[];
+  };
   artists: { id: string; data?: IPerson }[];
   links: IMediaLink[];
 }

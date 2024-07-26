@@ -3,6 +3,7 @@ import { Patch_User_ZOD, IPatch_User_ZOD } from '@/_validation/userZOD';
 import mongoose from 'mongoose';
 import { z } from 'zod';
 import { UserManager } from '@/_lib/user';
+import { APIError } from '@/_lib/Error';
 
 export const PatchUserRouter = async (
     req: FastifyRequest<{
@@ -31,8 +32,12 @@ export const PatchUserRouter = async (
         await session.endSession();
         return user;
     } catch (err) {
-        console.log(err);
         await session.abortTransaction();
-        res.code(400).send();
+        if (err instanceof APIError)
+            res.code(err.status || 400).send(err);
+        else {
+            console.error(err);
+            res.code(500).send();
+        }
     }
 };

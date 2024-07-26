@@ -1,14 +1,15 @@
-import { ClientSession, Document } from 'mongoose';
+import { ClientSession, Document, Schema } from 'mongoose';
 import { PersonModel } from '../_models';
 import { IPerson } from '../_types/personType';
 import { IUser } from '../_types/userType';
 import { IAdd_Person_ZOD, ICreate_Person_ZOD, IPerson_Pagination_ZOD } from '../_validation/personZOD';
 import { PatchManager } from './patch';
 import { getChangedData } from '../_utils/getObjChangeUtil';
-import { IPaginationResponse } from '@/_types/paginationType';
 import { MediaPagination } from './pagination';
 import { ImageManager } from './image';
 import { APIError } from './Error';
+
+type DocPerson = Document<unknown, object, IPerson> & IPerson & Required<{ _id: Schema.Types.ObjectId }>
 
 export class PersonManager {
   private user?: IUser;
@@ -21,9 +22,24 @@ export class PersonManager {
   }
 
   private async populate(
-    doc: Document | IPaginationResponse<IPerson>,
+    doc: DocPerson,
     withMedia: IPerson_Pagination_ZOD['with']
   ) {
+    // await PersonModel.populate(doc, {
+    //   path: 'avatar.data',
+    //   select: '-_id',
+    //   justOne: true,
+    //   options: { session: this.session }
+    // });
+
+    // if (doc.avatar) {
+    //   doc.avatar.data = ImageModel.hydrate(doc.avatar.data).toJSON();
+    // }
+
+    const imgManager = new ImageManager(this.session);
+
+    if (doc.avatar)
+      Object.assign(doc, { avatar: await imgManager.get(doc.avatar.id) });
 
   }
 
@@ -63,21 +79,21 @@ export class PersonManager {
 
     const response = await pagination.getResults();
 
-    if (paginationInput.with) await this.populate(response, paginationInput.with);
+    if (paginationInput.with) await this.populate(response as any, paginationInput.with);
 
     return response;
   }
 
   public async init(data: Partial<ICreate_Person_ZOD>) {
-    const { images, ...rawData } = data;
+    const { avatar, ...rawData } = data;
     this.newData = rawData as Partial<IPerson>;
     const { newData, user, session } = this;
 
-    if (images) {
-      newData.images = await new ImageManager(session, 'Person', user, 'AVATAR')
-        .createMultipleRelation(images);
-      if (images?.[0].newImage)
-        this.newImageID = newData.images[0].id;
+    if (avatar) {
+      newData.avatar = await new ImageManager(session, 'Person', user)
+        .createRelation(avatar);
+      if (avatar?.newImage)
+        this.newImageID = newData.avatar.id;
     }
 
     return this;
@@ -175,10 +191,10 @@ export class PersonManager {
       });
 
       // Suppression de lancienne image.
-      if (personToUpdate.images?.[0].id) {
+      if (personToUpdate.avatar) {
         await new ImageManager(this.session, 'Person')
-          .deleteImageFile(personToUpdate.images[0].id);
-        console.log(`L'ancienne image ${personToUpdate.images[0].id} a été supprimé.`)
+          .deleteImageFile(personToUpdate.avatar.id);
+        console.log(`L'ancienne image ${personToUpdate.avatar.id} a été supprimé.`)
       }
 
       return newPersonData;

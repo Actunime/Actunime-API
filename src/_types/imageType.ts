@@ -1,12 +1,12 @@
 import { Schema } from 'mongoose';
 import { IPaginationResponse } from './paginationType';
-import { IImageLabel } from '../_utils/imageUtil';
 
-export interface IImage<T = any> {
+export interface IImage {
   _id: Schema.Types.ObjectId;
   id: string;
-  label: IImageLabel;
   url: string; // Virtual
+  location: string; // Virtual;
+  targetPath: string;
   isVerified: boolean;
   createdAt?: Date;
   updatedAt?: Date;

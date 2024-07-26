@@ -37,7 +37,7 @@ export const Create_Company_ZOD = z
     type: z.enum(['STUDIO', 'PRODUCER']),
     name: z.string(),
     links: z.optional(z.array(Create_Link_ZOD)),
-    images: z.optional(z.array(Add_Image_ZOD)),
+    logo: z.optional(Add_Image_ZOD),
     createdDate: z.optional(z.string())
   })
   .strict();
@@ -58,7 +58,7 @@ export const CompanyDataToZOD = (data: ICompany): Partial<ICreate_Company_ZOD> =
     type: data.type,
     name: data.name,
     links: data.links,
-    images: data.images,
+    logo: data.logo,
     createdDate: dateToZod(data.createdDate)
   };
 

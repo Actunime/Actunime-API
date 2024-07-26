@@ -1,7 +1,8 @@
 type APIErrorCode =
     "NOT_FOUND" |
     "EMPTY_CHANGES" |
-    "BAD_ENTRY"
+    "BAD_ENTRY" |
+    "FORBIDDEN"
 
 export class APIError extends Error {
     public status?: number;

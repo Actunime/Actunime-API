@@ -54,7 +54,7 @@ export const Create_Character_ZOD = z
     gender: z.enum(CharacterGenderArray),
     species: z.enum(CharacterSpeciesArray),
     bio: z.optional(z.string()),
-    images: z.optional(z.array(Add_Image_ZOD)),
+    avatar: z.optional(Add_Image_ZOD),
     actors: z.optional(z.array(Add_Person_ZOD))
   })
   .strict();
@@ -79,7 +79,7 @@ export const CharacterDataToZOD = (data: ICharacter): Partial<ICreate_Character_
     gender: data.gender,
     species: data.species,
     bio: data.bio,
-    images: data.images,
+    avatar: data.avatar,
     actors: data.actors
   };
 
