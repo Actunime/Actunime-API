@@ -141,14 +141,26 @@ export class MangaManager {
     if (groupe) newData.groupe = await new GroupeManager(session, user).createRelation(groupe);
 
     // ? Parent
-    if (parent && parent.id && (await MangaModel.exists({ id: parent.id })))
-      newData.parent = parent;
-    else throw new APIError('Aucun manga parent correspondant', 'NOT_FOUND', 404);
+    if (parent) {
+      if (!newData.parent) newData.parent = {};
+
+      if (parent.id)
+        if (await MangaModel.exists({ id: parent.id })) newData.parent['id'] = parent.id;
+        else throw new Error('parent not found');
+
+      if (parent.parentLabel) newData.parent['parentLabel'] = parent.parentLabel;
+    }
 
     // ? Source
-    if (source && source.id && (await MangaModel.exists({ id: source.id })))
-      newData.source = source;
-    else throw new Error('Aucun manga source correspondant');
+    if (source) {
+      if (!newData.source) newData.source = {};
+
+      if (source.id)
+        if (await MangaModel.exists({ id: source.id })) newData.source['id'] = source.id;
+        else throw new Error('Source not found');
+
+      if (source.sourceLabel) newData.source['sourceLabel'] = source.sourceLabel;
+    }
 
     if (companys)
       newData.companys = await new CompanyManager(session, user).createMultipleRelation(companys);
@@ -162,14 +174,12 @@ export class MangaManager {
       );
 
     if (cover) {
-      newData.cover = await new ImageManager(session, 'Manga', user)
-        .createRelation(cover);
+      newData.cover = await new ImageManager(session, 'Manga', user).createRelation(cover);
       this.newImageID = newData.cover.id;
     }
 
     if (banner) {
-      newData.banner = await new ImageManager(session, 'Manga', user)
-        .createRelation(banner);
+      newData.banner = await new ImageManager(session, 'Manga', user).createRelation(banner);
       this.newImageID = newData.banner.id;
     }
 
@@ -195,7 +205,7 @@ export class MangaManager {
 
       return newManga;
     } catch (err) {
-      await ImageManager.deleteImageFileIfExist(this.newImageID, "Manga");
+      await ImageManager.deleteImageFileIfExist(this.newImageID, 'Manga');
       throw err;
     }
   }
@@ -221,7 +231,7 @@ export class MangaManager {
 
       return newManga;
     } catch (err) {
-      await ImageManager.deleteImageFileIfExist(this.newImageID, "Manga");
+      await ImageManager.deleteImageFileIfExist(this.newImageID, 'Manga');
       throw err;
     }
   }
@@ -230,9 +240,13 @@ export class MangaManager {
     try {
       const newMangaData = new MangaModel(this.newData);
 
-      const mangaToUpdate = await MangaModel.findOne({ id: mangaID }, {}, { session: this.session });
+      const mangaToUpdate = await MangaModel.findOne(
+        { id: mangaID },
+        {},
+        { session: this.session }
+      );
 
-      if (!mangaToUpdate) throw new APIError("Aucun manga correspondant", "NOT_FOUND", 404);
+      if (!mangaToUpdate) throw new APIError('Aucun manga correspondant', 'NOT_FOUND', 404);
 
       newMangaData._id = mangaToUpdate._id;
       newMangaData.id = mangaToUpdate.id;
@@ -244,10 +258,9 @@ export class MangaManager {
         'updatedAt'
       ]);
 
-      if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
+      if (!changes) throw new APIError("Aucun changement n'a été détecté", 'EMPTY_CHANGES', 400);
 
       await mangaToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
-
 
       await new PatchManager(this.session, this.user!).PatchCreate({
         type: 'UPDATE',
@@ -262,7 +275,7 @@ export class MangaManager {
 
       return newMangaData;
     } catch (err) {
-      await ImageManager.deleteImageFileIfExist(this.newImageID, "Manga");
+      await ImageManager.deleteImageFileIfExist(this.newImageID, 'Manga');
       throw err;
     }
   }
@@ -271,9 +284,13 @@ export class MangaManager {
     try {
       const newMangaData = new MangaModel(this.newData);
 
-      const mangaToUpdate = await MangaModel.findOne({ id: mangaID }, {}, { session: this.session });
+      const mangaToUpdate = await MangaModel.findOne(
+        { id: mangaID },
+        {},
+        { session: this.session }
+      );
 
-      if (!mangaToUpdate) throw new APIError("Aucun manga correspondant", "NOT_FOUND", 404);
+      if (!mangaToUpdate) throw new APIError('Aucun manga correspondant', 'NOT_FOUND', 404);
 
       newMangaData._id = mangaToUpdate._id;
       newMangaData.id = mangaToUpdate.id;
@@ -285,10 +302,9 @@ export class MangaManager {
         'updatedAt'
       ]);
 
-      if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
+      if (!changes) throw new APIError("Aucun changement n'a été détecté", 'EMPTY_CHANGES', 400);
 
       await mangaToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
-
 
       await new PatchManager(this.session, this.user!).PatchCreate({
         type: 'UPDATE_REQUEST',
@@ -303,7 +319,7 @@ export class MangaManager {
 
       return newMangaData;
     } catch (err) {
-      await ImageManager.deleteImageFileIfExist(this.newImageID, "Manga");
+      await ImageManager.deleteImageFileIfExist(this.newImageID, 'Manga');
       throw err;
     }
   }
