@@ -1,4 +1,4 @@
-name: Node.js CI/CD
+name: TEST Node.js CI/CD
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   setup:
-    runs-on: ActunimeProject-VM
+    runs-on: self-hosted
 
     steps:
       - name: Checkout
@@ -39,42 +39,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-  config_env:
-    runs-on: ActunimeProject-VM
-    needs: setup
-    steps:
-      - name: Configuration des variables de productions
-        run: |
-          touch .env.production
-          echo MONGODB_URI="\"${{ secrets.MONGODB_URI }}\"" >> .env.production
-          echo MONGODB_user="\"${{ secrets.MONGODB_user }}\"" >> .env.production
-          echo MONGODB_pass="\"${{ secrets.MONGODB_pass }}\"" >> .env.production
-          echo MONGODB_dbName="\"${{ secrets.MONGODB_dbName }}\"" >> .env.production
-
-  docker_build:
-    runs-on: ActunimeProject-VM
-    needs: config_env
-    steps:
-      # - name: Arrêt du conteneur
-      #   run: |
-      #     docker stop actunime-api || true
-
-      - name: Suppression de l'ancienne image test
-        run: |
-          docker image rm actunime-api-test-image || true
-
-      - name: Construction de l'image docker test
-        run: |
-          docker build -f Dockerfile -t actunime-api-test-image .
-
-      - name: Suppression de l'ancien conteneur test
-        run: |
-          docker rm actunime-api-test || true
-
-      - name: Test Déploiement du conteneur test
-        run: |
-          docker run -d -p 3020:3020 --name actunime-api-test actunime-api-test-image
-
-      - name: Arrêt du conteneur test
-        run: |
-          docker stop actunime-api-test || true
+      - name: Build test
+        run: pnpm run build
