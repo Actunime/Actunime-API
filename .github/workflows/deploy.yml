@@ -6,7 +6,7 @@ on:
 
 jobs:
   setup:
-    runs-on: ActunimeProject-VM
+    runs-on: API
 
     steps:
       - name: Checkout
@@ -51,7 +51,7 @@ jobs:
         run: pnpx semantic-release
 
   config_env:
-    runs-on: ActunimeProject-VM
+    runs-on: API
     needs: setup
     steps:
       - name: Configuration des variables de productions
@@ -62,26 +62,10 @@ jobs:
           echo MONGODB_pass="\"${{ secrets.MONGODB_pass }}\"" >> .env.production
           echo MONGODB_dbName="\"${{ secrets.MONGODB_dbName }}\"" >> .env.production
 
-  docker_build:
-    runs-on: ActunimeProject-VM
+  pm2_launch:
+    runs-on: API
     needs: config_env
     steps:
-      - name: Arrêt du conteneur
+      - name: Build
         run: |
-          docker stop actunime-api || true
-
-      - name: Suppression de l'ancienne image
-        run: |
-          docker image rm actunime-api-image || true
-
-      - name: Construction de l'image docker
-        run: |
-          docker build -f Dockerfile -t actunime-api-image .
-
-      - name: Suppression ancien conteneur
-        run: |
-          docker rm actunime-api || true
-
-      - name: Déploiement du conteneur
-        run: |
-          docker run -d -p 3005:3005 --name actunime-api actunime-api-image
+          pnpm run build
