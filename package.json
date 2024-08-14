@@ -6,9 +6,9 @@
   "main": "index.js",
   "scripts": {
     "start-prod": "tsc --pretty --locale fr && NODE_ENV=production node build",
-    "start": "NODE_ENV=production node build",
+    "start": "NODE_ENV=production ts-node -r tsconfig-paths/register build",
     "build": "tsc --pretty --locale fr",
-    "dev": "ts-node -r tsconfig-paths/register build --experimental-require-module",
+    "dev": "ts-node -r tsconfig-paths/register build",
     "dev-watch": "tsc -w --pretty --locale fr",
     "prepare": "husky || true"
   },
