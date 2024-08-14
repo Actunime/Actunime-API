@@ -31,10 +31,10 @@ export const MediaTitle_validation = z
     // .refine((v) => !!v, {
     //   message: "La valeur par défaut est obligatoire",
     // }),
-    alias: z.optional(z.array(z.string().min(2, 'le nom doit contenir au moins 2 caractères')))
+    alias: z.optional(z.array(z.object({ content: z.string().min(2, "le nom doit contenir au moins 2 caractères") }))),
   })
   .refine(
     (v) =>
-      !v.alias?.includes(v.default) ||
+      !v.alias?.find(({ content }) => content === v.default) ||
       `La valeur de alias ne doit pas contenir la valeur par défaut`
   );

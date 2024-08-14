@@ -68,17 +68,17 @@ const Anime_Episode_ZOD = z.object({
 });
 
 export const Add_Anime_ZOD = z.object({
-  id: z.string(),
+  id: z.string().optional(),
   parentLabel: z.optional(z.enum(MediaParentLabelArray))
-});
+}).partial();
 
 export type IAdd_Anime_ZOD = z.infer<typeof Add_Anime_ZOD>;
 
 export const Create_Anime_ZOD = z
   .object({
     groupe: Add_Groupe_ZOD,
-    parent: z.optional(Add_Anime_ZOD.partial({ parentLabel: true })),
-    source: z.optional(Add_Manga_ZOD.partial({ parentLabel: true, sourceLabel: true })),
+    parent: z.optional(Add_Anime_ZOD),
+    source: z.optional(Add_Manga_ZOD),
     title: MediaTitle_validation,
     date: z.optional(MediaDate_validation),
     cover: z.optional(Add_Image_ZOD),
@@ -209,7 +209,7 @@ export const Create_Anime_Update_ZOD = z.object({
   date: z.optional(MediaDate_validation),
   image: z.optional(MediaImage_validation),
   synopsis: z.optional(z.string()),
-  source: z.optional(z.string().optional()),
+  source: z.string().optional(),
   sourcePath: z.optional(z.enum(['Anime', 'Manga'])),
   format: z.optional(z.enum(AnimeFormatArray)),
   vf: z.optional(z.boolean()),

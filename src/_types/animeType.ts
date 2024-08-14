@@ -32,13 +32,13 @@ export interface IAnime extends IMediaBase {
   };
 
   parent: {
-    id: string;
+    id?: string;
     parentLabel?: IMediaParentLabel;
     data?: IAnime; // Virtual
   };
 
   source: {
-    id: string;
+    id?: string;
     sourceLabel?: IMediaSource;
     data?: IManga; // Virtual
   };

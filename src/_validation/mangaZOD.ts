@@ -64,10 +64,10 @@ const Manga_ChapterVolume_ZOD = z.object({
 });
 
 export const Add_Manga_ZOD = z.object({
-  id: z.string(),
+  id: z.string().optional(),
   parentLabel: z.optional(z.enum(MediaParentLabelArray)),
   sourceLabel: z.optional(z.enum(MediaSourceArray))
-});
+}).partial();
 
 export type IAdd_Manga_ZOD = z.infer<typeof Add_Manga_ZOD>;
 

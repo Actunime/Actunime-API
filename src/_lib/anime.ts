@@ -1,5 +1,5 @@
 import { ClientSession, Document } from 'mongoose';
-import { AnimeModel } from '@/_models';
+import { AnimeModel, MangaModel } from '@/_models';
 import { IAnime } from '../_types/animeType';
 import { IUser } from '../_types/userType';
 import { IAnime_Pagination_ZOD, ICreate_Anime_ZOD } from '../_validation/animeZOD';
@@ -148,15 +148,33 @@ export class AnimeManager {
     // ? Groupe
     if (groupe) newData.groupe = await new GroupeManager(session, user).createRelation(groupe);
 
-    // ? Parent
-    if (parent && parent.id && (await AnimeModel.exists({ id: parent.id })))
-      newData.parent = parent;
-    else throw new Error('Parent not found');
+
+    if (parent) {
+      if (!newData.parent)
+        newData.parent = {}
+
+      if (parent.id)
+        if (await AnimeModel.exists({ id: parent.id }))
+          newData.parent["id"] = parent.id;
+        else throw new Error('parent not found');
+
+      if (parent.parentLabel)
+        newData.parent['parentLabel'] = parent.parentLabel;
+    }
 
     // ? Source
-    if (source && source.id && (await AnimeModel.exists({ id: source.id })))
-      newData.source = source;
-    else throw new Error('Source not found');
+    if (source) {
+      if (!newData.source)
+        newData.source = {}
+
+      if (source.id)
+        if (await MangaModel.exists({ id: source.id }))
+          newData.source["id"] = source.id;
+        else throw new Error('Source not found');
+
+      if (source.sourceLabel)
+        newData.source['sourceLabel'] = source.sourceLabel;
+    }
 
     if (companys)
       newData.companys = await new CompanyManager(session, user).createMultipleRelation(companys);

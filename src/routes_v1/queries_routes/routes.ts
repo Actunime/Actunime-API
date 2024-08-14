@@ -130,13 +130,13 @@ export async function Gets_Routes_V1(fastify: FastifyInstance) {
   // Groups get/filter
   fastify.route({
     method: 'GET',
-    url: '/groups/:id',
+    url: '/groupes/:id',
     // preValidation: AuthValidation(['MODERATOR']),
     handler: GetGroupeRouter
   });
   fastify.route({
     method: 'GET',
-    url: '/groups',
+    url: '/groupes',
     // preValidation: AuthValidation(['MODERATOR']),
     handler: FilterGroupeRouter
   });

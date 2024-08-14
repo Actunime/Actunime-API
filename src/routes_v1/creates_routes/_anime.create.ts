@@ -29,7 +29,8 @@ export const CreateAnimeRouter = async (
     return anime;
   } catch (err) {
     console.log(err);
-    await session.abortTransaction();
+    if (session.inTransaction())
+      await session.abortTransaction();
     res.code(400).send();
   }
 };

@@ -11,7 +11,7 @@ import fastifyStatic from '@fastify/static';
 import path from 'path';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
-import { PatchModel, PersonModel, ImageModel } from './_models';
+import { PatchModel, PersonModel, ImageModel, UserModel, UserAccountModel } from './_models';
 // import { UserAccountModel, UserModel } from './_models/_userModel';
 
 declare module 'fastify' {
