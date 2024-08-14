@@ -6,7 +6,7 @@ on:
 
 jobs:
   setup:
-    runs-on: API
+    runs-on: self-hosted
 
     steps:
       - name: Checkout
@@ -51,7 +51,7 @@ jobs:
         run: pnpx semantic-release
 
   config_env:
-    runs-on: API
+    runs-on: self-hosted
     needs: setup
     steps:
       - name: Configuration des variables de productions
@@ -63,7 +63,7 @@ jobs:
           echo MONGODB_dbName="\"${{ secrets.MONGODB_dbName }}\"" >> .env.production
 
   pm2_launch:
-    runs-on: API
+    runs-on: self-hosted
     needs: config_env
     steps:
       - name: Build
