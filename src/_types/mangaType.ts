@@ -23,7 +23,7 @@ export interface IManga extends IMediaBase {
   };
 
   parent?: {
-    id: string;
+    id?: string;
     parentLabel?: IMediaParentLabel;
     data?: IAnime; // Virtual
   };
@@ -33,7 +33,7 @@ export interface IManga extends IMediaBase {
   synopsis?: string;
 
   source?: {
-    id: string;
+    id?: string;
     sourceLabel?: IMediaSource;
     data?: IManga; // Virtual
   };
