@@ -1,8 +1,9 @@
 import { IPerson } from '../_types/personType';
 import { genPublicID } from '../_utils/genID';
 import { PersonRoleArray } from '../_utils/personUtil';
-import { Schema, model } from 'mongoose';
+import { Model, Schema, model, models } from 'mongoose';
 import { MediaLinkSchema } from './_mediaModel';
+import { withImage } from './_imageModel';
 
 const PersonSchema = new Schema<IPerson>(
   {
@@ -17,7 +18,7 @@ const PersonSchema = new Schema<IPerson>(
     birthDate: { type: Date, default: undefined },
     deathDate: { type: Date, default: undefined },
     bio: String,
-    image: String,
+    avatar: { type: withImage, default: undefined },
     links: { type: [MediaLinkSchema], default: undefined }
   },
   { timestamps: true, id: false, toJSON: { virtuals: true } }
@@ -25,6 +26,13 @@ const PersonSchema = new Schema<IPerson>(
 
 PersonSchema.virtual('name.full').get(function () {
   return `${this.name.first} ${this.name.last || ''}`.trim();
+});
+
+PersonSchema.virtual('avatar.data', {
+  ref: 'Image',
+  localField: 'avatar.id',
+  foreignField: 'id',
+  justOne: true
 });
 
 export const withPersonSchema = new Schema(
@@ -35,4 +43,4 @@ export const withPersonSchema = new Schema(
   { _id: false, toJSON: { virtuals: true } }
 );
 
-export const PersonModel = model('Person', PersonSchema, 'persons');
+export const PersonModel = models.Person as Model<IPerson> || model('Person', PersonSchema, 'persons');

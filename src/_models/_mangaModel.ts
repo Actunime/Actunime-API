@@ -2,17 +2,17 @@ import { IManga, IMangaChapterVolums } from '../_types/mangaType';
 import { genPublicID } from '../_utils/genID';
 import { MangaFormatArray } from '../_utils/mangaUtil';
 import { MediaParentLabelArray, MediaSourceArray, MediaStatusArray } from '../_utils/mediaUtil';
-import { Schema, model } from 'mongoose';
+import { Model, Schema, model, models } from 'mongoose';
 import { withCharacterSchema } from './_characterModel';
 import { withCompanySchema } from './_companyModel';
 import { withGroupeSchema } from './_groupeModel';
 import {
   MediaDateSchema,
-  MediaImageSchema,
   MediaLinkSchema,
-  MediaTitleSchema
+  MediaTitleSchema,
 } from './_mediaModel';
 import { withPersonSchema } from './_personModel';
+import { withImage } from './_imageModel';
 
 const MangaChapterVolumesSchema = new Schema<IMangaChapterVolums>({
   airing: { type: Number },
@@ -48,7 +48,8 @@ const MangaSchema = new Schema<IManga>(
 
     title: { type: MediaTitleSchema, required: true },
     date: { type: MediaDateSchema, default: undefined },
-    image: { type: MediaImageSchema, default: undefined },
+    cover: { type: [withImage], default: undefined },
+    banner: { type: [withImage], default: undefined },
     synopsis: { type: String, default: undefined },
     source: { type: withMangaSchema, default: undefined },
     format: {
@@ -122,4 +123,4 @@ MangaSchema.virtual('tracks.data', {
   justOne: true
 });
 
-export const MangaModel = model('Manga', MangaSchema);
+export const MangaModel = models.Manga as Model<IManga> || model('Manga', MangaSchema);

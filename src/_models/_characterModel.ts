@@ -5,8 +5,9 @@ import {
   CharacterSpeciesArray
 } from '../_utils/characterUtil';
 import { genPublicID } from '../_utils/genID';
-import { Schema, model } from 'mongoose';
+import { Model, Schema, model, models } from 'mongoose';
 import { withPersonSchema } from './_personModel';
+import { withSchema } from './_mediaModel';
 
 const CharacterSchema = new Schema<ICharacter>(
   {
@@ -27,8 +28,8 @@ const CharacterSchema = new Schema<ICharacter>(
       required: true
     },
     bio: String,
-    image: String,
-    actors: [{ type: withPersonSchema, default: [] }]
+    avatar: { type: withSchema, default: undefined },
+    actors: [{ type: withPersonSchema, default: undefined }]
   },
   { timestamps: true, id: false, toJSON: { virtuals: true } }
 );
@@ -52,4 +53,4 @@ CharacterSchema.virtual('actors.data', {
   justOne: true
 });
 
-export const CharacterModel = model('Character', CharacterSchema);
+export const CharacterModel = models.Character as Model<ICharacter> || model('Character', CharacterSchema);

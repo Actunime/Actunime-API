@@ -3,7 +3,7 @@ import { Schema } from "mongoose";
 
 export const MediaTitleSchema = new Schema<IMediaTitle>({
   default: { type: String, required: true, unique: true, index: "text", trim: true },
-  alias: [{ type: String, trim: true }],
+  alias: [{ type: { content: String }, trim: true }],
 }, { _id: false });
 
 export const MediaDateSchema = new Schema<IMediaDate>({

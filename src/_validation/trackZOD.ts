@@ -5,6 +5,7 @@ import { Add_Person_ZOD } from './personZOD';
 import { zodNumber } from './util';
 import { dateToZod } from '../_utils/mediaUtil';
 import { ITrack } from '../_types/trackType';
+import { Add_Image_ZOD } from './imageZOD';
 
 export const Track_Pagination_ZOD = z
   .object({
@@ -42,7 +43,7 @@ export const Create_Track_ZOD = z
     type: z.enum(TrackTypeArray),
     pubDate: z.optional(z.string()),
     artists: z.optional(z.array(Add_Person_ZOD)),
-    image: z.optional(z.string()),
+    cover: z.optional(Add_Image_ZOD),
     links: z.optional(z.array(Create_Link_ZOD))
   })
   .strict();
@@ -63,7 +64,7 @@ export const TrackDataToZOD = (data: ITrack): Partial<ICreate_Track_ZOD> => {
     name: data.name,
     type: data.type,
     pubDate: dateToZod(data.pubDate),
-    image: data.image,
+    cover: data.cover,
     artists: data.artists
   };
 

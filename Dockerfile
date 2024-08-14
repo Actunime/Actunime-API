@@ -20,7 +20,7 @@ FROM base
 COPY --from=deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app/build
 
-EXPOSE 3000
+EXPOSE 3005
 
 ENV NODE_ENV production
 CMD ["pnpm", "run", "start"]

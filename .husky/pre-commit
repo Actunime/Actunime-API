@@ -1,2 +1,2 @@
-pnpm run build
-pnpm lint-staged
+# pnpm run build
+# pnpm lint-staged

@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Model, Schema, model, models } from 'mongoose';
 import type {
   IUser,
   IUserLinkedAccount,
@@ -10,6 +10,7 @@ import type {
 } from '../_types/userType';
 import { genPublicID } from '../_utils/genID';
 import { withSchema } from './_mediaModel';
+import { withImage } from './_imageModel';
 
 const userLinkedAccountSchema = new Schema<IUserLinkedAccount>(
   {
@@ -38,7 +39,7 @@ const userAccountSchema = new Schema<IUserAccount>({
   verified: { type: Date, default: undefined }
 });
 
-export const UserAccountModel = model('UserAccount', userAccountSchema);
+export const UserAccountModel = models.UserAccount || model('UserAccount', userAccountSchema);
 
 const userSchema = new Schema<IUser>(
   {
@@ -53,13 +54,19 @@ const userSchema = new Schema<IUser>(
     displayName: { type: String },
     bio: { type: String },
     roles: { type: [String], default: ['MEMBER'] },
-    image: {
-      avatar: { type: String, default: undefined },
-      banner: { type: String, default: undefined }
-    }
+    avatar: withImage,
+    banner: withImage,
   },
   { timestamps: true, id: false, toJSON: { virtuals: true } }
 );
+
+userSchema.virtual('images.data', {
+  ref: 'Image',
+  localField: 'images.id',
+  foreignField: 'id',
+  justOne: true
+});
+
 
 userSchema.virtual('disabled', {
   ref: 'UserDisabled',
@@ -89,7 +96,7 @@ userSchema.virtual('disabled', {
 //   justOne: true
 // })
 
-export const UserModel = model('User', userSchema);
+export const UserModel = models.User as Model<IUser> || model('User', userSchema);
 
 // const UserContributions = new Schema({
 //   id: {
@@ -137,7 +144,7 @@ UserDisabledSchema.virtual('user.data', {
   justOne: true
 });
 
-export const UserDisabledModel = model('UserDisabled', UserDisabledSchema);
+export const UserDisabledModel = models.UserDisabled || model('UserDisabled', UserDisabledSchema);
 
 /**
  *
@@ -160,7 +167,7 @@ const UserPremiumSchema = new Schema<IUserPremium>(
   { timestamps: true, id: false, toJSON: { virtuals: true } }
 );
 
-export const UserPremiumModel = model('UserPremium', UserPremiumSchema);
+export const UserPremiumModel = models.UserPremium || model('UserPremium', UserPremiumSchema);
 
 /**
  *
@@ -182,4 +189,5 @@ const UserAuthTokenSchema = new Schema<IUserAuthToken>(
   { timestamps: true }
 );
 
-export const UserAuthTokenModel = model('UserAuthToken', UserAuthTokenSchema);
+export const UserAuthTokenModel =
+  models.UserAuthToken || model('UserAuthToken', UserAuthTokenSchema);

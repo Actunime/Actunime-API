@@ -2,7 +2,7 @@ import { IActivity } from '../_types/activityType';
 import { ActivityActionArray } from '../_utils/activityUtil';
 import { genPublicID } from '../_utils/genID';
 import { TargetPathArray } from '../_utils/global';
-import { Schema, model } from 'mongoose';
+import { Model, Schema, model, models } from 'mongoose';
 import { withSchema } from './_mediaModel';
 
 const withTargetSchema = new Schema(
@@ -38,4 +38,4 @@ const ActivitySchema = new Schema<IActivity>(
   { timestamps: true, id: false }
 );
 
-export const ActivityModel = model('Activity', ActivitySchema);
+export const ActivityModel = models.Activity as Model<IActivity> || model('Activity', ActivitySchema);

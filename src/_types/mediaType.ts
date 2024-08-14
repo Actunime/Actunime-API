@@ -11,7 +11,7 @@ export interface IMediaBase {
 
 export interface IMediaTitle {
   default: string;
-  alias?: string[];
+  alias?: { content: string }[];
 }
 
 export interface IMediaDate {

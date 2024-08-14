@@ -2,7 +2,7 @@ import { IReport } from '../_types/reportType';
 import { genPublicID } from '../_utils/genID';
 import { TargetPathArray } from '../_utils/global';
 import { ReportStatusArray, ReportSubjectArray } from '../_utils/reportUtil';
-import { Schema, model } from 'mongoose';
+import { Model, Schema, model, models } from 'mongoose';
 
 const ReportSchema = new Schema<IReport>(
   {
@@ -31,4 +31,4 @@ const ReportSchema = new Schema<IReport>(
   { timestamps: true, id: false }
 );
 
-export const ReportModel = model('Report', ReportSchema);
+export const ReportModel = models.Report as Model<IReport> || model('Report', ReportSchema);
