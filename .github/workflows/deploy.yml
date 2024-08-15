@@ -42,14 +42,6 @@ jobs:
   #   - name: Build test
   #     run: pnpm run build
 
-  #   - name: Set up GitHub token
-  #     run: |
-  #       echo "GH_TOKEN=${{ secrets.GH_TOKEN }}" >> $GITHUB_ENV
-  #       echo "NPM_TOKEN=${{ secrets.NPM_TOKEN }}" >> $GITHUB_ENV
-
-  #   - name: Run Semantic Release
-  #     run: pnpx semantic-release
-
   config_env:
     runs-on: self-hosted
     # needs: setup
@@ -73,3 +65,21 @@ jobs:
       - name: Build
         run: |
           pnpm run build
+
+  release:
+    runs-on: self-hosted
+    needs: pm2_launch
+    steps:
+      - name: Set up GitHub token
+        run: |
+          echo "GH_TOKEN=${{ secrets.GH_TOKEN }}" >> $GITHUB_ENV
+          echo "NPM_TOKEN=${{ secrets.NPM_TOKEN }}" >> $GITHUB_ENV
+
+      - name: Check if Git is installed
+        run: |
+          if ! command -v git &> /dev/null; then
+            apt-get install -y git
+          fi
+
+      - name: Run Semantic Release
+        run: pnpx semantic-release
