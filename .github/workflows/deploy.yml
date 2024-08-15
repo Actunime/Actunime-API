@@ -78,4 +78,4 @@ jobs:
     steps:
       - name: "Redémarrage de l'API"
         run: |
-          pm2 restart ecosystem.config.js
+          pnpx pm2 start ecosystem.config.js
