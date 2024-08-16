@@ -29,7 +29,7 @@ declare module 'fastify' {
 
   const checkOrigin = (url: string | undefined): boolean => {
     const hostname = url ? new URL(url).hostname : '';
-    return ['localhost', 'actunime.fr', '172.25.22.201'].includes(hostname);
+    return ['localhost', 'actunime.fr'].includes(hostname);
   };
 
   fastify
@@ -89,7 +89,7 @@ declare module 'fastify' {
 
     console.log(fastify.printRoutes());
 
-    await fastify.listen({ host: '0.0.0.0', port: 3005 });
+    await fastify.listen({ host: '0.0.0.0', port: parseInt(process.env.PORT || '3000') });
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
