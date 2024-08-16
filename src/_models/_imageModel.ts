@@ -24,7 +24,7 @@ ImageSchema.virtual('location').get(function () {
   return `/img/${this.targetPath?.toLocaleLowerCase()}/${this.id}.webp`;
 });
 
-const rootURL = `http://${process.env.host}:${process.env.port}`;
+const rootURL = `http://${process.env.HOST}:${process.env.PORT}`;
 
 ImageSchema.virtual('url').get(function () {
   return `${rootURL}/${this.targetPath?.toLocaleLowerCase()}/${this.id}.webp`;
