@@ -84,7 +84,11 @@ declare module 'fastify' {
       const ImagePathRoot = '/actunime/img';
       fastify.register(fastifyStatic, {
         prefix: '/img',
-        root: ImagePathRoot
+        root: ImagePathRoot,
+        setHeaders: (res, path, stat) => {
+          res.setHeader('Cache-Control', 'public, max-age=604800');
+          res.setHeader('ETag', stat.mtime.getTime().toString());
+        }
       });
     } else {
       fastify.register(fastifyStatic, {
