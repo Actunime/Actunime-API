@@ -80,7 +80,13 @@ declare module 'fastify' {
       console.log('Route', key, 'chargé!');
     }
 
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV === 'production') {
+      const ImagePathRoot = '/actunime/img';
+      fastify.register(fastifyStatic, {
+        prefix: '/img',
+        root: ImagePathRoot
+      });
+    } else {
       fastify.register(fastifyStatic, {
         prefix: '/img',
         root: path.join(__dirname, '..', 'img')
