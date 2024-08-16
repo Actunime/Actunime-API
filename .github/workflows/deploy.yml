@@ -67,11 +67,13 @@ jobs:
       - name: Configuration des variables de productions
         run: |
           touch .env.production
+          echo AUTH_SECRET="\"${{ secrets.AUTH_SECRET }}\"" >> .env.production
+          echo HOST="\"${{ secrets.HOST }}\"" >> .env.production
+          echo PORT="\"${{ secrets.PORT }}\"" >> .env.production
           echo MONGODB_URI="\"${{ secrets.MONGODB_URI }}\"" >> .env.production
           echo MONGODB_user="\"${{ secrets.MONGODB_user }}\"" >> .env.production
           echo MONGODB_pass="\"${{ secrets.MONGODB_pass }}\"" >> .env.production
           echo MONGODB_dbName="\"${{ secrets.MONGODB_dbName }}\"" >> .env.production
-
   start:
     runs-on: self-hosted
     needs: config_env

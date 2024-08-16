@@ -29,7 +29,7 @@ declare module 'fastify' {
 
   const checkOrigin = (url: string | undefined): boolean => {
     const hostname = url ? new URL(url).hostname : '';
-    return ['localhost', 'actunime.fr', '172.25.22.201'].includes(hostname);
+    return ['localhost', 'actunime.fr'].includes(hostname);
   };
 
   fastify
@@ -80,7 +80,17 @@ declare module 'fastify' {
       console.log('Route', key, 'chargé!');
     }
 
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV === 'production') {
+      const ImagePathRoot = '/actunime/img';
+      fastify.register(fastifyStatic, {
+        prefix: '/img',
+        root: ImagePathRoot,
+        setHeaders: (res, path, stat) => {
+          res.setHeader('Cache-Control', 'public, max-age=604800');
+          res.setHeader('ETag', stat.mtime.getTime().toString());
+        }
+      });
+    } else {
       fastify.register(fastifyStatic, {
         prefix: '/img',
         root: path.join(__dirname, '..', 'img')
@@ -89,7 +99,7 @@ declare module 'fastify' {
 
     console.log(fastify.printRoutes());
 
-    await fastify.listen({ host: '0.0.0.0', port: 3005 });
+    await fastify.listen({ host: '0.0.0.0', port: parseInt(process.env.PORT || '3000') });
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
