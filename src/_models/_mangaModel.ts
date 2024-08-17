@@ -6,11 +6,7 @@ import { Model, Schema, model, models } from 'mongoose';
 import { withCharacterSchema } from './_characterModel';
 import { withCompanySchema } from './_companyModel';
 import { withGroupeSchema } from './_groupeModel';
-import {
-  MediaDateSchema,
-  MediaLinkSchema,
-  MediaTitleSchema,
-} from './_mediaModel';
+import { MediaDateSchema, MediaLinkSchema, MediaTitleSchema } from './_mediaModel';
 import { withPersonSchema } from './_personModel';
 import { withImage } from './_imageModel';
 
@@ -22,7 +18,7 @@ const MangaChapterVolumesSchema = new Schema<IMangaChapterVolums>({
 
 export const withMangaSchema = new Schema(
   {
-    id: { type: String, required: true },
+    id: { type: String },
     sourceLabel: {
       type: String,
       enum: MediaSourceArray,
@@ -123,4 +119,4 @@ MangaSchema.virtual('tracks.data', {
   justOne: true
 });
 
-export const MangaModel = models.Manga as Model<IManga> || model('Manga', MangaSchema);
+export const MangaModel = (models.Manga as Model<IManga>) || model('Manga', MangaSchema);

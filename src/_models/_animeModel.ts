@@ -7,11 +7,7 @@ import { withCharacterSchema } from './_characterModel';
 import { withCompanySchema } from './_companyModel';
 import { withGroupeSchema } from './_groupeModel';
 import { withMangaSchema } from './_mangaModel';
-import {
-  MediaDateSchema,
-  MediaLinkSchema,
-  MediaTitleSchema
-} from './_mediaModel';
+import { MediaDateSchema, MediaLinkSchema, MediaTitleSchema } from './_mediaModel';
 import { withPersonSchema } from './_personModel';
 import { withTrackSchema } from './_trackModel';
 import { withImage } from './_imageModel';
@@ -28,7 +24,7 @@ const AnimeEpisodeSchema = new Schema<IAnimeEpisode>(
 
 const withAnimeSchema = new Schema(
   {
-    id: { type: String, required: true },
+    id: { type: String },
     sourceLabel: {
       type: String,
       enum: MediaSourceArray,
@@ -181,4 +177,4 @@ AnimeSchema.virtual('tracks.data', {
   justOne: true
 });
 
-export const AnimeModel = models.Anime as Model<IAnime> || model<IAnime>('Anime', AnimeSchema);
+export const AnimeModel = (models.Anime as Model<IAnime>) || model<IAnime>('Anime', AnimeSchema);
