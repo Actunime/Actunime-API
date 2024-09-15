@@ -19,7 +19,8 @@ export class MangaManager {
   private user?: IUser;
   private session: ClientSession;
   private newData!: Partial<IManga>;
-  private newImageID?: string;
+  private coverManager?: ImageManager;
+  private bannerManager?: ImageManager;
 
   constructor(session: ClientSession, user?: IUser) {
     this.user = user;
@@ -174,13 +175,13 @@ export class MangaManager {
       );
 
     if (cover) {
-      newData.cover = await new ImageManager(session, 'Manga', user).createRelation(cover);
-      this.newImageID = newData.cover.id;
+      this.coverManager = new ImageManager(session, 'Manga', user);
+      newData.cover = await this.coverManager.createRelation(cover);
     }
 
     if (banner) {
-      newData.banner = await new ImageManager(session, 'Manga', user).createRelation(banner);
-      this.newImageID = newData.banner.id;
+      this.bannerManager = new ImageManager(session, 'Manga', user);
+      newData.banner = await this.bannerManager.createRelation(banner);
     }
 
     return this;
@@ -205,7 +206,8 @@ export class MangaManager {
 
       return newManga;
     } catch (err) {
-      await ImageManager.deleteImageFileIfExist(this.newImageID, 'Manga');
+      await this.coverManager?.deleteImageIfSaved();
+      await this.bannerManager?.deleteImageIfSaved();
       throw err;
     }
   }
@@ -231,7 +233,8 @@ export class MangaManager {
 
       return newManga;
     } catch (err) {
-      await ImageManager.deleteImageFileIfExist(this.newImageID, 'Manga');
+      await this.coverManager?.deleteImageIfSaved();
+      await this.bannerManager?.deleteImageIfSaved();
       throw err;
     }
   }
@@ -273,9 +276,13 @@ export class MangaManager {
         author: { id: this.user!.id }
       });
 
+      if (this.coverManager?.hasNewImage())
+        await this.coverManager?.deleteImageFile(mangaToUpdate.cover?.id);
+
       return newMangaData;
     } catch (err) {
-      await ImageManager.deleteImageFileIfExist(this.newImageID, 'Manga');
+      await this.coverManager?.deleteImageIfSaved();
+      await this.bannerManager?.deleteImageIfSaved();
       throw err;
     }
   }
@@ -319,7 +326,8 @@ export class MangaManager {
 
       return newMangaData;
     } catch (err) {
-      await ImageManager.deleteImageFileIfExist(this.newImageID, 'Manga');
+      await this.coverManager?.deleteImageIfSaved();
+      await this.bannerManager?.deleteImageIfSaved();
       throw err;
     }
   }

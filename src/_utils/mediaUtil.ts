@@ -51,42 +51,42 @@ export const MediaSourceSelection = MediaSourceArray.map((key) => ({
   value: key
 }));
 
-// export const MediaFormatObj = {
-//   SERIE: {
-//     label: "Série",
-//     description: "Diffusé en épisodes réguliers.",
-//   },
-//   FILM: {
-//     label: "Film",
-//     description: "Produit comme un long métrage.",
-//   },
-//   ONA: {
-//     label: "ONA",
-//     description: "Diffusé directement sur Internet.",
-//   },
-//   OVA: {
-//     label: "OVA",
-//     description: "Destiné à la vente directe aux consommateurs.",
-//   },
-//   SPECIAL: {
-//     label: "Spécial",
-//     description:
-//       "Un épisode unique ou une série d'épisodes qui ne fait pas partie de la diffusion régulière d'une série.",
-//   },
-//   TV_SHORT: {
-//     label: "TV Short",
-//     description:
-//       "Diffusé en épisodes courts, généralement moins de 15 minutes chacun.",
-//   },
-// };
+export const MediaFormatObj = {
+  SERIE: {
+    label: 'Série',
+    description: 'Diffusé en épisodes réguliers.'
+  },
+  FILM: {
+    label: 'Film',
+    description: 'Produit comme un long métrage.'
+  },
+  ONA: {
+    label: 'ONA',
+    description: 'Diffusé directement sur Internet.'
+  },
+  OVA: {
+    label: 'OVA',
+    description: 'Destiné à la vente directe aux consommateurs.'
+  },
+  SPECIAL: {
+    label: 'Spécial',
+    description:
+      "Un épisode unique ou une série d'épisodes qui ne fait pas partie de la diffusion régulière d'une série."
+  },
+  TV_SHORT: {
+    label: 'TV Short',
+    description: 'Diffusé en épisodes courts, généralement moins de 15 minutes chacun.'
+  }
+};
 
-// export type IMediaFormat = keyof typeof MediaFormatObj;
-// export const MediaFormatArray = Object.keys(MediaFormatObj) as IMediaFormat[] & [string, ...string[]];
-// export const MediaFormatSelection = MediaFormatArray.map((key) => ({
-//   label: MediaFormatObj[key].label,
-//   description: MediaFormatObj[key].description,
-//   value: key
-// }))
+export type IMediaFormat = keyof typeof MediaFormatObj;
+export const MediaFormatArray = Object.keys(MediaFormatObj) as IMediaFormat[] &
+  [string, ...string[]];
+export const MediaFormatSelection = MediaFormatArray.map((key) => ({
+  label: MediaFormatObj[key].label,
+  description: MediaFormatObj[key].description,
+  value: key
+}));
 
 export const MediaStatusObj = {
   AIRING: {

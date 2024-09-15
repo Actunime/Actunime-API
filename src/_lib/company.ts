@@ -15,7 +15,7 @@ export class CompanyManager {
   private session: ClientSession;
   private user?: IUser;
   private newData!: Partial<ICompany>;
-  private newImageID?: string;
+  private logoManager?: ImageManager;
 
   constructor(session: ClientSession, user?: IUser) {
     this.user = user;
@@ -25,14 +25,14 @@ export class CompanyManager {
   private async populate(
     doc: Document | IPaginationResponse<ICompany>,
     withMedia: ICompany_Pagination_ZOD['with']
-  ) { }
+  ) {}
 
   public async get(id: string, withMedia?: ICompany_Pagination_ZOD['with']) {
     const findCompany = await CompanyModel.findOne({ id }, null, { session: this.session }).select(
       '-_id'
     );
 
-    if (!findCompany) throw new APIError("Aucune société avec cet identifiant", "NOT_FOUND", 404);
+    if (!findCompany) throw new APIError('Aucune société avec cet identifiant', 'NOT_FOUND', 404);
 
     if (withMedia) await this.populate(findCompany, withMedia);
 
@@ -63,19 +63,23 @@ export class CompanyManager {
   }
 
   public async init(data: Partial<ICreate_Company_ZOD>) {
-    const { logo, ...rawData } = data;
+    try {
+      const { logo, ...rawData } = data;
 
-    this.newData = rawData as Partial<IUser>;
+      this.newData = rawData as Partial<IUser>;
 
-    const { newData, user, session } = this;
+      const { newData, user, session } = this;
 
-    if (logo) {
-      newData.logo = await new ImageManager(session, 'User', user)
-        .createRelation(logo);
-      this.newImageID = newData.logo.id;
+      if (logo) {
+        this.logoManager = new ImageManager(session, 'User', user);
+        newData.logo = await this.logoManager.createRelation(logo);
+      }
+
+      return this;
+    } catch (err) {
+      await this.logoManager?.deleteImageIfSaved();
+      throw err;
     }
-
-    return this;
   }
 
   public async create(note?: string) {
@@ -83,8 +87,6 @@ export class CompanyManager {
       const newCompany = new CompanyModel(this.newData);
       newCompany.isVerified = true;
       await newCompany.save({ session: this.session });
-
-
 
       await new PatchManager(this.session, this.user!).PatchCreate({
         type: 'CREATE',
@@ -99,7 +101,7 @@ export class CompanyManager {
 
       return newCompany;
     } catch (err) {
-      await ImageManager.deleteImageFileIfExist(this.newImageID, "Company");
+      await this.logoManager?.deleteImageIfSaved();
       throw err;
     }
   }
@@ -112,7 +114,6 @@ export class CompanyManager {
 
       // Pré-disposition d'un company qui est en cours de création.
       await newCompany.save({ session: this.session });
-
 
       await new PatchManager(this.session, this.user!).PatchCreate({
         type: 'CREATE_REQUEST',
@@ -127,7 +128,7 @@ export class CompanyManager {
 
       return newCompany;
     } catch (err) {
-      await ImageManager.deleteImageFileIfExist(this.newImageID, "Company");
+      await this.logoManager?.deleteImageIfSaved();
       throw err;
     }
   }
@@ -142,7 +143,8 @@ export class CompanyManager {
         { session: this.session }
       );
 
-      if (!companyToUpdate) throw new APIError("Aucune société avec cet identifiant", "NOT_FOUND", 404);
+      if (!companyToUpdate)
+        throw new APIError('Aucune société avec cet identifiant', 'NOT_FOUND', 404);
 
       newCompanyData._id = companyToUpdate._id;
       newCompanyData.id = companyToUpdate.id;
@@ -154,10 +156,9 @@ export class CompanyManager {
         'updatedAt'
       ]);
 
-      if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
+      if (!changes) throw new APIError("Aucun changement n'a été détecté", 'EMPTY_CHANGES', 400);
 
       await companyToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
-
 
       await new PatchManager(this.session, this.user!).PatchCreate({
         type: 'UPDATE',
@@ -170,9 +171,12 @@ export class CompanyManager {
         author: { id: this.user!.id }
       });
 
+      if (this.logoManager?.hasNewImage())
+        await this.logoManager.deleteImageFile(companyToUpdate.logo?.id);
+
       return newCompanyData;
     } catch (err) {
-      await ImageManager.deleteImageFileIfExist(this.newImageID, "Company");
+      await this.logoManager?.deleteImageIfSaved();
       throw err;
     }
   }
@@ -187,7 +191,8 @@ export class CompanyManager {
         { session: this.session }
       );
 
-      if (!companyToUpdate) throw new APIError("Aucune société avec cet identifiant", "NOT_FOUND", 404);
+      if (!companyToUpdate)
+        throw new APIError('Aucune société avec cet identifiant', 'NOT_FOUND', 404);
 
       newCompanyData._id = companyToUpdate._id;
       newCompanyData.id = companyToUpdate.id;
@@ -199,10 +204,9 @@ export class CompanyManager {
         'updatedAt'
       ]);
 
-      if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
+      if (!changes) throw new APIError("Aucun changement n'a été détecté", 'EMPTY_CHANGES', 400);
 
       await companyToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
-
 
       await new PatchManager(this.session, this.user!).PatchCreate({
         type: 'UPDATE_REQUEST',
@@ -217,7 +221,7 @@ export class CompanyManager {
 
       return newCompanyData;
     } catch (err) {
-      await ImageManager.deleteImageFileIfExist(this.newImageID, "Company");
+      await this.logoManager?.deleteImageIfSaved();
       throw err;
     }
   }

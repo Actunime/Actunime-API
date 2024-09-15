@@ -56,20 +56,37 @@ declare module 'fastify' {
   try {
     await connectDB();
 
-    // const user = await UserModel.findOneAndReplace({
-    //   username: "Actunime",
-    // }, {
-    //   username: "Actunime",
-    //   displayName: "Actunime",
-    //   roles: ["ACTUNIME"],
-    // }, { upsert: true, new: true })
+    // await UserModel.deleteMany();
+    // await UserAccountModel.deleteMany();
 
-    // await UserAccountModel.findOneAndReplace(
-    //   { user: user._id },
-    //   {
-    //     user: user._id,
-    //     email: "proxdevxkill@gmail.com",
-    //   }, { upsert: true, new: true })
+    console.log(
+      'Utilisateurs',
+      (await UserModel.find()).map((user) => user.username + ' - ' + user.id).join('\n')
+    );
+    console.log('Images', (await ImageModel.find()).map((image) => image.id).join('\n'));
+
+    const user = await UserModel.findOneAndReplace(
+      {
+        username: 'Actunime'
+      },
+      {
+        id: 'actunime',
+        username: 'Actunime',
+        displayName: 'Actunime',
+        roles: ['ACTUNIME']
+      },
+      { upsert: true, new: true }
+    );
+
+    await UserAccountModel.findOneAndReplace(
+      { user: user._id },
+      {
+        user: user._id,
+        userId: user.id,
+        email: 'proxdevxkill@gmail.com'
+      },
+      { upsert: true, new: true }
+    );
 
     // await PersonModel.deleteMany();
     // await ImageModel.deleteMany();
@@ -99,7 +116,7 @@ declare module 'fastify' {
 
     console.log(fastify.printRoutes());
 
-    await fastify.listen({ host: '0.0.0.0', port: parseInt(process.env.PORT || '3000') });
+    await fastify.listen({ host: '0.0.0.0', port: parseInt(process.env.PORT || '3005') || 3005 });
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
