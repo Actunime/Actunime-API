@@ -12,8 +12,16 @@ import { FilterActivityRouter, GetActivityRouter } from './_activity.query';
 import { GetReportRouter, FilterReportRouter } from './_report.query';
 import { GetStatsByPathRouter, GetStatsRouter } from './_stats.query';
 import { FilterImageRouter, GetImageRouter } from './_image.query';
+import { GetDefaultRouter } from './_default.query';
 
 export async function Gets_Routes_V1(fastify: FastifyInstance) {
+  // defaults
+  fastify.route({
+    method: 'GET',
+    url: '/defaults',
+    handler: GetDefaultRouter
+  });
+
   // Images get/filter
   fastify.route({
     method: 'GET',
@@ -27,7 +35,6 @@ export async function Gets_Routes_V1(fastify: FastifyInstance) {
     // preValidation: AuthValidation(['MODERATOR']),
     handler: FilterImageRouter
   });
- 
 
   // Userrs get/filter
   fastify.route({

@@ -33,13 +33,15 @@ const userAccountSessionSchema = new Schema<IUserAccountSession>(
 
 const userAccountSchema = new Schema<IUserAccount>({
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  userId: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   linkedAccounts: { type: [userLinkedAccountSchema], default: [] },
   sessions: { type: [userAccountSessionSchema], default: [] },
   verified: { type: Date, default: undefined }
 });
 
-export const UserAccountModel = models.UserAccount || model('UserAccount', userAccountSchema);
+export const UserAccountModel =
+  (models.UserAccount as Model<IUserAccount>) || model('UserAccount', userAccountSchema);
 
 const userSchema = new Schema<IUser>(
   {
@@ -54,19 +56,25 @@ const userSchema = new Schema<IUser>(
     displayName: { type: String },
     bio: { type: String },
     roles: { type: [String], default: ['MEMBER'] },
-    avatar: withImage,
-    banner: withImage,
+    avatar: { type: withImage, default: undefined },
+    banner: { type: withImage, default: undefined }
   },
   { timestamps: true, id: false, toJSON: { virtuals: true } }
 );
 
-userSchema.virtual('images.data', {
+userSchema.virtual('avatar.data', {
   ref: 'Image',
-  localField: 'images.id',
+  localField: 'avatar.id',
   foreignField: 'id',
   justOne: true
 });
 
+userSchema.virtual('banner.data', {
+  ref: 'Image',
+  localField: 'banner.id',
+  foreignField: 'id',
+  justOne: true
+});
 
 userSchema.virtual('disabled', {
   ref: 'UserDisabled',
@@ -96,7 +104,7 @@ userSchema.virtual('disabled', {
 //   justOne: true
 // })
 
-export const UserModel = models.User as Model<IUser> || model('User', userSchema);
+export const UserModel = (models.User as Model<IUser>) || model('User', userSchema);
 
 // const UserContributions = new Schema({
 //   id: {

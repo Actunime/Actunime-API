@@ -16,7 +16,7 @@ export class TrackManager {
   private user?: IUser;
   private session: ClientSession;
   private newData!: Partial<ITrack>;
-  private newImageID?: string;
+  private coverManager?: ImageManager;
   constructor(session: ClientSession, user?: IUser) {
     this.user = user;
     this.session = session;
@@ -40,7 +40,7 @@ export class TrackManager {
       '-_id'
     );
 
-    if (!findTrack) throw new APIError("Aucune musique correspondante.", "NOT_FOUND", 404);
+    if (!findTrack) throw new APIError('Aucune musique correspondante.', 'NOT_FOUND', 404);
 
     if (withMedia) await this.populate(findTrack, withMedia);
 
@@ -71,29 +71,32 @@ export class TrackManager {
   }
 
   public async init(data: Partial<ICreate_Track_ZOD>) {
-    const {
-      // Relations
-      cover,
-      artists,
-      // Data
-      ...rawData
-    } = data;
+    try {
+      const {
+        // Relations
+        cover,
+        artists,
+        // Data
+        ...rawData
+      } = data;
 
-    this.newData = rawData as Partial<ITrack>;
+      this.newData = rawData as Partial<ITrack>;
 
-    const { newData, user, session } = this;
+      const { newData, user, session } = this;
 
-    if (cover) {
-      newData.cover = await new ImageManager(session, 'Person', user)
-        .createRelation(cover);
-      if (cover.newImage)
-        this.newImageID = newData.cover.id;
+      if (cover) {
+        this.coverManager = new ImageManager(session, 'Track', user);
+        newData.cover = await this.coverManager.createRelation(cover);
+      }
+
+      if (artists)
+        newData.artists = await new PersonManager(session, user).createMultipleRelation(artists);
+
+      return this;
+    } catch (err) {
+      await this.coverManager?.deleteImageIfSaved();
+      throw err;
     }
-
-    if (artists)
-      newData.artists = await new PersonManager(session, user).createMultipleRelation(artists);
-
-    return this;
   }
 
   public async create(note?: string) {
@@ -115,7 +118,7 @@ export class TrackManager {
 
       return newTrack;
     } catch (err) {
-      await ImageManager.deleteImageFileIfExist(this.newImageID, "Track");
+      await this.coverManager?.deleteImageIfSaved();
       throw err;
     }
   }
@@ -128,7 +131,6 @@ export class TrackManager {
 
       // Pré-disposition d'un track qui est en cours de création.
       await newTrack.save({ session: this.session });
-
 
       await new PatchManager(this.session, this.user!).PatchCreate({
         type: 'CREATE_REQUEST',
@@ -143,7 +145,7 @@ export class TrackManager {
 
       return newTrack;
     } catch (err) {
-      await ImageManager.deleteImageFileIfExist(this.newImageID, "Track");
+      await this.coverManager?.deleteImageIfSaved();
       throw err;
     }
   }
@@ -152,9 +154,13 @@ export class TrackManager {
     try {
       const newTrackData = new TrackModel(this.newData);
 
-      const trackToUpdate = await TrackModel.findOne({ id: trackID }, {}, { session: this.session });
+      const trackToUpdate = await TrackModel.findOne(
+        { id: trackID },
+        {},
+        { session: this.session }
+      );
 
-      if (!trackToUpdate) throw new APIError("Aucune musique correspondante.", "NOT_FOUND", 404);
+      if (!trackToUpdate) throw new APIError('Aucune musique correspondante.', 'NOT_FOUND', 404);
 
       newTrackData._id = trackToUpdate._id;
       newTrackData.id = trackToUpdate.id;
@@ -166,10 +172,9 @@ export class TrackManager {
         'updatedAt'
       ]);
 
-      if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
+      if (!changes) throw new APIError("Aucun changement n'a été détecté", 'EMPTY_CHANGES', 400);
 
       await trackToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
-
 
       await new PatchManager(this.session, this.user!).PatchCreate({
         type: 'UPDATE',
@@ -182,9 +187,12 @@ export class TrackManager {
         author: { id: this.user!.id }
       });
 
+      if (this.coverManager?.hasNewImage())
+        await ImageManager.deleteImageFileIfExist(trackToUpdate.cover?.id, 'Track');
+
       return newTrackData;
     } catch (err) {
-      await ImageManager.deleteImageFileIfExist(this.newImageID, "Track");
+      await this.coverManager?.deleteImageIfSaved();
       throw err;
     }
   }
@@ -193,9 +201,13 @@ export class TrackManager {
     try {
       const newTrackData = new TrackModel(this.newData);
 
-      const trackToUpdate = await TrackModel.findOne({ id: trackID }, {}, { session: this.session });
+      const trackToUpdate = await TrackModel.findOne(
+        { id: trackID },
+        {},
+        { session: this.session }
+      );
 
-      if (!trackToUpdate) throw new APIError("Aucune musique correspondante.", "NOT_FOUND", 404);
+      if (!trackToUpdate) throw new APIError('Aucune musique correspondante.', 'NOT_FOUND', 404);
 
       newTrackData._id = trackToUpdate._id;
       newTrackData.id = trackToUpdate.id;
@@ -207,10 +219,9 @@ export class TrackManager {
         'updatedAt'
       ]);
 
-      if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
+      if (!changes) throw new APIError("Aucun changement n'a été détecté", 'EMPTY_CHANGES', 400);
 
       await trackToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
-
 
       await new PatchManager(this.session, this.user!).PatchCreate({
         type: 'UPDATE_REQUEST',
@@ -225,7 +236,7 @@ export class TrackManager {
 
       return newTrackData;
     } catch (err) {
-      await ImageManager.deleteImageFileIfExist(this.newImageID, "Track");
+      await this.coverManager?.deleteImageIfSaved();
       throw err;
     }
   }
@@ -238,7 +249,11 @@ export class TrackManager {
     } else if (relation.id && (await TrackModel.exists({ id: relation.id }))) {
       return { id: relation.id };
     } else {
-      throw new APIError("Relation, musique invalide, il faut un identifiant ou une nouvelle musique.", "BAD_ENTRY", 400);
+      throw new APIError(
+        'Relation, musique invalide, il faut un identifiant ou une nouvelle musique.',
+        'BAD_ENTRY',
+        400
+      );
     }
   }
 

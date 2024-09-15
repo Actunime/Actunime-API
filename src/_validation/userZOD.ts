@@ -24,8 +24,8 @@ export const User_Pagination_ZOD = z
     strict: z.boolean().optional(),
     with: z
       .object({
-        // disabled: z.boolean().optional(),
-        // premium: z.boolean().optional(),
+        avatar: z.boolean().optional(),
+        banner: z.boolean().optional()
       })
       .partial()
       .strict()
@@ -66,6 +66,23 @@ export const User_Update_ZOD = z.object({
 
 export type IUser_Update_ZOD = z.infer<typeof User_Update_ZOD>;
 
+export const Create_User_ZOD = z
+  .object({
+    user: z.object({
+      username: z.string().optional(),
+      displayName: z.string().optional(),
+      bio: z.string().optional(),
+      roles: z.array(z.enum(UserRolesArray)).optional(),
+      avatar: z.optional(Add_Image_ZOD),
+      banner: z.optional(Add_Image_ZOD)
+    }),
+    account: z.object({
+      email: z.string().email()
+    })
+  })
+  .strict();
+
+export type ICreate_User_ZOD = z.infer<typeof Create_User_ZOD>;
 
 export const Patch_User_ZOD = z
   .object({

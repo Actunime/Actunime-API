@@ -6,7 +6,7 @@ import { User_Pagination_ZOD } from '@/_validation/userZOD';
 
 export const GetUserRouter = async (req: FastifyRequest<GetRouter>, res: FastifyReply) => {
   const session = await mongoose.startSession();
-
+  console.log('Params', req.params);
   try {
     session.startTransaction();
 

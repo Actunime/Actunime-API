@@ -8,7 +8,7 @@ export class MediaPagination<T = any> {
   private limit: number = 20;
   private strict: boolean = false;
 
-  private searchQuery: FilterQuery<any>[] = [];
+  public searchQuery: FilterQuery<any>[] = [];
   private sort: Record<string, 1 | -1> = {
     createdAt: -1
   };

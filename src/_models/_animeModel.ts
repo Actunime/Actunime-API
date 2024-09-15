@@ -66,7 +66,7 @@ const AnimeSchema = new Schema<IAnime>(
     characters: { type: [withCharacterSchema], default: undefined },
     tracks: { type: [withTrackSchema], default: undefined }
   },
-  { timestamps: true, id: false }
+  { timestamps: true, id: false, toJSON: { virtuals: true } }
 );
 
 AnimeSchema.pre('aggregate', async function () {
@@ -145,6 +145,20 @@ AnimeSchema.virtual('parent.data', {
 AnimeSchema.virtual('source.data', {
   ref: 'Manga',
   localField: 'source.id',
+  foreignField: 'id',
+  justOne: true
+});
+
+AnimeSchema.virtual('cover.data', {
+  ref: 'Image',
+  localField: 'cover.id',
+  foreignField: 'id',
+  justOne: true
+});
+
+AnimeSchema.virtual('banner.data', {
+  ref: 'Image',
+  localField: 'banner.id',
   foreignField: 'id',
   justOne: true
 });

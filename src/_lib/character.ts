@@ -20,7 +20,7 @@ export class CharacterManager {
   private user?: IUser;
   private session: ClientSession;
   private newData!: Partial<ICharacter>;
-  private newImageID?: string;
+  private avatarManager?: ImageManager;
 
   constructor(session: ClientSession, user?: IUser) {
     this.user = user;
@@ -45,7 +45,8 @@ export class CharacterManager {
       session: this.session
     }).select('-_id');
 
-    if (!findCharacter) throw new APIError("Aucun personnage avec cet identifiant", "NOT_FOUND", 404);
+    if (!findCharacter)
+      throw new APIError('Aucun personnage avec cet identifiant', 'NOT_FOUND', 404);
 
     if (withMedia) await this.populate(findCharacter, withMedia);
 
@@ -82,28 +83,31 @@ export class CharacterManager {
   }
 
   public async init(data: Partial<ICreate_Character_ZOD>) {
-    const {
-      // Relations
-      avatar,
-      actors,
-      // Data
-      ...rawData
-    } = data;
-    this.newData = rawData as Partial<ICharacter>;
+    try {
+      const {
+        // Relations
+        avatar,
+        actors,
+        // Data
+        ...rawData
+      } = data;
+      this.newData = rawData as Partial<ICharacter>;
 
-    const { newData, user, session } = this;
+      const { newData, user, session } = this;
 
-    if (actors)
-      newData.actors = await new PersonManager(session, user).createMultipleRelation(actors);
+      if (actors)
+        newData.actors = await new PersonManager(session, user).createMultipleRelation(actors);
 
-    if (avatar) {
-      newData.avatar = await new ImageManager(session, 'Character', user)
-        .createRelation(avatar);
-      if (avatar.newImage)
-        this.newImageID = newData.avatar.id;
+      if (avatar) {
+        this.avatarManager = new ImageManager(session, 'Character', user);
+        newData.avatar = await this.avatarManager.createRelation(avatar);
+      }
+
+      return this;
+    } catch (err) {
+      await this.avatarManager?.deleteImageIfSaved();
+      throw err;
     }
-
-    return this;
   }
 
   public async create(note?: string) {
@@ -125,7 +129,7 @@ export class CharacterManager {
 
       return newCharacter;
     } catch (err) {
-      await ImageManager.deleteImageFileIfExist(this.newImageID, "Character");
+      await this.avatarManager?.deleteImageIfSaved();
       throw err;
     }
   }
@@ -138,7 +142,6 @@ export class CharacterManager {
 
       // Pré-disposition d'un character qui est en cours de création.
       await newCharacter.save({ session: this.session });
-
 
       await new PatchManager(this.session, this.user!).PatchCreate({
         type: 'CREATE_REQUEST',
@@ -153,7 +156,7 @@ export class CharacterManager {
 
       return newCharacter;
     } catch (err) {
-      await ImageManager.deleteImageFileIfExist(this.newImageID, "Character");
+      await this.avatarManager?.deleteImageIfSaved();
       throw err;
     }
   }
@@ -167,7 +170,8 @@ export class CharacterManager {
         { session: this.session }
       );
 
-      if (!characterToUpdate) throw new APIError("Aucun personnage correspondant.", "NOT_FOUND", 404);
+      if (!characterToUpdate)
+        throw new APIError('Aucun personnage correspondant.', 'NOT_FOUND', 404);
 
       newCharacterData._id = characterToUpdate._id;
       newCharacterData.id = characterToUpdate.id;
@@ -179,7 +183,7 @@ export class CharacterManager {
         'updatedAt'
       ]);
 
-      if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
+      if (!changes) throw new APIError("Aucun changement n'a été détecté", 'EMPTY_CHANGES', 400);
 
       await characterToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
@@ -196,7 +200,7 @@ export class CharacterManager {
 
       return newCharacterData;
     } catch (err) {
-      await ImageManager.deleteImageFileIfExist(this.newImageID, "Character");
+      await this.avatarManager?.deleteImageIfSaved();
       throw err;
     }
   }
@@ -210,7 +214,8 @@ export class CharacterManager {
         { session: this.session }
       );
 
-      if (!characterToUpdate) throw new APIError("Aucun personnage correspondant.", "NOT_FOUND", 404);
+      if (!characterToUpdate)
+        throw new APIError('Aucun personnage correspondant.', 'NOT_FOUND', 404);
 
       newCharacterData._id = characterToUpdate._id;
       newCharacterData.id = characterToUpdate.id;
@@ -222,10 +227,9 @@ export class CharacterManager {
         'updatedAt'
       ]);
 
-      if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
+      if (!changes) throw new APIError("Aucun changement n'a été détecté", 'EMPTY_CHANGES', 400);
 
       await characterToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
-
 
       await new PatchManager(this.session, this.user!).PatchCreate({
         type: 'UPDATE_REQUEST',
@@ -238,9 +242,12 @@ export class CharacterManager {
         author: { id: this.user!.id }
       });
 
+      if (this.avatarManager?.hasNewImage())
+        await this.avatarManager.deleteImageFile(characterToUpdate.avatar?.id);
+
       return newCharacterData;
     } catch (err) {
-      await ImageManager.deleteImageFileIfExist(this.newImageID, "Character");
+      await this.avatarManager?.deleteImageIfSaved();
       throw err;
     }
   }

@@ -11,7 +11,6 @@ import { CharacterManager } from './character';
 import { TrackManager } from './track';
 import { getChangedData } from '../_utils/getObjChangeUtil';
 import { MediaPagination } from './pagination';
-import { IPaginationResponse } from '@/_types/paginationType';
 import { ImageManager } from './image';
 import { APIError } from './Error';
 
@@ -19,17 +18,15 @@ export class AnimeManager {
   private user?: IUser;
   private session: ClientSession;
   private newData!: Partial<IAnime>;
-  private newImageID?: string;
+  private coverManager?: ImageManager;
+  private bannerManager?: ImageManager;
 
   constructor(session: ClientSession, user?: IUser) {
     this.user = user;
     this.session = session;
   }
 
-  private async populate(
-    doc: Document | IPaginationResponse<IAnime>,
-    withMedia: IAnime_Pagination_ZOD['with']
-  ) {
+  private async populate(doc: Document | IAnime[], withMedia: IAnime_Pagination_ZOD['with']) {
     if (withMedia?.groupe)
       await AnimeModel.populate(doc, {
         path: 'groupe.data',
@@ -85,6 +82,16 @@ export class AnimeManager {
         justOne: true,
         options: { session: this.session }
       });
+
+    if (withMedia?.cover)
+      await AnimeModel.populate(doc, {
+        path: 'cover.data',
+        select: '-_id',
+        justOne: true,
+        options: { session: this.session }
+      });
+
+    console.log('anime', (doc[0] as unknown as IAnime).cover);
   }
 
   public async get(id: string, withMedia?: IAnime_Pagination_ZOD['with']) {
@@ -93,7 +100,6 @@ export class AnimeManager {
     );
 
     if (!findAnime) throw new Error('Anime not found');
-
     if (withMedia) await this.populate(findAnime, withMedia);
 
     return findAnime.toJSON();
@@ -118,91 +124,93 @@ export class AnimeManager {
 
     if (sort) pagination.setSort(sort);
 
+    pagination.addSearchQuery([
+      ...(query?.status ? [{ status: query.status }] : []),
+      ...(query?.genres && query.genres.length ? [{ genres: { $in: query.genres } }] : [])
+    ]);
+    console.log(pagination.searchQuery);
     const response = await pagination.getResults();
 
-    if (paginationInput.with) await this.populate(response, paginationInput.with);
+    if (paginationInput.with) await this.populate(response.results, paginationInput.with);
 
     return response;
   }
 
   public async init(data: ICreate_Anime_ZOD) {
-    const {
-      // Relations
-      cover,
-      banner,
-      groupe,
-      parent,
-      source,
-      companys,
-      staffs,
-      characters,
-      tracks,
-      // Data
-      ...rawData
-    } = data;
+    try {
+      const {
+        // Relations
+        cover,
+        banner,
+        groupe,
+        parent,
+        source,
+        companys,
+        staffs,
+        characters,
+        tracks,
+        // Data
+        ...rawData
+      } = data;
 
-    this.newData = rawData as Partial<IAnime>;
+      this.newData = rawData as Partial<IAnime>;
 
-    const { newData, user, session } = this;
+      const { newData, user, session } = this;
 
-    // ? Groupe
-    if (groupe) newData.groupe = await new GroupeManager(session, user).createRelation(groupe);
+      // ? Groupe
+      if (groupe) newData.groupe = await new GroupeManager(session, user).createRelation(groupe);
 
+      if (parent) {
+        if (!newData.parent) newData.parent = {};
 
-    if (parent) {
-      if (!newData.parent)
-        newData.parent = {}
+        if (parent.id)
+          if (await AnimeModel.exists({ id: parent.id })) newData.parent['id'] = parent.id;
+          else throw new Error('parent not found');
 
-      if (parent.id)
-        if (await AnimeModel.exists({ id: parent.id }))
-          newData.parent["id"] = parent.id;
-        else throw new Error('parent not found');
+        if (parent.parentLabel) newData.parent['parentLabel'] = parent.parentLabel;
+      }
 
-      if (parent.parentLabel)
-        newData.parent['parentLabel'] = parent.parentLabel;
+      // ? Source
+      if (source) {
+        if (!newData.source) newData.source = {};
+
+        if (source.id)
+          if (await MangaModel.exists({ id: source.id })) newData.source['id'] = source.id;
+          else throw new Error('Source not found');
+
+        if (source.sourceLabel) newData.source['sourceLabel'] = source.sourceLabel;
+      }
+
+      if (companys)
+        newData.companys = await new CompanyManager(session, user).createMultipleRelation(companys);
+
+      if (staffs)
+        newData.staffs = await new PersonManager(session, user).createMultipleRelation(staffs);
+
+      if (characters)
+        newData.characters = await new CharacterManager(session, user).createMultipleRelation(
+          characters
+        );
+
+      if (tracks)
+        newData.tracks = await new TrackManager(session, user).createMultipleRelation(tracks);
+
+      if (cover) {
+        this.coverManager = new ImageManager(session, 'Anime', user);
+        newData.cover = await this.coverManager.createRelation(cover);
+      }
+
+      if (banner) {
+        this.bannerManager = new ImageManager(session, 'Anime', user);
+        newData.banner = await this.bannerManager.createRelation(banner);
+      }
+
+      return this;
+    } catch (err) {
+      await this.coverManager?.deleteImageIfSaved();
+      await this.bannerManager?.deleteImageIfSaved();
+      throw err;
     }
-
-    // ? Source
-    if (source) {
-      if (!newData.source)
-        newData.source = {}
-
-      if (source.id)
-        if (await MangaModel.exists({ id: source.id }))
-          newData.source["id"] = source.id;
-        else throw new Error('Source not found');
-
-      if (source.sourceLabel)
-        newData.source['sourceLabel'] = source.sourceLabel;
-    }
-
-    if (companys)
-      newData.companys = await new CompanyManager(session, user).createMultipleRelation(companys);
-
-    if (staffs)
-      newData.staffs = await new PersonManager(session, user).createMultipleRelation(staffs);
-
-    if (characters)
-      newData.characters = await new CharacterManager(session, user).createMultipleRelation(
-        characters
-      );
-
-    if (tracks)
-      newData.tracks = await new TrackManager(session, user).createMultipleRelation(tracks);
-
-    if (cover) {
-      newData.cover = await new ImageManager(session, 'Anime', user)
-        .createRelation(cover);
-      this.newImageID = newData.cover.id;
-    }
-
-    if (banner) {
-      newData.banner = await new ImageManager(session, 'Anime', user)
-        .createRelation(banner);
-      this.newImageID = newData.banner.id;
-    }
-
-    return this;
   }
 
   public async create(note?: string) {
@@ -224,10 +232,9 @@ export class AnimeManager {
 
       return newAnime;
     } catch (err) {
-      for (let i = 0; i < (this.newImageID || []).length; i++)
-        await ImageManager.deleteImageFileIfExist(this.newImageID?.[i], "Anime");
-
-      throw err
+      await this.coverManager?.deleteImageIfSaved();
+      await this.bannerManager?.deleteImageIfSaved();
+      throw err;
     }
   }
 
@@ -238,7 +245,6 @@ export class AnimeManager {
 
       // Pré-disposition d'un anime qui est en cours de création.
       await newAnime.save({ session: this.session });
-
 
       await new PatchManager(this.session, this.user!).PatchCreate({
         type: 'CREATE_REQUEST',
@@ -252,17 +258,22 @@ export class AnimeManager {
 
       return newAnime;
     } catch (err) {
-      for (let i = 0; i < (this.newImageID || []).length; i++)
-        await ImageManager.deleteImageFileIfExist(this.newImageID?.[i], "Anime");
-      throw err
+      await this.coverManager?.deleteImageIfSaved();
+      await this.bannerManager?.deleteImageIfSaved();
+      throw err;
     }
   }
 
   public async update(animeID: string, note?: string) {
     const newAnimeData = new AnimeModel(this.newData);
     try {
-      const animeToUpdate = await AnimeModel.findOne({ id: animeID }, {}, { session: this.session });
-      if (!animeToUpdate) throw new APIError("Aucun anime correspondent a cet identifiant", 'NOT_FOUND', 404);
+      const animeToUpdate = await AnimeModel.findOne(
+        { id: animeID },
+        {},
+        { session: this.session }
+      );
+      if (!animeToUpdate)
+        throw new APIError('Aucun anime correspondent a cet identifiant', 'NOT_FOUND', 404);
 
       newAnimeData._id = animeToUpdate._id;
       newAnimeData.id = animeToUpdate.id;
@@ -274,7 +285,7 @@ export class AnimeManager {
         'updatedAt'
       ]);
 
-      if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
+      if (!changes) throw new APIError("Aucun changement n'a été détecté", 'EMPTY_CHANGES', 400);
 
       await animeToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
@@ -288,20 +299,30 @@ export class AnimeManager {
         author: { id: this.user!.id }
       });
 
+      if (this.coverManager?.hasNewImage())
+        await this.coverManager.deleteImageFile(animeToUpdate.cover?.id);
+
+      if (this.bannerManager?.hasNewImage())
+        await this.bannerManager.deleteImageFile(animeToUpdate.banner?.id);
+
       return newAnimeData;
     } catch (err) {
-      for (let i = 0; i < (this.newImageID || []).length; i++)
-        await ImageManager.deleteImageFileIfExist(this.newImageID?.[i], "Anime");
-      throw err
+      await this.coverManager?.deleteImageIfSaved();
+      await this.bannerManager?.deleteImageIfSaved();
+      throw err;
     }
   }
 
   public async updateRequest(animeID: string, note?: string) {
     const newAnimeData = new AnimeModel(this.newData);
     try {
-      const animeToUpdate = await AnimeModel.findOne({ id: animeID }, {}, { session: this.session });
+      const animeToUpdate = await AnimeModel.findOne(
+        { id: animeID },
+        {},
+        { session: this.session }
+      );
 
-      if (!animeToUpdate) throw new APIError("Aucun anime correspondant", "NOT_FOUND", 404);
+      if (!animeToUpdate) throw new APIError('Aucun anime correspondant', 'NOT_FOUND', 404);
 
       newAnimeData._id = animeToUpdate._id;
       newAnimeData.id = animeToUpdate.id;
@@ -313,7 +334,7 @@ export class AnimeManager {
         'updatedAt'
       ]);
 
-      if (!changes) throw new APIError("Aucun changement n'a été détecté", "EMPTY_CHANGES", 400);
+      if (!changes) throw new APIError("Aucun changement n'a été détecté", 'EMPTY_CHANGES', 400);
 
       await animeToUpdate.updateOne({ $set: changes.newValues }, { session: this.session });
 
@@ -329,9 +350,9 @@ export class AnimeManager {
 
       return newAnimeData;
     } catch (err) {
-      for (let i = 0; i < (this.newImageID || []).length; i++)
-        await ImageManager.deleteImageFileIfExist(this.newImageID?.[i], "Anime");
-      throw err
+      await this.coverManager?.deleteImageIfSaved();
+      await this.bannerManager?.deleteImageIfSaved();
+      throw err;
     }
   }
 }

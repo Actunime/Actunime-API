@@ -1,7 +1,7 @@
-import { IUserRoles } from "../_utils/userUtil";
-import { Schema } from "mongoose";
-import { IPaginationResponse } from "./paginationType";
-import { IImage } from "./imageType";
+import { IUserRoles } from '../_utils/userUtil';
+import { Schema } from 'mongoose';
+import { IPaginationResponse } from './paginationType';
+import { IImage } from './imageType';
 
 export interface IUserLinkedAccount {
   providerAccountId: string;
@@ -19,6 +19,7 @@ export interface IUserAccountSession {
 
 export interface IUserAccount {
   user: Schema.Types.ObjectId;
+  userId: string;
   email: string;
   linkedAccounts: IUserLinkedAccount[];
   sessions: IUserAccountSession[];
@@ -41,21 +42,20 @@ export interface IUser {
     id: string;
     data?: IImage; // Virtual
   };
-  disabled?: IUserDisabled // Virtual
-  premium?: IUserPremium // Virtual
+  disabled?: IUserDisabled; // Virtual
+  premium?: IUserPremium; // Virtual
 
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface IUserPaginationResponse
-  extends IPaginationResponse<IUser> { }
+export interface IUserPaginationResponse extends IPaginationResponse<IUser> {}
 
 export interface IUserDisabled {
   id: string;
   reason: string;
-  user: { id: string, data?: IUser };
-  by: { id: string, data?: IUser };
+  user: { id: string; data?: IUser };
+  by: { id: string; data?: IUser };
 
   updatedAt: Date;
   createdAt: Date;
@@ -64,7 +64,7 @@ export interface IUserPremium {
   id: string;
   level: number;
   expires: Date;
-  user: { id: string, data?: IUser };
+  user: { id: string; data?: IUser };
 
   updatedAt: Date;
   createdAt: Date;

@@ -38,7 +38,9 @@ export const Anime_Pagination_ZOD = z
       .strict(),
     query: z
       .object({
-        name: z.string().optional()
+        name: z.string().optional(),
+        status: z.string().optional(),
+        genres: z.array(z.string()).optional()
       })
       .partial()
       .strict(),
@@ -50,7 +52,9 @@ export const Anime_Pagination_ZOD = z
         staffs: z.boolean().optional(),
         companys: z.boolean().optional(),
         characters: z.boolean().optional(),
-        tracks: z.boolean().optional()
+        tracks: z.boolean().optional(),
+        cover: z.boolean().optional(),
+        banner: z.boolean().optional()
       })
       .partial()
       .strict()
@@ -67,10 +71,12 @@ const Anime_Episode_ZOD = z.object({
   durationMinute: z.optional(zodNumber())
 });
 
-export const Add_Anime_ZOD = z.object({
-  id: z.string().optional(),
-  parentLabel: z.optional(z.enum(MediaParentLabelArray))
-}).partial();
+export const Add_Anime_ZOD = z
+  .object({
+    id: z.string().optional(),
+    parentLabel: z.optional(z.enum(MediaParentLabelArray))
+  })
+  .partial();
 
 export type IAdd_Anime_ZOD = z.infer<typeof Add_Anime_ZOD>;
 
@@ -240,22 +246,22 @@ export const AnimeDataToZOD = (data: IAnime): Partial<ICreate_Anime_ZOD> => {
     banner: data.banner,
     ...(data.date
       ? {
-        date: {
-          start: dateToZod(data.date.start),
-          end: dateToZod(data.date.end)
+          date: {
+            start: dateToZod(data.date.start),
+            end: dateToZod(data.date.end)
+          }
         }
-      }
       : {}),
     status: data.status,
     format: data.format,
     vf: data.vf,
     ...(data.episodes
       ? {
-        episodes: {
-          ...data.episodes,
-          nextAiringDate: dateTimeToZod(data.episodes.nextAiringDate)
+          episodes: {
+            ...data.episodes,
+            nextAiringDate: dateTimeToZod(data.episodes.nextAiringDate)
+          }
         }
-      }
       : {}),
     adult: data.adult,
     explicit: data.explicit,
