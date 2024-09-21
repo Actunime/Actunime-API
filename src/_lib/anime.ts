@@ -90,8 +90,6 @@ export class AnimeManager {
         justOne: true,
         options: { session: this.session }
       });
-
-    console.log('anime', (doc[0] as unknown as IAnime).cover);
   }
 
   public async get(id: string, withMedia?: IAnime_Pagination_ZOD['with']) {
