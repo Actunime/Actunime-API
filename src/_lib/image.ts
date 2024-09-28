@@ -7,15 +7,9 @@ import { IImage_Pagination_ZOD, ICreate_Image_ZOD, IAdd_Image_ZOD } from '@/_val
 import { ClientSession, Document, Schema } from 'mongoose';
 import { MediaPagination } from './pagination';
 import { PatchManager } from './patch';
-import Sharp from 'sharp';
-import fs from 'fs';
 import { ITargetPath } from '@/_utils/global';
-import path from 'path';
-import { IImageLabel } from '@/_utils/imageUtil';
+import { CreateImageCDN, DeleteImageCDN, IImageLabel } from '@/_utils/imageUtil';
 import { APIError } from './Error';
-
-const ImagePathRoot =
-  process.env.NODE_ENV === 'production' ? '/actunime/img' : path.join(__dirname, '..', '..', 'img');
 
 export class ImageManager {
   private session: ClientSession;
@@ -99,42 +93,43 @@ export class ImageManager {
   }
 
   private async createImageFile(value: string) {
-    const fullRootPath = ImagePathRoot + '/' + this.targetPath?.toLocaleLowerCase();
+    // const fullRootPath = ImagePathRoot + '/' + this.targetPath?.toLocaleLowerCase();
     const id = this.newImage.id;
-
     if (!id) throw new Error("id de l'image non renseigné");
 
-    if (!fs.existsSync(fullRootPath)) {
-      fs.mkdirSync(fullRootPath, { recursive: true });
-    }
-
-    const sharp = Sharp(Buffer.from(value.replace(/^data:image\/webp;base64,/, ''), 'base64'));
-
-    await sharp
-      .toFormat('webp')
-      .webp({ quality: 80, lossless: true, alphaQuality: 80, force: false })
-      .toFile(fullRootPath + '/' + id + '.webp');
+    await CreateImageCDN({
+      id,
+      path: this.targetPath!,
+      value,
+      valueIsUrl: false
+    });
 
     this.imageWasSaved = true;
   }
 
   private async createImageFileFromURL(value: string) {
-    const fullRootPath = ImagePathRoot + '/' + this.targetPath?.toLocaleLowerCase();
     const id = this.newImage?.id;
     if (!id) throw new Error("id de l'image non renseigné");
 
-    if (!fs.existsSync(fullRootPath)) {
-      fs.mkdirSync(fullRootPath, { recursive: true });
-    }
+    // if (!fs.existsSync(fullRootPath)) {
+    //   fs.mkdirSync(fullRootPath, { recursive: true });
+    // }
 
-    const imgURLBuffer = await (await fetch(value)).arrayBuffer();
+    // const imgURLBuffer = await (await fetch(value)).arrayBuffer();
 
-    const sharp = Sharp(imgURLBuffer);
+    // const sharp = Sharp(imgURLBuffer);
 
-    await sharp
-      .toFormat('webp')
-      .webp({ quality: 80, lossless: true, alphaQuality: 80, force: false })
-      .toFile(fullRootPath + '/' + id + '.webp');
+    // await sharp
+    //   .toFormat('webp')
+    //   .webp({ quality: 80, lossless: true, alphaQuality: 80, force: false })
+    //   .toFile(fullRootPath + '/' + id + '.webp');
+
+    await CreateImageCDN({
+      id,
+      path: this.targetPath!,
+      value,
+      valueIsUrl: true
+    });
 
     this.imageWasSaved = true;
   }
@@ -143,8 +138,7 @@ export class ImageManager {
     try {
       const id = idbis || this.newImage?.id;
       if (!id) throw new Error("id de l'image non renseigné");
-      const fullRootPath = ImagePathRoot + '/' + this.targetPath?.toLocaleLowerCase();
-      fs.unlinkSync(fullRootPath + '/' + id + '.webp');
+      await DeleteImageCDN({ id, path: this.targetPath! });
     } catch (err) {
       console.error(err);
     }
@@ -153,8 +147,7 @@ export class ImageManager {
   static async deleteImageFileIfExist(id?: string, targetPath?: ITargetPath) {
     if (!id || !targetPath) return;
     try {
-      const fullRootPath = ImagePathRoot + '/' + targetPath.toLocaleLowerCase();
-      fs.unlinkSync(fullRootPath + '/' + id + '.webp');
+      await DeleteImageCDN({ id, path: targetPath! });
     } catch (err) {
       console.error(err);
     }

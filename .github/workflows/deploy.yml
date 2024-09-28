@@ -73,6 +73,8 @@ jobs:
           echo MONGODB_user="\"${{ secrets.MONGODB_user }}\"" >> .env.production
           echo MONGODB_pass="\"${{ secrets.MONGODB_pass }}\"" >> .env.production
           echo MONGODB_dbName="\"${{ secrets.MONGODB_dbName }}\"" >> .env.production
+          echo IMAGECDN_HOST="\"${{ secrets.IMAGECDN_HOST }}\"" >> .env.production
+          echo IMAGECDN_PORT="\"${{ secrets.IMAGECDN_PORT }}\"" >> .env.production
   start:
     runs-on: self-hosted
     needs: config_env

@@ -21,13 +21,13 @@ const ImageSchema = new Schema<IImage>(
 );
 
 ImageSchema.virtual('location').get(function () {
-  return `/img/${this.targetPath?.toLocaleLowerCase()}/${this.id}.webp`;
+  return `/img/${this.targetPath?.toLocaleLowerCase() + 's'}/${this.id}.webp`;
 });
 
-const rootURL = 'http://' + process.env.HOST + ':' + process.env.PORT + '/img';
+const rootURL = 'https://img.actunime.fr';
 
 ImageSchema.virtual('url').get(function () {
-  return `${rootURL}/${this.targetPath?.toLocaleLowerCase()}/${this.id}.webp`;
+  return `${rootURL}/${this.targetPath?.toLocaleLowerCase() + 's'}/${this.id}.webp`;
 });
 
 export const ImageModel = (models.Image as Model<IImage>) || model<IImage>('Image', ImageSchema);

@@ -49,7 +49,8 @@ export interface IUser {
   updatedAt: Date;
 }
 
-export interface IUserPaginationResponse extends IPaginationResponse<IUser> {}
+export type IUserPaginationResponse = IPaginationResponse<IUser>;
+// export interface IUserPaginationResponse extends IPaginationResponse<IUser> {}
 
 export interface IUserDisabled {
   id: string;
