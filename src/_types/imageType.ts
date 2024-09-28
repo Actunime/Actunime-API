@@ -12,4 +12,5 @@ export interface IImage {
   updatedAt?: Date;
 }
 
-export interface IImagePaginationResponse extends IPaginationResponse<IImage> { }
+export type IImagePaginationResponse = IPaginationResponse<IImage>;
+// export interface IImagePaginationResponse extends IPaginationResponse<IImage> { }
