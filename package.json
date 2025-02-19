@@ -22,6 +22,10 @@
   "publishConfig": {
     "@actunime:registry": "https://npm.pkg.github.com"
   },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@9.15.1",
   "devDependencies": {
     "@actunime/eslint-config": "^1.0.2",
     "@actunime/typescript-config": "^1.0.16",
@@ -40,8 +44,5 @@
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-only-warn": "^1.1.0",
     "typescript-eslint": "^8.24.1"
-  },
-  "engines": {
-    "node": ">=22"
   }
 }
