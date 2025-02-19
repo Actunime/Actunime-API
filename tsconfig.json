@@ -1,5 +1,5 @@
 {
-    "extends": "@actunime/typescript-config/config/base",
+    "extends": "@actunime/typescript-config/config/node",
     "compilerOptions": {
         "outDir": "build"
     },

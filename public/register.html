@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inscription</title>
+    <base href="/" />
+    <link href="styles.css" rel="stylesheet" />
+  </head>
+  <body class="flex items-center justify-center min-h-screen">
+    <div class="p-4 bg-secondary-foreground rounded-lg shadow-md">
+      <div class="border-b py-2 mb-2">
+        <h1 class="text-xl">Inscription</h1>
+        <p class="text-sm text-muted-foreground">
+          Formulaire d'inscription (bêta)
+        </p>
+      </div>
+      <form
+        action="/register"
+        method="POST"
+        enctype="application/x-www-form-urlencoded"
+        class="space-y-2"
+      >
+        <div class="flex flex-col">
+          <label for="data[email]">E-mail:</label>
+          <input
+            type="text"
+            id="email"
+            name="data[email]"
+            required
+            placeholder="exemple@xyz.com"
+            class="bg-transparent bg-gradient-to-t from-muted-foreground/20 to-secondary-foreground border-b border-background/20 outline-none px-1 py-1"
+          />
+        </div>
+        <div class="flex flex-col">
+          <label for="data[username]">Nom d'utilisateur:</label>
+          <input
+            type="text"
+            name="data[username]"
+            required
+            class="bg-transparent bg-gradient-to-t from-muted-foreground/20 to-secondary-foreground border-b border-background/20 outline-none px-1 py-1"
+          />
+          <p class="text-sm text-muted-foreground">
+            Le nom d'utilisateur ne doit pas contenir d'espaces, de points ou
+            d'apostrophes et d'accents (aucun caractère spécial).
+          </p>
+        </div>
+        <div class="flex flex-col">
+          <label for="data[displayName]">Pseudonyme:</label>
+          <input
+            type="text"
+            name="data[displayName]"
+            required
+            class="bg-transparent bg-gradient-to-t from-muted-foreground/20 to-secondary-foreground border-b border-background/20 outline-none px-1 py-1"
+          />
+        </div>
+        <div class="flex flex-col">
+          <label for="data[bio]">Bio:</label>
+          <textarea
+            name="data[bio]"
+            class="bg-transparent bg-gradient-to-t from-muted-foreground/20 to-secondary-foreground border-b border-background/20 outline-none px-1 py-1"
+          ></textarea>
+        </div>
+        <input type="hidden" id="state" name="state" />
+        <input type="hidden" id="client_id" name="client_id" />
+        <div
+          class="h-captcha"
+          data-sitekey="087408b6-8bda-4352-8932-52848b46c1dc"
+          data-theme="dark"
+        ></div>
+        <span id="error" class="text-red-500"></span>
+        <button
+          type="submit"
+          class="p-2 bg-primary text-primary-foreground w-full"
+        >
+          Recevoir le code
+        </button>
+        <div class="flex flex-col">
+          <button id="loginBtn" class="text-muted-foreground border-b p-1">
+            Vous avez déjà un compte ?
+            <p class="text-primary">Se connecter</p>
+          </button>
+          <button
+            id="back"
+            type="button"
+            class="text-muted-foreground p-1 mt-2"
+          >
+            Retourner sur le site
+          </button>
+        </div>
+      </form>
+    </div>
+    <script>
+      function getQueryParams() {
+        const params = {};
+        const queryString = window.location.search.substring(1);
+        const pairs = queryString.split('&');
+        for (const pair of pairs) {
+          const [key, value] = pair.split('=');
+          params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+        }
+        return params;
+      }
+      const queryParams = getQueryParams();
+
+      document.getElementById('state').value = queryParams.state || '';
+      document.getElementById('client_id').value = queryParams.client_id || '';
+      if (queryParams.email)
+        document.getElementById('email').value = queryParams.email || '';
+      if (queryParams.error)
+        document.getElementById('error').innerHTML =
+          queryParams.error?.split('+').join(' ') || '';
+
+      document.getElementById('back').addEventListener('click', () => {
+        window.location.href = `/redirect-client?client_id=${queryParams.client_id}`;
+      });
+
+      document.getElementById('loginBtn').addEventListener('click', () => {
+        window.location.href = `/login` + window.location.search;
+      });
+    </script>
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Code de connexion</title>
+    <base href="/" />
+    <link href="styles.css" rel="stylesheet" />
+  </head>
+  <body class="flex items-center justify-center min-h-screen">
+    <div class="p-4 bg-secondary-foreground rounded-lg shadow-md">
+      <div class="border-b py-2 mb-2">
+        <h1 class="text-xl">Code de connexion</h1>
+        <p>Un code vous a été envoyé par mail</p>
+        <span id="email_show" class="text-muted-foreground"></span>
+      </div>
+      <form
+        action="/login/code"
+        method="POST"
+        enctype="application/x-www-form-urlencoded"
+        class="space-y-2"
+      >
+        <div class="flex flex-col">
+          <label for="code">Code:</label>
+          <input
+            type="text"
+            id="code"
+            name="code"
+            required
+            class="bg-transparent bg-gradient-to-t from-muted-foreground/20 to-secondary-foreground border-b border-background/20 outline-none px-1 py-1"
+          />
+        </div>
+        <input type="hidden" id="email" name="email" />
+        <input type="hidden" id="state" name="state" />
+        <input type="hidden" id="client_id" name="client_id" />
+        <span id="error" class="text-red-500"></span>
+        <button
+          type="submit"
+          class="p-2 bg-primary text-primary-foreground w-full"
+        >
+          Se connecter
+        </button>
+        <div class="flex justify-end">
+          <button
+            id="back"
+            type="button"
+            class="text-muted-foreground p-1 mt-2"
+          >
+            Retourner sur le site
+          </button>
+        </div>
+      </form>
+    </div>
+    <script>
+      function getQueryParams() {
+        const params = {};
+        const queryString = window.location.search.substring(1);
+        const pairs = queryString.split('&');
+        for (const pair of pairs) {
+          const [key, value] = pair.split('=');
+          params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+        }
+        return params;
+      }
+      const queryParams = getQueryParams();
+      document.getElementById('state').value = queryParams.state || '';
+      document.getElementById('client_id').value = queryParams.client_id || '';
+      document.getElementById('email').value = queryParams.email || '';
+      document.getElementById('email_show').innerHTML = queryParams.email || '';
+      if (queryParams.error)
+        document.getElementById('error').innerHTML =
+          queryParams.error?.split('+').join(' ') || '';
+
+      document.getElementById('back').addEventListener('click', () => {
+        window.location.href = `/redirect-client?client_id=${queryParams.client_id}`;
+      });
+    </script>
+  </body>
+</html>
