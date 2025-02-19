@@ -1,1 +1,1 @@
-console.log("Hello from package-template");
+console.log("Hello from Actunime-API");

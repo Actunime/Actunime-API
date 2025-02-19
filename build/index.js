@@ -1,3 +1,3 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-console.log("Hello from package-template");
+console.log("Hello from Actunime-API");
