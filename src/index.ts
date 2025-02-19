@@ -19,6 +19,7 @@ import mongoose, { ClientSession } from 'mongoose';
 import { activesSessions, removeSessionHandler } from './_utils/_mongooseSession.js';
 import { APIError } from './_lib/Error.js';
 import { Services } from './_utils/_services.js';
+import UserRoutes from './routes/user.routes';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -100,9 +101,9 @@ declare module 'fastify' {
       },
     });
 
-  fastify.register(fastifyJwt, {
-    secret: process.env.JWT_SECRET!,
-  });
+  // fastify.register(fastifyJwt, {
+  //   secret: process.env.JWT_SECRET!,
+  // });
 
   await fastify.register(fastifyFormbody);
 
@@ -128,7 +129,7 @@ declare module 'fastify' {
     reply.status(formattedError.statusCode).send(formattedError);
   });
 
-  fastify.register(Auth_Routes_V1);
+  // fastify.register(Auth_Routes_V1);
 
   fastify.addContentTypeParser('application/json', { parseAs: 'string' }, function (req, body: string, done) {
     try {
@@ -142,16 +143,18 @@ declare module 'fastify' {
   })
 
   try {
-    await connectDB(process.env.MONGODB_user, process.env.MONGODB_pass, process.env.MONGODB_dbName);
+    // await connectDB(process.env.MONGODB_user, process.env.MONGODB_pass, process.env.MONGODB_dbName);
 
-    for await (const [key, route] of Object.entries(routes_v1)) {
-      await fastify.register(route, { prefix: '/v1' });
-      console.log('Route', key, 'chargé!');
-    }
+    // for await (const [key, route] of Object.entries(routes_v1)) {
+    //   await fastify.register(route, { prefix: '/v1' });
+    //   console.log('Route', key, 'chargé!');
+    // }
+
+    fastify.register(UserRoutes, { prefix: "/v1/users" })
 
     fastify.addHook('onResponse', removeSessionHandler);
 
-    new Services().start();
+    // new Services().start();
 
     if (process.env.PORT) {
       await fastify.listen({

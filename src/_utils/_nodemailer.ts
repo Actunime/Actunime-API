@@ -23,8 +23,6 @@ const config: SMTPTransport.Options = {
     debug: true
 }
 
-console.log(config);
-
 export const MailTransport = nodemailer.createTransport(config);
 
 MailTransport.verify((err) => {
