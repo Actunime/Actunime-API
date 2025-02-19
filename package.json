@@ -27,13 +27,10 @@
   },
   "packageManager": "pnpm@9.15.1",
   "devDependencies": {
-    "@actunime/eslint-config": "^1.0.2",
-    "@actunime/typescript-config": "^1.0.16",
+    "@actunime/eslint-config": "^1.0.4",
+    "@actunime/typescript-config": "^1.0.18",
     "@commitlint/cli": "^19.6.1",
     "@commitlint/config-conventional": "^19.5.0",
-    "husky": "^9.1.7",
-    "semantic-release": "^24.2.3",
-    "typescript": "^5.7.3",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/git": "^10.0.1",
@@ -43,6 +40,9 @@
     "eslint": "^9.20.1",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-only-warn": "^1.1.0",
+    "husky": "^9.1.7",
+    "semantic-release": "^24.2.3",
+    "typescript": "^5.7.3",
     "typescript-eslint": "^8.24.1"
   }
 }
