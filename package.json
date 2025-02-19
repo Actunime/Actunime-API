@@ -27,8 +27,8 @@
   },
   "packageManager": "pnpm@9.15.1",
   "devDependencies": {
-    "@actunime/eslint-config": "^1.0.4",
-    "@actunime/typescript-config": "^1.0.18",
+    "@actunime/eslint-config": "^1.0.5",
+    "@actunime/typescript-config": "^1.0.19",
     "@commitlint/cli": "^19.6.1",
     "@commitlint/config-conventional": "^19.5.0",
     "@semantic-release/changelog": "^6.0.3",
