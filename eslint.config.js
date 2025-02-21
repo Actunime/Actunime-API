@@ -1,4 +1,4 @@
-const { config } = require("@actunime/eslint-config/build/base");
+const { config } = require("@actunime/eslint-config/base");
 
 /** @type {import("eslint").Linter.Config} */
 module.exports = config;
