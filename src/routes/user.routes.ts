@@ -1,12 +1,20 @@
-import { FastifyInstance, RouteShorthandOptions, RouteShorthandOptionsWithHandler } from "fastify";
-import * as userControllers from "../controllers/user.controllers";
-import { addSessionHandler } from "../_utils";
-
-
-
+import { FastifyInstance } from "fastify";
+import { UserHandlers } from "../handlers/user.handlers";
 
 function UserRoutes(fastify: FastifyInstance) {
-    fastify.get("/:id", userControllers.getUserById);
+    fastify.get("/:id", {
+        schema: {
+            description: "",
+            tags: ["User"]
+        },
+    }, UserHandlers.getUserById);
+
+    fastify.get("/me", {
+        schema: {
+            description: "",
+            tags: ["User"]
+        },
+    }, UserHandlers.getCurrentUser);
 }
 
 export default UserRoutes;

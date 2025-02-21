@@ -6,20 +6,33 @@ dotenv.config({
 import Fastify from 'fastify';
 import { DevLog } from '@actunime/utils';
 import { connectDB, SendOnlineMessage } from "./_utils";
-import * as routes_v1 from './routes_v1/index.js';
-import Fastify_RateLimit from '@fastify/rate-limit';
 import fastifyStatic from '@fastify/static';
 import path from 'path';
 import { IUser } from '@actunime/types';
-import fastifyJwt from '@fastify/jwt';
 import fastifyFormbody from '@fastify/formbody';
 import fs from 'fs';
-import { Auth_Routes_V1 } from './auth_routes/routes';
 import mongoose, { ClientSession } from 'mongoose';
 import { activesSessions, removeSessionHandler } from './_utils/_mongooseSession.js';
 import { APIError } from './_lib/Error.js';
-import { Services } from './_utils/_services.js';
 import UserRoutes from './routes/user.routes';
+import cache from 'ts-cache-mongoose';
+import { APIResponse } from './_utils/_response';
+import AuthRoutes from './routes/auth.routes';
+import { ZodError } from 'zod';
+import fastifySwagger from '@fastify/swagger';
+import fastifySwaggerUi from '@fastify/swagger-ui';
+import { version } from "../package.json";
+import AccountRoutes from './routes/account.routes';
+import {
+  hasZodFastifySchemaValidationErrors,
+  isResponseSerializationError,
+  jsonSchemaTransform,
+  serializerCompiler,
+  validatorCompiler,
+} from 'fastify-type-provider-zod';
+import AnimeRoutes from './routes/anime.routes';
+import fastifyCors from '@fastify/cors';
+import fastifyRateLimit from '@fastify/rate-limit';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -39,55 +52,88 @@ declare module 'fastify' {
 }
 
 (async () => {
-  let key: Buffer<ArrayBufferLike> | undefined = undefined;
-  let cert: Buffer<ArrayBufferLike> | undefined = undefined;
-
-  await new Promise((resolve) => {
-    fs.readFile(path.join(__dirname, '..', 'https', 'key.pem'), (err, data) => {
-      if (!err)
-        key = data;
-      resolve(null);
-    });
-  })
-
-  await new Promise((resolve) => {
-    fs.readFile(path.join(__dirname, '..', 'https', 'cert.pem'), (err, data) => {
-      if (!err)
-        cert = data;
-      resolve(null);
-    });
-  });
 
   const fastify = Fastify({
     logger: true,
-    // http2: true,
     bodyLimit: 30 * 1024 * 1024, // 30 MB
-    ...process.env.NODE_ENV !== 'production' ? {
-      https: {
-        key,
-        cert
-      }
-    } : {}
   });
 
+  cache.init(mongoose, {
+    defaultTTL: '60 seconds',
+    engine: "memory",
+    debug: process.env.NODE_ENV !== "production",
+  })
+
+  fastify.setValidatorCompiler(validatorCompiler);
+  fastify.setSerializerCompiler(serializerCompiler);
+
+  await fastify.register(fastifySwagger, {
+    openapi: {
+      info: {
+        title: 'Actunime API',
+        description: 'Actunime API (fastify swagger api doc)',
+        version
+      },
+      servers: [
+        {
+          url: 'http://localhost:' + parseInt(process.env.PORT as string),
+          description: 'Development server'
+        }
+      ],
+      tags: [
+        { name: 'Auth', description: 'Auth end-points' },
+        { name: 'Account', description: 'Account end-points' },
+        { name: 'User', description: 'User end-points' },
+        { name: "Anime", description: 'Anime end-points' }
+      ],
+      components: {
+        securitySchemes: {
+          authorization: {
+            type: "http",
+            scheme: "bearer",
+          }
+        }
+      },
+      externalDocs: {
+        url: 'https://discord.gg/TJuKYa694n',
+        description: 'Actunime Discord'
+      }
+    },
+    transform: jsonSchemaTransform
+  })
+
+  await fastify.register(fastifySwaggerUi, {
+    logo: {
+      type: "image/png",
+      content: fs.readFileSync(path.join(__dirname, "..", "public", "logo.png")),
+      href: "/doc",
+      target: '_blank'
+    },
+    routePrefix: '/doc',
+    uiConfig: {
+      docExpansion: 'list',
+      deepLinking: false
+    },
+    staticCSP: true
+  })
 
   fastify
     .register(fastifyStatic, {
       root: path.join(__dirname, '..', 'public')
     })
-    // .register(Fastify_Cors, {
-    //   origin: (origin, cb) => {
-    //     const checkOrigin = (url: string | undefined): boolean => {
-    //       const hostname = url ? new URL(url).hostname : '';
-    //       return ['localhost', 'actunime.fr'].includes(hostname);
-    //     };
-    //     if (checkOrigin(origin))
-    //       return cb(null, true);
-    //     console.log("Origin", origin, "ERRRUR BLOQUAGE");
-    //     return cb(null, false);
-    //   },
-    // })
-    .register(Fastify_RateLimit, {
+    .register(fastifyCors, {
+      origin: (origin, cb) => {
+        const checkOrigin = (url: string | undefined): boolean => {
+          const hostname = url ? new URL(url).hostname : '';
+          return ['localhost', 'actunime.fr'].includes(hostname);
+        };
+        if (checkOrigin(origin))
+          return cb(null, true);
+        console.log("Origin", origin, "ERRRUR BLOQUAGE");
+        return cb(null, false);
+      },
+    })
+    .register(fastifyRateLimit, {
       global: false,
       max: 100,
       errorResponseBuilder: (req, context) => {
@@ -101,35 +147,64 @@ declare module 'fastify' {
       },
     });
 
-  // fastify.register(fastifyJwt, {
-  //   secret: process.env.JWT_SECRET!,
-  // });
-
   await fastify.register(fastifyFormbody);
 
   fastify.setErrorHandler((error, request, reply) => {
     if (error instanceof APIError) {
       DevLog(`APIError ${error.code} : ${error.message}`, 'error');
-      reply.status(error.status || 500).send({
-        statusCode: error.status || 500,
-        error: error.code,
-        message: error.message
-      });
+      reply.status(error.status || 500).send(new APIResponse({
+        success: false,
+        code: error.code,
+        error: error.message,
+        message: error.message,
+        status: error.status
+      }));
       return;
     }
-    // Formater l'erreur
+
+    if (error instanceof ZodError) {
+      DevLog(`ZodError : ${error.message}`, 'error');
+      reply.status(400).send(new APIResponse({
+        success: false,
+        code: "BAD_REQUEST",
+        error: error.message,
+        message: error.message,
+        status: 400
+      }));
+      return;
+    }
+
+    if (hasZodFastifySchemaValidationErrors(error)) {
+      return reply.code(400).send(new APIResponse({
+        success: false,
+        code: "BAD_REQUEST",
+        error: error.message,
+        message: error.message,
+        status: 400
+      }))
+    }
+
+    if (isResponseSerializationError(error)) {
+      return reply.code(500).send(new APIResponse({
+        success: false,
+        code: "BAD_RESPONSE",
+        error: error.message,
+        message: error.message,
+        status: 400
+      }))
+    }
+
     DevLog(`ERREUR URL ${request.url}`, 'error');
     DevLog(`ERREUR UNHANDLED ${error.statusCode} : ${error.message}`, 'error');
     console.error(error);
-    const formattedError = {
-      statusCode: error.statusCode || 500,
-      error: error.name,
-      message: error.message
-    };
-    reply.status(formattedError.statusCode).send(formattedError);
+    reply.status(error.statusCode || 500).send(new APIResponse({
+      success: false,
+      code: "SERVER_ERROR",
+      error: error.message,
+      message: error.message,
+      status: error.statusCode || 500
+    }));
   });
-
-  // fastify.register(Auth_Routes_V1);
 
   fastify.addContentTypeParser('application/json', { parseAs: 'string' }, function (req, body: string, done) {
     try {
@@ -143,18 +218,17 @@ declare module 'fastify' {
   })
 
   try {
-    // await connectDB(process.env.MONGODB_user, process.env.MONGODB_pass, process.env.MONGODB_dbName);
 
-    // for await (const [key, route] of Object.entries(routes_v1)) {
-    //   await fastify.register(route, { prefix: '/v1' });
-    //   console.log('Route', key, 'chargé!');
-    // }
+    await connectDB(process.env.MONGODB_user, process.env.MONGODB_pass, process.env.MONGODB_dbName);
 
-    fastify.register(UserRoutes, { prefix: "/v1/users" })
+    await fastify.register(AuthRoutes, { prefix: "/auth" });
+    await fastify.register(UserRoutes, { prefix: "/v1/users", });
+    await fastify.register(AccountRoutes, { prefix: "/v1/accounts" });
+    await fastify.register(AnimeRoutes, { prefix: "/v1/animes" })
 
     fastify.addHook('onResponse', removeSessionHandler);
 
-    // new Services().start();
+    console.log(fastify.printRoutes())
 
     if (process.env.PORT) {
       await fastify.listen({

@@ -8,3 +8,7 @@ export const authClients = {
         redirectUri: process.env.NODE_ENV === "production" ? 'https://dashboard.actunime.fr/api/auth/callback/actunime-auth' : "http://localhost:3000/api/auth/callback/actunime-auth",
     },
 };
+
+export const approuvedClient = {
+    actunime_website: "https://actunime.fr",
+}

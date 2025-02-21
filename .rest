@@ -1,1 +1,10 @@
-https://localhost:3005/v1/users/test
+# https://localhost:3005/v1/users/me
+
+POST https://localhost:3005/auth/login HTTP/1.1
+content-type: application/json
+
+{
+    "email": "dev.maudon@gmail.com",
+    "password": "dzqqzd",
+    "captcha": "test"
+}
