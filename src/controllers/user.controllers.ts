@@ -4,7 +4,7 @@ import { APIError } from "../_lib/Error";
 import { IUser } from "@actunime/types";
 import { TokenControllers } from "./token.controllers";
 
-type IUserDoc = (Document<unknown, {}, IUser> & IUser & Required<{
+type IUserDoc = (Document<unknown, unknown, IUser> & IUser & Required<{
     _id: Schema.Types.ObjectId;
 }> & {
     __v: number;
@@ -36,7 +36,7 @@ class User {
         if (!data)
             throw new APIError("Aucun utilisateur n'a été trouvé", "NOT_FOUND");
 
-        let res = data as IUserControlled;
+        const res = data as IUserControlled;
         res.parsedUser = this.parse.bind(this, data)
 
         return res;

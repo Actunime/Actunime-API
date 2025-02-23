@@ -4,11 +4,8 @@ import { APIError } from "../_lib/Error";
 import bcrypt from "bcrypt";
 import { IInscription_Zod_Schema } from "@actunime/validations";
 import { ImageControllers } from "./image.controllers";
-import jwt from 'jsonwebtoken';
-import { DevLog, genPublicID } from "@actunime/utils";
-import { MailTransport } from "../_utils/_nodemailer";
+import { DevLog } from "@actunime/utils";
 import { IAccount } from "@actunime/types";
-import SMTPTransport from "nodemailer/lib/smtp-transport";
 import { EmailCodeControllers } from "./emailCode.controllers";
 
 type IAccountDoc = (Document<unknown, {}, IAccount> & IAccount & {
@@ -43,7 +40,7 @@ class Account {
             throw error || new APIError("Aucun compte n'a été trouvé", "NOT_FOUND");
 
         let res = data as IAccountControlled;
-        res.parsedAccount = this.parse.bind(this, data)
+        res.parsedAccount = this.parse.bind(this, data);
 
         return res;
     }

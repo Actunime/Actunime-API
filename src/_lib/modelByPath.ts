@@ -1,11 +1,6 @@
 import { ITargetPath } from "@actunime/types";
-import { Model } from "mongoose";
 
-
-
-
-
-export async function ModelsPath(path: ITargetPath): Promise<Model<any>> {
+export async function ModelsPath(path: ITargetPath) {
 
     const models = {
         Anime: (await import("@actunime/mongoose-models")).AnimeModel,

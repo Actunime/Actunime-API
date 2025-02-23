@@ -2,22 +2,25 @@ import { FastifyInstance } from "fastify";
 import { AuthHandlers } from "../handlers/auth.handlers";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { Utilchema } from "../schema/util.schema";
+import { Anime_Pagination_ZOD } from "@actunime/validations";
+import { AnimeHandlers } from "../handlers/anime.handlers";
 
 function AnimeRoutes(fastify: FastifyInstance) {
     const app = fastify.withTypeProvider<ZodTypeProvider>();
 
     app.route({
-        method: "GET",
+        method: "POST",
         url: "/",
         schema: {
             description: "Permet de filtrer les animes",
             tags: ["Anime"],
+            body: Anime_Pagination_ZOD.partial(),
             response: {
                 200: Utilchema.ResponseBody(),
                 401: Utilchema.UnauthorizedResponseBody()
             }
         },
-        handler: () => { }
+        handler: AnimeHandlers.filterAnime
     });
 
     app.route({

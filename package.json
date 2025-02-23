@@ -73,6 +73,7 @@
     "dotenv": "^16.4.7",
     "fastify": "^5.2.1",
     "fastify-type-provider-zod": "^4.0.2",
+    "flat": "^6.0.1",
     "geoip-lite": "^1.4.10",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.10.1",

@@ -21,10 +21,13 @@ function getClientId(req: FastifyRequest) {
     return clientId as string;
 }
 
-function getToken(req: FastifyRequest) {
+function getToken<T extends boolean = false>(req: FastifyRequest, noError?: T): T extends true ? string | null : string {
     const token = req.headers.authorization?.split(" ")[1];
-    if (!token)
-        throw new APIError("Jeton d'autorisation non fourni", "UNAUTHORIZED");
+    if (!token) {
+        if (!noError)
+            throw new APIError("Jeton d'autorisation non fourni", "UNAUTHORIZED");
+        return null as T extends true ? string | null : string;
+    }
     return token;
 }
 
