@@ -1,6 +1,7 @@
 {
     "extends": "@actunime/typescript-config/config/node",
     "compilerOptions": {
+        "rootDir": "src",
         "outDir": "build"
     },
     "include": [

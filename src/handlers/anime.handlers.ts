@@ -8,8 +8,6 @@ import { UserControllers } from "../controllers/user.controllers";
 import { IAnime, PatchTypeObj, TargetPathObj } from "@actunime/types";
 import { genPublicID } from "@actunime/utils";
 import { GroupeController } from "../controllers/groupe.controllers";
-import { APIError } from "../_lib/Error";
-import { PatchControllers } from "../controllers/patch";
 
 const getAnimeById: RouteHandler = async (req) => {
     const { id } = z.object({ id: z.string() }).parse(req.params);
