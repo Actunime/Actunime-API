@@ -13,7 +13,7 @@ type IGroupeDoc = (Document<unknown, unknown, IGroupe> & IGroupe & Required<{
     _id: Schema.Types.ObjectId;
 }> & {
     __v: number;
-}) | null
+}) | null;
 
 interface IGroupeResponse extends IGroupe {
     parsedGroupe: () => Partial<IGroupe> | null

@@ -10,12 +10,13 @@ import { PatchControllers } from "./patch";
 import DeepDiff from 'deep-diff';
 import { genPublicID } from "@actunime/utils";
 import { PersonController } from "./person.controler";
+import { ImageController } from "./image.controllers";
 
 type ICharacterDoc = (Document<unknown, unknown, ICharacter> & ICharacter & Required<{
     _id: Schema.Types.ObjectId;
 }> & {
     __v: number;
-}) | null
+}) | null;
 
 interface ICharacterResponse extends ICharacter {
     parsedCharacter: () => Partial<ICharacter> | null
@@ -125,16 +126,14 @@ class CharacterController extends UtilControllers.withUser {
         const character: Partial<ICharacter> = { ...rawInput };
 
         if (avatar) {
-
+            character.avatar = await new ImageController(this.session, this.user).create_relation(avatar,
+                { ...params, targetPath: "Character" }
+            );
         }
 
         if (actors && actors.length) {
             const controller = new PersonController(this.session, this.user);
-            character.actors = []
-            for (const actor of actors) {
-                const res = await controller.create_relation(actor, params);
-                character.actors.push({ id: res.id });
-            }
+            character.actors = await Promise.all(actors.map((actor) => controller.create_relation(actor, params)));
         }
 
         return character;

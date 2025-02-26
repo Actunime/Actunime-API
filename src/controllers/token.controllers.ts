@@ -11,11 +11,11 @@ interface IParsedToken {
     exp: number
 }
 
-type ITokenDoc = (Document<unknown, {}, IAccessToken> & IAccessToken & {
+type ITokenDoc = (Document<unknown, unknown, IAccessToken> & IAccessToken & {
     _id: import("mongoose").Types.ObjectId;
 } & {
     __v: number;
-}) | null
+}) | null;
 
 interface ITokenResponse extends IAccessToken {
     parsedToken: () => IParsedToken | null
@@ -53,7 +53,7 @@ class Token {
         if (!data)
             throw new APIError("Jeton invalide ou expiré", "NOT_FOUND");
 
-        let res = data as ITokenControlled;
+        const res = data as ITokenControlled;
         res.parsedToken = this.parse.bind(this, data)
         res.verifyToken = this.jwtIsValid.bind(this, data.token)
         res.verifyRefreshToken = this.jwtIsValid.bind(this, data.refreshToken)

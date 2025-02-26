@@ -1,7 +1,7 @@
 import { ImageModel } from "@actunime/mongoose-models";
 import { ClientSession, Document, Schema } from "mongoose";
 import { APIError } from "../_lib/Error";
-import { IAdd_Image_ZOD, ICreate_Image_ZOD } from "@actunime/validations";
+import { IAdd_Image_ZOD, ICreate_Image_ZOD, ImagePaginationBody } from "@actunime/validations";
 import { CreateImageCDN, DeleteImageCDN, IImage, IPatchType, ITargetPath, IUser } from "@actunime/types";
 import { UtilControllers } from "../_utils/_controllers";
 import { z } from "zod";
@@ -15,7 +15,7 @@ type IImageDoc = (Document<unknown, unknown, IImage> & IImage & Required<{
     _id: Schema.Types.ObjectId;
 }> & {
     __v: number;
-}) | null
+}) | null;
 
 interface IImageResponse extends IImage {
     parsedImage: () => Partial<IImage> | null

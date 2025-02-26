@@ -16,7 +16,7 @@ type ITrackDoc = (Document<unknown, unknown, ITrack> & ITrack & Required<{
     _id: Schema.Types.ObjectId;
 }> & {
     __v: number;
-}) | null
+}) | null;
 
 interface ITrackResponse extends ITrack {
     parsedTrack: () => Partial<ITrack> | null
@@ -127,27 +127,15 @@ class TrackController extends UtilControllers.withUser {
         const { cover, artists, ...rawInput } = input;
         const track: Partial<ITrack> = { ...rawInput };
 
-        if (cover) {
-            const controller = new ImageController(this.session, this.user);
-            if (!params.mediaId)
-                throw new APIError("Le useMediaId est obligatoire", "BAD_ENTRY");
-
-            const res = await controller.create_relation(cover, {
-                type: params.type,
-                refId: params.refId,
-                targetPath: "Track"
+        if (cover)
+            track.cover = await new ImageController(this.session, this.user).create_relation(cover, {
+                ...params,
+                targetPath: "Track",
             });
-
-            track.cover = { id: res.id };
-        }
 
         if (artists && artists.length) {
             const controller = new PersonController(this.session, this.user);
-            track.artists = []
-            for (const artist of artists) {
-                const res = await controller.create_relation(artist, params);
-                track.artists.push({ id: res.id });
-            }
+            track.artists = await Promise.all(artists.map((artist) => controller.create_relation(artist, params)));
         }
 
         return track;

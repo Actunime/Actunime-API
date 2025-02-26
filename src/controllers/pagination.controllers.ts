@@ -7,9 +7,7 @@ import { APIError } from "../_lib/Error";
 
 type IPaginationModelDoc<T> = Model<T, unknown, unknown, unknown, Document<unknown, unknown, T> & T & Required<{
     _id: Schema.Types.ObjectId;
-}> & {
-    __v: number;
-}, unknown>
+}> & { __v: number; }, unknown>
 
 
 class Pagination<T> {

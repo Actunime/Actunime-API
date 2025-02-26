@@ -13,7 +13,7 @@ type IAnimeDoc = (Document<unknown, unknown, IAnime> & IAnime & Required<{
     _id: Schema.Types.ObjectId;
 }> & {
     __v: number;
-}) | null
+}) | null;
 
 interface IAnimeResponse extends IAnime {
     parsedAnime: () => Partial<IAnime> | null
@@ -23,6 +23,7 @@ type IAnimeControlled = IAnimeDoc & IAnimeResponse
 
 interface AnimePatchParams {
     mediaId?: string;
+    pathId?: string,
     // refId: string,
     description?: string,
     type: IPatchType
@@ -100,6 +101,7 @@ class AnimeController extends UtilControllers.withUser {
             this.needRoles(["ANIME_MODERATOR", "MANGA_MODERATOR"]);
 
         await patch.create({
+            id: params.pathId,
             type: params.type,
             author: { id: this.user.id },
             target: { id: res.id },

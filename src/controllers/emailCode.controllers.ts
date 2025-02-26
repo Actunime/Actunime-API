@@ -6,11 +6,11 @@ import { MailTransport } from "../_utils/_nodemailer";
 import { IEmailCode } from "@actunime/types";
 import { genPublicID } from "@actunime/utils";
 
-type IEmailCodeDoc = (Document<unknown, {}, IEmailCode> & IEmailCode & {
+type IEmailCodeDoc = (Document<unknown, unknown, IEmailCode> & IEmailCode & {
     _id: import("mongoose").Types.ObjectId;
 } & {
     __v: number;
-}) | null
+}) | null;
 
 interface IEmailCodeResponse extends IEmailCode {
     parsedEmailCode: () => Partial<IEmailCode> | null
@@ -38,7 +38,7 @@ class Email {
         if (!data)
             throw new APIError(errMessage || "Code incorrecte ou expiré", "NOT_FOUND");
 
-        let res = data as IEmailCodeControlled;
+        const res = data as IEmailCodeControlled;
         res.parsedEmailCode = this.parse.bind(this, data)
         res.sendResetPasswordEmail = this.sendResetPasswordEmail.bind(this, data.email, data.code, data.device)
         res.useCode = this.useCode.bind(this, data.code)
@@ -91,7 +91,7 @@ class Email {
                 text: `Votre code pour valider votre inscription est ${code}`,
                 html: `<p>Votre code pour valider votre inscription est <b>${code}</b> <br/> <br/>Si vous n'avez pas demandé ce code, veuillez ignorer ce message. <br/> Tantative de connexion depuis ${device}</p>`,
             })
-        } catch (err) {
+        } catch {
             throw new APIError("Le mail n'a pas pu être envoyé, veuillez ressayer...", "SERVER_ERROR")
         }
 
@@ -109,7 +109,7 @@ class Email {
                 text: `Votre code pour réinitialiser votre mot de passe est ${code}`,
                 html: `<p>Votre code pour réinitialiser votre mot de passe est <b>${code}</b> <br/> <br/>Si vous n'avez pas demandé ce code, veuillez ignorer ce message. <br/> Tantative de connexion depuis ${device}</p>`,
             })
-        } catch (err) {
+        } catch {
             throw new APIError("Le mail n'a pas pu être envoyé, veuillez ressayer...", "SERVER_ERROR")
         }
 

@@ -3,16 +3,16 @@ import { ClientSession, Document, Schema } from "mongoose";
 import { APIError } from "../_lib/Error";
 import bcrypt from "bcrypt";
 import { IInscription_Zod_Schema } from "@actunime/validations";
-import { ImageControllers } from "./image.controllers";
+import { ImageController } from "./image.controllers";
 import { DevLog } from "@actunime/utils";
 import { IAccount } from "@actunime/types";
 import { EmailCodeControllers } from "./emailCode.controllers";
 
-type IAccountDoc = (Document<unknown, {}, IAccount> & IAccount & {
+type IAccountDoc = (Document<unknown, unknown, IAccount> & IAccount & {
     _id: Schema.Types.ObjectId;
 } & {
     __v: number;
-}) | null
+}) | null;
 
 interface IAccountResponse extends IAccount {
     parsedAccount: () => Partial<IAccount> | null
@@ -39,7 +39,7 @@ class Account {
         if (!data)
             throw error || new APIError("Aucun compte n'a été trouvé", "NOT_FOUND");
 
-        let res = data as IAccountControlled;
+        const res = data as IAccountControlled;
         res.parsedAccount = this.parse.bind(this, data);
 
         return res;
@@ -132,30 +132,31 @@ class Account {
             userId: newUser.id,
             user: newUser._id
         });
-
+        const imageController = new ImageController(this.session);
         try {
 
+
             if (avatar?.newImage) {
-                const newAvatar = await ImageControllers.createImage(avatar.newImage, {
-                    target: "avatar",
-                    targetPath: "User"
+                newUser.avatar = await imageController.create_relation(avatar.newImage, {
+                    targetPath: "User",
+                    refId: "",
+                    type: "CREATE"
                 });
-                newUser.avatar = { id: newAvatar.id }
             }
 
             if (banner?.newImage) {
-                const newBanner = await ImageControllers.createImage(banner.newImage, {
-                    target: "banner",
-                    targetPath: "User"
+                newUser.banner = await imageController.create_relation(banner.newImage, {
+                    targetPath: "User",
+                    refId: "",
+                    type: "CREATE"
                 });
-                newUser.banner = { id: newBanner.id }
             }
 
-        } catch (err) {
+        } catch {
             if (newUser?.avatar?.id)
-                ImageControllers.deleteImage(newUser.avatar.id, "User");
+                imageController.deleteImage(newUser.avatar.id, "User");
             if (newUser?.banner?.id)
-                ImageControllers.deleteImage(newUser.banner.id, "User");
+                imageController.deleteImage(newUser.banner.id, "User");
 
             throw new APIError("Une erreur est survenue lors de la sauvegarde de l'image", "SERVER_ERROR", 500);
         }

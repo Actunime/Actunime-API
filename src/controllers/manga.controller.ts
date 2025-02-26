@@ -13,7 +13,7 @@ type IMangaDoc = (Document<unknown, unknown, IManga> & IManga & Required<{
     _id: Schema.Types.ObjectId;
 }> & {
     __v: number;
-}) | null
+}) | null;
 
 interface IMangaResponse extends IManga {
     parsedManga: () => Partial<IManga> | null
@@ -115,9 +115,9 @@ class MangaController extends UtilControllers.withUser {
     }
 
 
-    async create_relation(manga: IAdd_Manga_ZOD): Promise<IManga['parent']> {
+    async create_relation<T>(manga: IAdd_Manga_ZOD): Promise<T> {
         const res = await this.getById(manga.id!);
-        return { id: res.id, parentLabel: manga.parentLabel };
+        return { id: res.id, parentLabel: manga.parentLabel } as T;
     }
 
     private async delete(id: string) {

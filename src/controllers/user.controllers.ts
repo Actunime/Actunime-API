@@ -4,11 +4,9 @@ import { APIError } from "../_lib/Error";
 import { IUser } from "@actunime/types";
 import { TokenControllers } from "./token.controllers";
 
-type IUserDoc = (Document<unknown, unknown, IUser> & IUser & Required<{
-    _id: Schema.Types.ObjectId;
-}> & {
+type IUserDoc = (Document<unknown, unknown, IUser> & IUser & Required<{ _id: Schema.Types.ObjectId; }> & {
     __v: number;
-}) | null
+}) | null;
 
 interface IUserResponse extends IUser {
     parsedUser: () => Partial<IUser> | null
@@ -28,7 +26,6 @@ class User {
 
     parse(user: Partial<IUser>) {
         delete user._id;
-
         return user;
     }
 

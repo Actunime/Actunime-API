@@ -9,12 +9,13 @@ import { UtilControllers } from "../_utils/_controllers";
 import { PatchControllers } from "./patch";
 import DeepDiff from 'deep-diff';
 import { genPublicID } from "@actunime/utils";
+import { ImageController } from "./image.controllers";
 
 type ICompanyDoc = (Document<unknown, unknown, ICompany> & ICompany & Required<{
     _id: Schema.Types.ObjectId;
 }> & {
     __v: number;
-}) | null
+}) | null;
 
 interface ICompanyResponse extends ICompany {
     parsedCompany: () => Partial<ICompany> | null
@@ -118,10 +119,14 @@ class CompanyController extends UtilControllers.withUser {
     }
 
     async parseZOD(input: Partial<ICreate_Company_ZOD>, params: CompanyPatchParams) {
+        this.needUser(this.user);
         // Médias attachées
         const { logo, ...rawInput } = input;
         const company: Partial<ICompany> = { ...rawInput };
 
+        if (logo)
+            company.logo = await new ImageController(this.session, this.user)
+                .create_relation(logo, { ...params, targetPath: "Company" });
 
         return company;
     }

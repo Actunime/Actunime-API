@@ -11,7 +11,7 @@ type IPatchDoc = (Document<unknown, unknown, IPatch> & IPatch & Required<{
     _id: Schema.Types.ObjectId;
 }> & {
     __v: number;
-}) | null
+}) | null;
 
 interface IPatchResponse extends IPatch {
     parsedPatch: () => Partial<IPatch> | null

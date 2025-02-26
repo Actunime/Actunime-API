@@ -9,12 +9,13 @@ import { UtilControllers } from "../_utils/_controllers";
 import { PatchControllers } from "./patch";
 import DeepDiff from 'deep-diff';
 import { genPublicID } from "@actunime/utils";
+import { ImageController } from "./image.controllers";
 
 type IPersonDoc = (Document<unknown, unknown, IPerson> & IPerson & Required<{
     _id: Schema.Types.ObjectId;
 }> & {
     __v: number;
-}) | null
+}) | null;
 
 interface IPersonResponse extends IPerson {
     parsedPerson: () => Partial<IPerson> | null
@@ -118,10 +119,16 @@ class PersonController extends UtilControllers.withUser {
     }
 
     async parseZOD(input: Partial<ICreate_Person_ZOD>, params: PersonPatchParams) {
+        this.needUser(this.user);
         // Médias attachées
         const { avatar, ...rawInput } = input;
         const person: Partial<IPerson> = { ...rawInput };
 
+        if (avatar) {
+            person.avatar = await new ImageController(this.session, this.user).create_relation(avatar,
+                { ...params, targetPath: "Person" }
+            );
+        }
 
         return person;
     }
