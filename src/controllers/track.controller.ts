@@ -68,10 +68,10 @@ class TrackController extends UtilControllers.withUser {
         return this.warpper(res);
     }
 
-    async filter(pageFilter: z.infer<typeof TrackPaginationBody>, options?: { onlyVerified: boolean }) {
+    async filter(pageFilter: z.infer<typeof TrackPaginationBody>) {
         const pagination = new PaginationControllers(TrackModel);
 
-        pagination.useFilter(pageFilter, options?.onlyVerified);
+        pagination.useFilter(pageFilter);
 
         const res = await pagination.getResults();
 

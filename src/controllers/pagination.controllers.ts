@@ -31,7 +31,7 @@ class Pagination<T> {
         return this;
     }
 
-    public useFilter({ page, limit, strict, sort, query }: Partial<z.infer<typeof PaginationBody>>, onlyVerified?: boolean) {
+    public useFilter({ page, limit, strict, sort, query, onlyVerified }: Partial<z.infer<typeof PaginationBody>>) {
         if (page)
             this.setPage(page)
         if (limit)

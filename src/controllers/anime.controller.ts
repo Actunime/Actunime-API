@@ -70,10 +70,10 @@ class AnimeController extends UtilControllers.withUser {
         return this.warpper(res);
     }
 
-    async filter(pageFilter: z.infer<typeof AnimePaginationBody>, options?: { onlyVerified: boolean }) {
+    async filter(pageFilter: z.infer<typeof AnimePaginationBody>) {
         const pagination = new PaginationControllers(AnimeModel);
 
-        pagination.useFilter(pageFilter, options?.onlyVerified);
+        pagination.useFilter(pageFilter);
 
         const res = await pagination.getResults();
 

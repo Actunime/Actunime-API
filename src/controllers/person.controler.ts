@@ -66,10 +66,10 @@ class PersonController extends UtilControllers.withUser {
         return this.warpper(res);
     }
 
-    async filter(pageFilter: z.infer<typeof PersonPaginationBody>, options?: { onlyVerified: boolean }) {
+    async filter(pageFilter: z.infer<typeof PersonPaginationBody>) {
         const pagination = new PaginationControllers(PersonModel);
 
-        pagination.useFilter(pageFilter, options?.onlyVerified);
+        pagination.useFilter(pageFilter);
 
         const res = await pagination.getResults();
 

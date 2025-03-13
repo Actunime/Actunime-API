@@ -64,10 +64,10 @@ class CompanyController extends UtilControllers.withUser {
         return this.warpper(res);
     }
 
-    async filter(pageFilter: z.infer<typeof CompanyPaginationBody>, options?: { onlyVerified: boolean }) {
+    async filter(pageFilter: z.infer<typeof CompanyPaginationBody>) {
         const pagination = new PaginationControllers(CompanyModel);
 
-        pagination.useFilter(pageFilter, options?.onlyVerified);
+        pagination.useFilter(pageFilter);
 
         const res = await pagination.getResults();
 

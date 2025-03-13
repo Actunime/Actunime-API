@@ -103,10 +103,10 @@ class ImageController extends UtilControllers.withUser {
             .session(this.session);
     }
 
-    async filter(pageFilter: z.infer<typeof ImagePaginationBody>, options?: { onlyVerified: boolean }) {
+    async filter(pageFilter: z.infer<typeof ImagePaginationBody>) {
         const pagination = new PaginationControllers(ImageModel);
 
-        pagination.useFilter(pageFilter, options?.onlyVerified);
+        pagination.useFilter(pageFilter);
 
         const res = await pagination.getResults();
 

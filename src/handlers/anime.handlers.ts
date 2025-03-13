@@ -3,9 +3,7 @@ import { z } from "zod";
 import { AnimeController } from "../controllers/anime.controller";
 import { APIResponse } from "../_utils/_response";
 import { AnimeCreateBody, AnimePaginationBody, ICreate_Anime_ZOD } from "@actunime/validations";
-import { IAnime } from "@actunime/types";
 import { genPublicID } from "@actunime/utils";
-import { PatchModel } from "@actunime/mongoose-models";
 
 const getAnimeById: RouteHandler = async (req) => {
     const { id } = z.object({ id: z.string() }).parse(req.params);
@@ -15,8 +13,7 @@ const getAnimeById: RouteHandler = async (req) => {
 }
 
 const filterAnime = async (req: FastifyRequest<{ Body: z.infer<typeof AnimePaginationBody> }>) => {
-    let onlyVerified = true;
-    const animes = await new AnimeController(req.mongooseSession, { log: req.logSession }).filter(req.body, { onlyVerified })
+    const animes = await new AnimeController(req.mongooseSession, { log: req.logSession }).filter(req.body)
     return new APIResponse({ success: true, data: animes });
 }
 
