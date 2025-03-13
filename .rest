@@ -1,6 +1,6 @@
 # https://localhost:3005/v1/users/me
 
-POST https://localhost:3005/auth/login HTTP/1.1
+POST http://localhost:3005/auth/login HTTP/1.1
 content-type: application/json
 
 {
@@ -8,3 +8,45 @@ content-type: application/json
     "password": "dzqqzd",
     "captcha": "test"
 }
+
+###
+
+POST http://localhost:3005/auth/logout HTTP/1.1
+
+###
+
+POST http://localhost:3005/auth/register HTTP/1.1
+content-type: application/json
+
+{
+    "account": {
+        "email": "dev.maudon@gmail.com",
+        "password": "dzqqzd"
+    },
+    "user": {
+        "username": "devlerito",
+        "displayName": "DevLeriTo",
+        "bio": "Je suis Dev"
+    },
+    "captcha": "test"
+}
+
+
+###
+
+POST http://localhost:3005/auth/register/code HTTP/1.1
+content-type: application/json
+
+{
+   "email": "dev.maudon@gmail.com",
+   "code": "335044"
+}
+
+###
+
+GET http://localhost:3005/protected HTTP/1.1
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJlZm1ycVJscjh4VTVzazhHd0IwVElaNWZJZXllNEdYQkxQYTRPcnpzc25VIn0.eyJleHAiOjE3NDA4NDgzNTksImlhdCI6MTc0MDg0ODA1OSwiYXV0aF90aW1lIjoxNzQwODQ4MDU5LCJqdGkiOiI4ODEyMmI0Yy04NDk2LTRmOWEtODNjMC00ZGFiY2Q5YTM1MzEiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAvcmVhbG1zL2FjdHVuaW1lIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImQ5ODhkYmVkLTFhOTAtNDc1My1hYWFmLTJjYjg5ZTU0YThmOCIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFjdHVuaW1lLWNsaWVudCIsInNpZCI6IjJhMzI0MWExLTUxMDItNDNjOS1iMjc3LTJmMjZiOTAxZmY2ZSIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiaHR0cDovL2xvY2FsaG9zdDozMDAwIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJkZWZhdWx0LXJvbGVzLWFjdHVuaW1lIiwib2ZmbGluZV9hY2Nlc3MiLCJ1bWFfYXV0aG9yaXphdGlvbiJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicHJlZmVycmVkX3VzZXJuYW1lIjoiZGV2Lm1hdWRvbkBnbWFpbC5jb20iLCJlbWFpbCI6ImRldi5tYXVkb25AZ21haWwuY29tIn0.c9mobvMkPj67mUjg5drb3xy_vIrJI85MxODYSq5UvBwoovx2FA0zl-AbsnRjLuVnT_Ol1UNP-trW7ru9a1DXDV7kHqdAP_mjDBJQefzJ54OPY6Tvg_pg4nvumI03fYjXd0mG2Fp62gjewAaKdHriQuGpZ5CYQ17bBrJ_6JWRYMhUXmB43v27TQEaZr87IHFxqoKKC6v2aYcq50dbFB-75jg0VMZfMQlCPLWqxM8YhJ5SR0QLVz-iRg6p86XH3upyxRf28PhLm_mSZLxswvAxe6Ibi5o9JvqxxfzWZFpB36c_WtEhsS7hngIjxcFafeCbyMfuvAlUTrBcmuct0MAquQ
+
+###
+
+GET http://localhost:3005/v1/animes/testId/requests/reqIdTest HTTP/1.1

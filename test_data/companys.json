@@ -1,0 +1,94 @@
+[
+  {
+    "_id": "67bb67fd6ac8810dfcaba744",
+    "isVerified": true,
+    "isPreAdded": false,
+    "name": "Asahi Production",
+    "type": "STUDIO",
+    "links": [
+      {
+        "name": "Site",
+        "value": "https://asahi-pro.co.jp/"
+      }
+    ],
+    "createdDate": "1973-06-01T00:00:00.000Z",
+    "id": "tfmg0",
+    "createdAt": "2025-02-23T18:25:01.503Z",
+    "updatedAt": "2025-02-26T19:57:14.247Z",
+    "__v": 0
+  },
+  {
+    "_id": "67b1b8edcbbb2e62cb6e3be7",
+    "isVerified": true,
+    "isPreAdded": false,
+    "name": "Studio Comet ",
+    "type": "STUDIO",
+    "createdDate": "0986-11-21T00:00:00.000Z",
+    "id": "ywgyr",
+    "createdAt": "2025-02-16T10:07:41.556Z",
+    "updatedAt": "2025-02-16T21:09:28.551Z",
+    "__v": 0
+  },
+  {
+    "_id": "67aa304f6894b68955696dcb",
+    "isVerified": true,
+    "isPreAdded": false,
+    "name": "CloverWorks",
+    "type": "STUDIO",
+    "id": "42wfm",
+    "createdAt": "2025-02-10T16:58:55.271Z",
+    "updatedAt": "2025-02-16T21:09:22.300Z",
+    "__v": 0
+  },
+  {
+    "_id": "679a678da59754ce26f48ed9",
+    "isVerified": true,
+    "isPreAdded": false,
+    "name": "J.C. Staff ",
+    "type": "STUDIO",
+    "logo": {
+      "id": "fsy3r"
+    },
+    "createdDate": "0986-11-18T00:00:00.000Z",
+    "id": "fqcso",
+    "createdAt": "2025-01-29T17:38:21.204Z",
+    "updatedAt": "2025-01-29T17:38:21.204Z",
+    "__v": 0
+  },
+  {
+    "_id": "6796274b1555ee5e3b137e9f",
+    "isVerified": true,
+    "isPreAdded": false,
+    "name": "MAPPA",
+    "type": "STUDIO",
+    "links": [
+      {
+        "name": "MAPPA",
+        "value": "https://www.mappa.co.jp/en/"
+      }
+    ],
+    "createdDate": "2011-06-14T00:00:00.000Z",
+    "id": "rv9ab",
+    "createdAt": "2025-01-26T12:15:07.004Z",
+    "updatedAt": "2025-01-26T12:15:07.004Z",
+    "__v": 0
+  },
+  {
+    "_id": "67856b6ad9bf88c8970057a4",
+    "isVerified": true,
+    "isPreAdded": false,
+    "name": "SynergySP",
+    "type": "STUDIO",
+    "links": [
+      {
+        "name": "Wikipedia",
+        "value": "https://fr.wikipedia.org/wiki/SynergySP"
+      }
+    ],
+    "createdDate": "1998-09-24T00:00:00.000Z",
+    "id": "jom4k",
+    "createdAt": "2025-01-13T19:37:14.129Z",
+    "updatedAt": "2025-01-13T19:37:14.129Z",
+    "__v": 0
+  }
+]

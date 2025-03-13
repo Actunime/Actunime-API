@@ -1,7 +1,7 @@
 import { CompanyModel } from "@actunime/mongoose-models";
 import { ClientSession, Document, Schema } from "mongoose";
 import { APIError } from "../_lib/Error";
-import { ICompany, IPatchType, IUser } from "@actunime/types";
+import { ICompany, IPatchType, IUser, PatchTypeObj } from "@actunime/types";
 import { PaginationControllers } from "./pagination.controllers";
 import { z } from "zod";
 import { CompanyPaginationBody, IAdd_Company_ZOD, ICreate_Company_ZOD } from "@actunime/validations";
@@ -9,7 +9,8 @@ import { UtilControllers } from "../_utils/_controllers";
 import { PatchControllers } from "./patch";
 import DeepDiff from 'deep-diff';
 import { genPublicID } from "@actunime/utils";
-import { ImageController } from "./image.controllers";
+import { ImageController } from "./image.controller";
+import LogSession from "../_utils/_logSession";
 
 type ICompanyDoc = (Document<unknown, unknown, ICompany> & ICompany & Required<{
     _id: Schema.Types.ObjectId;
@@ -33,11 +34,14 @@ interface CompanyPatchParams {
 
 class CompanyController extends UtilControllers.withUser {
     private session: ClientSession | null = null;
+    private log?: LogSession;
 
-    constructor(session: ClientSession | null, user?: IUser) {
-        super(user);
+    constructor(session: ClientSession | null, options?: { log?: LogSession, user?: IUser }) {
+        super(options?.user);
         this.session = session;
+        this.log = options?.log;
     }
+
 
     parse(Company: Partial<ICompany>) {
         delete Company._id;
@@ -47,7 +51,7 @@ class CompanyController extends UtilControllers.withUser {
 
     warpper(data: ICompanyDoc): ICompanyControlled {
         if (!data)
-            throw new APIError("Aucun utilisateur n'a été trouvé", "NOT_FOUND");
+            throw new APIError("Aucune société n'a été trouvé", "NOT_FOUND");
 
         const res = data as ICompanyControlled;
         res.parsedCompany = this.parse.bind(this, data)
@@ -115,6 +119,17 @@ class CompanyController extends UtilControllers.withUser {
             ref: params.refId ? { id: params.refId } : undefined,
             moderator: isModerator ? { id: this.user.id } : undefined
         });
+
+        this.log?.add("Mise a jour | Société", [
+            { name: "ID", content: res.id },
+            { name: "Nom", content: data.name },
+            { name: "MajID", content: params.pathId },
+            { name: "RefID", content: params.refId },
+            { name: "Description", content: params.description },
+            { name: "Type", content: PatchTypeObj[params.type] },
+            { name: "Status", content: isModerator ? "Accepté" : "En attente" },
+        ])
+
         return res;
     }
 
@@ -125,7 +140,7 @@ class CompanyController extends UtilControllers.withUser {
         const company: Partial<ICompany> = { ...rawInput };
 
         if (logo)
-            company.logo = await new ImageController(this.session, this.user)
+            company.logo = await new ImageController(this.session, { log: this.log, user: this.user })
                 .create_relation(logo, { ...params, targetPath: "Company" });
 
         return company;

@@ -24,7 +24,7 @@ type IPatchControlled = IPatchDoc & IPatchResponse
 class PatchControllers extends UtilControllers.withUser {
     session: ClientSession | null = null;
 
-    constructor(session: ClientSession | null, user: IUser) {
+    constructor(session: ClientSession | null, user: IUser | null) {
         super(user);
         this.session = session;
     }
@@ -37,7 +37,7 @@ class PatchControllers extends UtilControllers.withUser {
 
     private warpper(data: IPatchDoc | null): IPatchControlled {
         if (!data)
-            throw new APIError("Aucun utilisateur n'a été trouvé", "NOT_FOUND");
+            throw new APIError("Aucune mise a jour n'a été trouvé", "NOT_FOUND");
 
         const res = data as IPatchControlled;
         res.parsedPatch = this.parse.bind(this, data)
@@ -62,7 +62,7 @@ class PatchControllers extends UtilControllers.withUser {
 
     async create(data: IPatchOptionnal) {
         const res = new PatchModel(data);
-        await res.save();
+        await res.save({ session: this.session });
         return this.warpper(res);
     }
 

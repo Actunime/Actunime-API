@@ -8,7 +8,12 @@ const LoginBody = z.object({
     captcha: z.string()
 })
 
+const RegisterCodeBody = z.object({
+    email: z.string().email(),
+    code: z.string()
+})
 
 export const AuthSchema = {
-    LoginBody
+    LoginBody,
+    RegisterCodeBody
 }

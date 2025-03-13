@@ -3,13 +3,14 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config({ path: [`.env.${process.env.NODE_ENV || 'development'}`.trim()] });
 
-import { activesSessions } from './_utils/_mongooseSession.js';
+import { activesSessions } from './_utils/_mongooseSession';
 
-import Server from './_server.js';
+import Server from './_server';
+import { connectDB } from './_utils';
 
 process.on('SIGINT', async function () {
   try {
-    for await (const [,session] of activesSessions) {
+    for await (const [, session] of activesSessions) {
       await session.abortTransaction();
       await session.endSession();
     }
@@ -21,4 +22,4 @@ process.on('SIGINT', async function () {
   }
 });
 
-Server.start();
+connectDB().then(() => Server.start());

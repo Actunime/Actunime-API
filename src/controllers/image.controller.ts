@@ -2,7 +2,7 @@ import { ImageModel } from "@actunime/mongoose-models";
 import { ClientSession, Document, Schema } from "mongoose";
 import { APIError } from "../_lib/Error";
 import { IAdd_Image_ZOD, ICreate_Image_ZOD, ImagePaginationBody } from "@actunime/validations";
-import { CreateImageCDN, DeleteImageCDN, IImage, IPatchType, ITargetPath, IUser } from "@actunime/types";
+import { CreateImageCDN, DeleteImageCDN, IImage, IPatchType, ITargetPath, IUser, PatchTypeObj } from "@actunime/types";
 import { UtilControllers } from "../_utils/_controllers";
 import { z } from "zod";
 import { PaginationControllers } from "./pagination.controllers";
@@ -10,6 +10,9 @@ import { PatchControllers } from "./patch";
 import DeepDiff from 'deep-diff';
 import { genPublicID } from "@actunime/utils";
 import { Checker } from "../_utils/_checker";
+import { MessageBuilder } from "discord-webhook-node";
+import { APIDiscordWebhook } from "../_utils";
+import LogSession from "../_utils/_logSession";
 
 type IImageDoc = (Document<unknown, unknown, IImage> & IImage & Required<{
     _id: Schema.Types.ObjectId;
@@ -36,12 +39,15 @@ interface ImagePatchParams {
 
 class ImageController extends UtilControllers.withUser {
     static savedImages: Partial<IImage>[] = [];
-    private session: ClientSession | null = null;
+    private session: ClientSession | null = null
+    private log?: LogSession;
 
-    constructor(session: ClientSession | null, user?: IUser) {
-        super(user);
+    constructor(session: ClientSession | null, options?: { log?: LogSession, user?: IUser }) {
+        super(options?.user);
         this.session = session;
+        this.log = options?.log;
     }
+
 
     parse(Image: Partial<IImage>) {
         delete Image._id;
@@ -51,7 +57,7 @@ class ImageController extends UtilControllers.withUser {
 
     warpper(data: IImageDoc): IImageControlled {
         if (!data)
-            throw new APIError("Aucun utilisateur n'a été trouvé", "NOT_FOUND");
+            throw new APIError("Aucune image n'a été trouvé", "NOT_FOUND");
 
         const res = data as IImageControlled;
         res.parsedImage = this.parse.bind(this, data)
@@ -109,10 +115,11 @@ class ImageController extends UtilControllers.withUser {
 
     // Création d'un image
     private async create(data: Partial<IImage>) {
-        this.needUser(this.user);
+        // this.needUser(this.user);
 
         const res = new ImageModel(data);
         await res.save({ session: this.session });
+
         return this.warpper(res);
     }
 
@@ -152,6 +159,16 @@ class ImageController extends UtilControllers.withUser {
             ref: params.refId ? { id: params.refId } : undefined,
             moderator: isModerator ? { id: this.user.id } : undefined
         });
+
+        this.log?.add("Mise a jour | Image", [
+            { name: "ID", content: res.id },
+            { name: "pathID", content: params.pathId },
+            { name: "RefID", content: params.refId },
+            { name: "Description", content: params.description },
+            { name: "Type", content: PatchTypeObj[params.type] },
+            { name: "Status", content: isModerator ? "Accepté" : "En attente" },
+        ])
+
         return res;
     }
 
@@ -168,7 +185,7 @@ class ImageController extends UtilControllers.withUser {
             targetPath: params?.targetPath,
             ...rawInput
         };
-        
+
         if (!value)
             throw new APIError("Le value de l'image est obligatoire", "BAD_ENTRY");
 

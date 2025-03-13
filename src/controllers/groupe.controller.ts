@@ -1,13 +1,16 @@
 import { GroupeModel } from "@actunime/mongoose-models";
 import { ClientSession, Document, Schema } from "mongoose";
 import { APIError } from "../_lib/Error";
-import { IGroupe, IPatchType, IUser } from "@actunime/types";
+import { IGroupe, IPatchType, IUser, PatchTypeObj } from "@actunime/types";
 import { PaginationControllers } from "./pagination.controllers";
 import { z } from "zod";
 import { GroupePaginationBody, IAdd_Groupe_ZOD } from "@actunime/validations";
 import { UtilControllers } from "../_utils/_controllers";
 import { PatchControllers } from "./patch";
 import DeepDiff from 'deep-diff';
+import { MessageBuilder } from "discord-webhook-node";
+import { APIDiscordWebhook } from "../_utils";
+import LogSession from "../_utils/_logSession";
 
 type IGroupeDoc = (Document<unknown, unknown, IGroupe> & IGroupe & Required<{
     _id: Schema.Types.ObjectId;
@@ -30,11 +33,14 @@ interface GroupePatchParams {
 
 class GroupeController extends UtilControllers.withUser {
     private session: ClientSession | null = null;
+    private log?: LogSession;
 
-    constructor(session: ClientSession | null, user?: IUser) {
-        super(user);
+    constructor(session: ClientSession | null, options?: { log?: LogSession, user?: IUser }) {
+        super(options?.user);
         this.session = session;
+        this.log = options?.log;
     }
+
 
     parse(Groupe: Partial<IGroupe>) {
         delete Groupe._id;
@@ -44,7 +50,7 @@ class GroupeController extends UtilControllers.withUser {
 
     warpper(data: IGroupeDoc): IGroupeControlled {
         if (!data)
-            throw new APIError("Aucun utilisateur n'a été trouvé", "NOT_FOUND");
+            throw new APIError("Aucun groupe n'a été trouvé", "NOT_FOUND");
 
         const res = data as IGroupeControlled;
         res.parsedGroupe = this.parse.bind(this, data)
@@ -73,6 +79,7 @@ class GroupeController extends UtilControllers.withUser {
 
         const res = new GroupeModel(data);
         await res.save({ session: this.session });
+
         return this.warpper(res);
     }
 
@@ -111,6 +118,16 @@ class GroupeController extends UtilControllers.withUser {
             ref: params.refId ? { id: params.refId } : undefined,
             moderator: isModerator ? { id: this.user.id } : undefined
         });
+
+        this.log?.add("Mise a jour | Groupe", [
+            { name: "ID", content: res.id },
+            { name: "Nom", content: res.name },
+            { name: "RefID", content: params.refId },
+            { name: "Description", content: params.description },
+            { name: "Type", content: PatchTypeObj[params.type] },
+            { name: "Status", content: isModerator ? "Accepté" : "En attente" },
+        ])
+
         return res;
     }
 

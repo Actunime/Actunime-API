@@ -1,4 +1,4 @@
-import fastify, { FastifyInstance } from "fastify";
+import fastify, { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { ClientSession } from "mongoose";
 
 import * as plugins from './plugins';
@@ -6,13 +6,34 @@ import * as hooks from './hooks';
 
 import UserRoutes from './routes/user.routes';
 import AuthRoutes from './routes/auth.routes';
-import AccountRoutes from './routes/account.routes';
 import AnimeRoutes from './routes/anime.routes';
-import { serializerCompiler, validatorCompiler } from "fastify-type-provider-zod";
+import { hasZodFastifySchemaValidationErrors, isResponseSerializationError, serializerCompiler, validatorCompiler } from "fastify-type-provider-zod";
+import { APIError } from "./_lib/Error";
+import { DevLog } from "@actunime/utils";
+import { APIResponse } from "./_utils/_response";
+import { ZodError } from "zod";
+import fastifyJwt from '@fastify/jwt';
+import jwksRsa from 'jwks-rsa';
+import fastifyCors from "@fastify/cors";
+import RequestRoutes from "./routes/request.routes";
+import { swaggerOptions, SwaggerUiOptions } from "./_utils/_swagger";
+import fastifySwagger from "@fastify/swagger";
+import fastifySwaggerUi from "@fastify/swagger-ui";
+import { IUser, IUserRoles, userPermissionIsHigherThan } from "@actunime/types";
+import { UserController } from "./controllers/user.controller";
+import { removeSessionHandler } from "./_utils";
+import LogSession, { EndLogSession } from "./_utils/_logSession";
 
 declare module 'fastify' {
     interface FastifyRequest {
-        session: ClientSession
+        logSession?: LogSession;
+        mongooseSession: ClientSession;
+        me: IUser | null;
+        account?: {
+            id: string,
+            email: string,
+            username: string
+        }
     }
 
     interface FastifyInstance {
@@ -20,12 +41,19 @@ declare module 'fastify' {
             request: FastifyRequest,
             reply: FastifyReply
         ) => Promise<void>;
+        authenticateRoles: (roles: IUserRoles[]) => (
+            request: FastifyRequest,
+            reply: FastifyReply
+        ) => Promise<void>;
     }
 }
+
+
 
 class Server {
     public app: FastifyInstance;
     private port: number = process.env.PORT ? parseInt(process.env.PORT as string) : 3000;
+    private jwksClient: jwksRsa.JwksClient;
     constructor() {
         this.app = fastify({
             logger: true,
@@ -34,13 +62,36 @@ class Server {
 
         this.app.setValidatorCompiler(validatorCompiler);
         this.app.setSerializerCompiler(serializerCompiler);
+        this.jwksClient = jwksRsa({
+            jwksUri: 'http://localhost:8080/realms/actunime/protocol/openid-connect/certs',
+            cache: true,
+            rateLimit: true,
+        })
+
+        this.app.addContentTypeParser('application/json', { parseAs: 'string' }, function (req, body: string, done) {
+            try {
+                const json = JSON.parse(body)
+                done(null, json)
+            } catch (err) {
+                const error = err as any;
+                error.statusCode = 400
+                done(error, undefined)
+            }
+        })
     }
 
     public async start() {
         console.debug("Chargement du serveur...");
+        this.errorHandler();
+        await this.app.register(fastifySwagger, swaggerOptions);
+        await this.app.register(fastifySwaggerUi, SwaggerUiOptions);
         await this.loadHooks();
         await this.loadPlugin();
+
+        await this.authHandler();
+
         await this.loadRoutes();
+
         await this.app.listen({ port: this.port });
         console.debug("Serveur lancé !");
     }
@@ -70,12 +121,164 @@ class Server {
 
     private async loadRoutes() {
         console.debug("Chargement des routes...");
+        this.app.addHook("onResponse", (req, res) => {
+            removeSessionHandler(req, res);
+            EndLogSession(req);
+        });
         await this.app.register(AuthRoutes, { prefix: "/auth" });
         await this.app.register(UserRoutes, { prefix: "/v1/users", });
-        await this.app.register(AccountRoutes, { prefix: "/v1/accounts" });
         await this.app.register(AnimeRoutes, { prefix: "/v1/animes" })
+        await this.app.register(RequestRoutes, { prefix: "/v1/requests" });
         this.app.log.debug(this.app.printRoutes());
         console.debug("Routes chargé !");
+
+    }
+
+    private async authHandler() {
+
+        await this.app.register(fastifyCors, {
+            origin: "*",
+            // origin: (origin, cb) => {
+            //     const checkOrigin = (url: string | undefined): boolean => {
+            //         const hostname = url ? new URL(url).hostname : '';
+            //         console.debug("Origin", origin, "Hostname", hostname);
+            //         return ['localhost', 'actunime.fr'].includes(hostname);
+            //     };
+            //     if (checkOrigin(origin)) return cb(null, true);
+            //     console.error("Origin", origin, "ERRRUR BLOQUAGE");
+            //     return cb(null, false);
+            // },
+        });
+
+
+        try {
+            const raw = await this.jwksClient.getKeys();
+            const key = await this.jwksClient.getSigningKey(raw?.[1].kid);
+            const myCustomMessages = {
+                badRequestErrorMessage: 'tok: Format Authorization: Bearer [token]',
+                badCookieRequestErrorMessage: 'tok: Cookie could not be parsed in request',
+                noAuthorizationInHeaderMessage: 'tok: No Authorization was found in request.headers',
+                noAuthorizationInCookieMessage: 'tok: No Authorization was found in request.cookies',
+                authorizationTokenExpiredMessage: 'tok: Votre jeton a expiré',
+                authorizationTokenUntrusted: 'tok: Untrusted authorization token',
+                authorizationTokenUnsigned: 'tok: Unsigned authorization token',
+                // for the below message you can pass a sync function that must return a string as shown or a string
+                authorizationTokenInvalid: (err) => {
+                    return `tok: Authorization token is invalid: ${err.message}`
+                }
+            }
+
+            await this.app.register(fastifyJwt, {
+                secret: {
+                    public: key.getPublicKey() as any
+                },
+                verify: {
+                    algorithms: ['RS256'],
+                },
+                messages: myCustomMessages,
+                decoratorName: "account",
+                formatUser: (payload: any) => {
+                    // this.app.decorateRequest('user', payload)
+                    console.log(payload);
+                    return {
+                        id: payload.sub,
+                        email: payload.email,
+                        username: payload.preferred_username
+                    }
+                }
+            });
+        } catch (err) {
+            console.error(err);
+        }
+
+        async function setUser(req: FastifyRequest) {
+            if (req.account) {
+                const getUser = await new UserController().getByAccountId(req.account.id);
+                req.me = getUser;
+            }
+        }
+
+        async function checkJWT(req: FastifyRequest) {
+            if (req.jwtVerify) {
+                await req.jwtVerify();
+            } else
+                throw new APIError("Vous devez vous identifier", "UNAUTHORIZED", 401);
+        }
+
+        this.app.decorate('authenticate', async function (req, reply) {
+            await checkJWT(req);
+            await setUser(req);
+        });
+
+        this.app.decorate('authenticateRoles',
+            (roles: IUserRoles[], strict: boolean = false) =>
+                async function (req, res) {
+                    await checkJWT(req);
+                    await setUser(req);
+                    if (strict)
+                        if (!roles.every(role => req.me?.roles.includes(role)))
+                            throw new APIError("Vous n'avez pas les permissions pour effectuer cette action", "UNAUTHORIZED");
+                        else
+                            if (!roles.some(role => req.me?.roles.includes(role)))
+                                throw new APIError("Vous n'avez pas les permissions pour effectuer cette action", "UNAUTHORIZED");
+                });
+    }
+
+    private errorHandler() {
+        this.app.setErrorHandler((error, request, reply) => {
+            const res = new APIResponse({
+                success: false,
+                code: "SERVER_ERROR",
+                error: "Une erreur est survenue",
+                message: "Une erreur est survenue",
+                status: 500
+            })
+
+            if (error instanceof APIError) {
+                DevLog(`APIError ${error.code} : ${error.message}`, 'error');
+                res.status = error.status || 500;
+                res.code = error.code;
+                res.error = error.message;
+                res.message = error.message;
+            } else if (error instanceof ZodError) {
+                DevLog(`ZodError : ${error.message}`, 'error');
+                res.status = 400;
+                res.code = "BAD_REQUEST";
+                res.error = error.message;
+                res.message = error.message;
+            } else if (error?.message.includes("validation failed:")) {
+                DevLog(`MongooseError : ${error.message}`, 'error');
+                res.status = 400;
+                res.code = "BAD_REQUEST";
+                res.error = error.message;
+                res.message = error.message;
+            } else if (hasZodFastifySchemaValidationErrors(error)) {
+                DevLog(`ZodFastifySchema : ${error.message}`, 'error');
+                res.status = 400;
+                res.code = "BAD_REQUEST";
+                res.error = error.message;
+                res.message = error.message;
+            } else if (isResponseSerializationError(error)) {
+                DevLog(`Serialization : ${error.message}`, 'error');
+                res.status = 400;
+                res.code = "BAD_RESPONSE";
+                res.error = error.message;
+                res.message = error.message;
+            } if (error.message.startsWith('tok:')) {
+                DevLog(`JWT : ${error.message.split(': ')[1]}`, 'error');
+                res.status = 401;
+                res.code = "UNAUTHORIZED";
+                res.error = error.message.split(': ')[1];
+                res.message = error.message.split(': ')[1];
+                res.data = { expired: error.message.includes('expired') };
+            } else {
+                DevLog(`ERREUR URL ${request.url}`, 'error');
+                DevLog(`ERREUR UNHANDLED ${error.statusCode} : ${error.message}`, 'error');
+            }
+
+            console.error(error);
+            reply.status(res.status).send(res);
+        });
     }
 }
 

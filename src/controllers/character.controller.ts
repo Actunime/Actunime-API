@@ -1,7 +1,7 @@
 import { CharacterModel } from "@actunime/mongoose-models";
 import { ClientSession, Document, Schema } from "mongoose";
 import { APIError } from "../_lib/Error";
-import { ICharacter, IPatchType, IUser } from "@actunime/types";
+import { ICharacter, IPatchType, IUser, PatchTypeObj } from "@actunime/types";
 import { PaginationControllers } from "./pagination.controllers";
 import { z } from "zod";
 import { CharacterPaginationBody, IAdd_Character_ZOD, ICreate_Character_ZOD } from "@actunime/validations";
@@ -10,7 +10,8 @@ import { PatchControllers } from "./patch";
 import DeepDiff from 'deep-diff';
 import { genPublicID } from "@actunime/utils";
 import { PersonController } from "./person.controler";
-import { ImageController } from "./image.controllers";
+import { ImageController } from "./image.controller";
+import LogSession from "../_utils/_logSession";
 
 type ICharacterDoc = (Document<unknown, unknown, ICharacter> & ICharacter & Required<{
     _id: Schema.Types.ObjectId;
@@ -34,11 +35,14 @@ interface CharacterPatchParams {
 
 class CharacterController extends UtilControllers.withUser {
     private session: ClientSession | null = null;
+    private log?: LogSession;
 
-    constructor(session: ClientSession | null, user?: IUser) {
-        super(user);
+    constructor(session: ClientSession | null, options?: { log?: LogSession, user?: IUser }) {
+        super(options?.user);
         this.session = session;
+        this.log = options?.log;
     }
+
 
     parse(Character: Partial<ICharacter>) {
         delete Character._id;
@@ -48,7 +52,7 @@ class CharacterController extends UtilControllers.withUser {
 
     warpper(data: ICharacterDoc): ICharacterControlled {
         if (!data)
-            throw new APIError("Aucun utilisateur n'a été trouvé", "NOT_FOUND");
+            throw new APIError("Aucun personnage n'a été trouvé", "NOT_FOUND");
 
         const res = data as ICharacterControlled;
         res.parsedCharacter = this.parse.bind(this, data)
@@ -116,6 +120,18 @@ class CharacterController extends UtilControllers.withUser {
             ref: params.refId ? { id: params.refId } : undefined,
             moderator: isModerator ? { id: this.user.id } : undefined
         });
+
+        this.log?.add("Mise a jour | Personnage", [
+            { name: "ID", content: res.id },
+            { name: "Nom", content: data.name?.default },
+            { name: "MajID", content: params.pathId },
+            { name: "RefID", content: params.refId },
+            { name: "Description", content: params.description },
+            { name: "Type", content: PatchTypeObj[params.type] },
+            { name: "Status", content: isModerator ? "Accepté" : "En attente" },
+
+        ])
+
         return res;
     }
 
@@ -126,13 +142,13 @@ class CharacterController extends UtilControllers.withUser {
         const character: Partial<ICharacter> = { ...rawInput };
 
         if (avatar) {
-            character.avatar = await new ImageController(this.session, this.user).create_relation(avatar,
+            character.avatar = await new ImageController(this.session, { log: this.log, user: this.user }).create_relation(avatar,
                 { ...params, targetPath: "Character" }
             );
         }
 
         if (actors && actors.length) {
-            const controller = new PersonController(this.session, this.user);
+            const controller = new PersonController(this.session, { log: this.log, user: this.user });
             character.actors = await Promise.all(actors.map((actor) => controller.create_relation(actor, params)));
         }
 

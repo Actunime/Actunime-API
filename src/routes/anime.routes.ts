@@ -1,19 +1,53 @@
 import { FastifyInstance } from "fastify";
-import { AuthHandlers } from "../handlers/auth.handlers";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { Utilchema } from "../schema/util.schema";
-import { Anime_Pagination_ZOD } from "@actunime/validations";
+import { Anime_Pagination_ZOD, AnimeCreateBody } from "@actunime/validations";
 import { AnimeHandlers } from "../handlers/anime.handlers";
+import { addSessionHandler } from "../_utils";
+import { AddLogSession } from "../_utils/_logSession";
 
 function AnimeRoutes(fastify: FastifyInstance) {
     const app = fastify.withTypeProvider<ZodTypeProvider>();
+    const tags = ["Anime"];
+
+    /** GET */
+
+    app.route({
+        method: "GET",
+        url: "/:id",
+        schema: {
+            description: "Récupération d'un anime",
+            tags,
+            response: {
+                200: Utilchema.ResponseBody(),
+                401: Utilchema.UnauthorizedResponseBody()
+            }
+        },
+        handler: () => { }
+    });
+
+    app.route({
+        method: "GET",
+        url: "/:id/stats",
+        schema: {
+            description: "Récupération des statistiques d'un anime",
+            tags,
+            response: {
+                200: Utilchema.ResponseBody(),
+                401: Utilchema.UnauthorizedResponseBody()
+            }
+        },
+        handler: () => { }
+    });
+
+    /** POST */
 
     app.route({
         method: "POST",
         url: "/",
         schema: {
-            description: "Permet de filtrer les animes",
-            tags: ["Anime"],
+            description: "Filtrer les animes",
+            tags,
             body: Anime_Pagination_ZOD.partial(),
             response: {
                 200: Utilchema.ResponseBody(),
@@ -24,124 +58,153 @@ function AnimeRoutes(fastify: FastifyInstance) {
     });
 
     app.route({
-        method: "GET",
-        url: "/:id",
-        schema: {
-            description: "Permet de récupérer un anime via son identifiant",
-            tags: ["Anime"],
-            response: {
-                200: Utilchema.ResponseBody(),
-                401: Utilchema.UnauthorizedResponseBody()
-            }
-        },
-        handler: () => { }
-    });
-
-
-
-    app.route({
         method: "POST",
         url: "/create",
         schema: {
-            description: "Permet en tant que modérateur d'ajouter un anime",
-            tags: ["Anime"],
+            description: "Crée un anime",
+            tags,
+            body: AnimeCreateBody,
+            response: {
+                200: Utilchema.ResponseBody()
+            }
+        },
+        preHandler: [fastify.authenticateRoles(["ANIME_MODERATOR"]), addSessionHandler, AddLogSession],
+        handler: AnimeHandlers.createAnime
+    });
+
+    app.route({
+        method: "POST",
+        url: "/:id/update",
+        schema: {
+            description: "Mettre a jour un anime",
+            tags,
             response: {
                 200: Utilchema.ResponseBody(),
                 401: Utilchema.UnauthorizedResponseBody()
             }
         },
-        preHandler: AuthHandlers.AuthRoles(["MODERATOR", "ANIME_MODERATOR"]),
+        preHandler: () => { },
         handler: () => { }
     });
 
     app.route({
         method: "POST",
-        url: "/request",
+        url: "/:id/delete",
         schema: {
-            description: "Permet de faire la demande d'ajout d'un anime",
-            tags: ["Anime"],
+            description: "Supprimer un anime",
+            tags,
             response: {
                 200: Utilchema.ResponseBody(),
                 401: Utilchema.UnauthorizedResponseBody()
             }
         },
+        preHandler: () => { },
         handler: () => { }
     });
 
     app.route({
-        method: "GET",
-        url: "/request/:id",
+        method: "POST",
+        url: "/:id/verify",
         schema: {
-            description: "Permet de récupérer la demande d'ajout d'un anime",
-            tags: ["Anime"],
+            description: "Vérifier un anime",
+            tags,
             response: {
                 200: Utilchema.ResponseBody(),
                 401: Utilchema.UnauthorizedResponseBody()
             }
         },
+        preHandler: () => { },
+        handler: () => { }
+    });
+
+    app.route({
+        method: "POST",
+        url: "/:id/unverify",
+        schema: {
+            description: "Dévérifier un anime",
+            tags,
+            response: {
+                200: Utilchema.ResponseBody(),
+                401: Utilchema.UnauthorizedResponseBody()
+            }
+        },
+        preHandler: () => { },
+        handler: () => { }
+    });
+
+    app.route({
+        method: "POST",
+        url: "/:id/requests",
+        schema: {
+            description: "Filtrer les demandes d'un anime",
+            tags,
+            response: {
+                200: Utilchema.ResponseBody(),
+                401: Utilchema.UnauthorizedResponseBody()
+            }
+        },
+        preHandler: () => { },
         handler: () => { }
     });
 
 
     app.route({
         method: "POST",
-        url: "/request/update",
+        url: "/:mediaId/requests/:reqId/update",
         schema: {
-            description: "Permet de mettre a jour la demande d'ajout d'un anime",
-            tags: ["Anime"],
+            description: "Mettre a jour la demande d'un anime",
+            tags,
             response: {
                 200: Utilchema.ResponseBody(),
                 401: Utilchema.UnauthorizedResponseBody()
             }
         },
-        // Faudrait que l'auteur puisse modifier sa requête ou la supprimer
-        preHandler: AuthHandlers.AuthRoles(["MODERATOR", "ANIME_MODERATOR"]),
+        preHandler: () => { },
         handler: () => { }
     });
 
     app.route({
         method: "POST",
-        url: "/request/validate",
+        url: "/:mediaId/requests/:reqId/accept",
         schema: {
-            description: "Permet de valider la demande d'ajout d'un anime",
-            tags: ["Anime"],
+            description: "Accepter la demande d'un anime",
+            tags,
             response: {
                 200: Utilchema.ResponseBody(),
                 401: Utilchema.UnauthorizedResponseBody()
             }
         },
-        preHandler: AuthHandlers.AuthRoles(["MODERATOR", "ANIME_MODERATOR"]),
+        preHandler: () => { },
         handler: () => { }
     });
 
     app.route({
         method: "POST",
-        url: "/request/refuse",
+        url: "/:mediaId/requests/:reqId/refuse",
         schema: {
-            description: "Permet de refusé la demande d'ajout d'un anime",
-            tags: ["Anime"],
+            description: "Refuser la demande d'un anime",
+            tags,
             response: {
                 200: Utilchema.ResponseBody(),
                 401: Utilchema.UnauthorizedResponseBody()
             }
         },
-        preHandler: AuthHandlers.AuthRoles(["MODERATOR", "ANIME_MODERATOR"]),
+        preHandler: () => { },
         handler: () => { }
     });
 
-
     app.route({
         method: "POST",
-        url: "/request/delete",
+        url: "/:mediaId/requests/:reqId/delete",
         schema: {
-            description: "Permet de supprimé la demande d'ajout d'un anime",
-            tags: ["Anime"],
+            description: "Supprimer la demande d'un anime",
+            tags,
             response: {
                 200: Utilchema.ResponseBody(),
                 401: Utilchema.UnauthorizedResponseBody()
             }
         },
-        preHandler: AuthHandlers.AuthRoles(["MODERATOR", "ANIME_MODERATOR"]),
+        preHandler: () => { },
         handler: () => { }
     });
 }

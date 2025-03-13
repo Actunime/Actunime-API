@@ -1,0 +1,226 @@
+[
+  {
+    "_id": "67bb67fe6ac8810dfcaba784",
+    "isVerified": true,
+    "isPreAdded": false,
+    "type": "ENDING",
+    "name": {
+      "default": "Sonna Bokura no Bōkentan"
+    },
+    "pubDate": "2025-01-07T00:00:00.000Z",
+    "artists": [
+      {
+        "id": "8vr5a"
+      }
+    ],
+    "links": [
+      {
+        "name": "Sonna Bokura no Bōkentan",
+        "value": "https://www.youtube.com/watch?v=zZqih2Kw5Ds"
+      }
+    ],
+    "id": "zklvz",
+    "createdAt": "2025-02-23T18:25:02.039Z",
+    "updatedAt": "2025-02-26T19:57:28.906Z",
+    "__v": 0
+  },
+  {
+    "_id": "67bb67fd6ac8810dfcaba778",
+    "isVerified": true,
+    "isPreAdded": false,
+    "type": "OPENING",
+    "name": {
+      "default": "Bravely Dance"
+    },
+    "pubDate": "2025-01-07T00:00:00.000Z",
+    "artists": [
+      {
+        "id": "5j53d"
+      },
+      {
+        "id": "sz4hn"
+      }
+    ],
+    "links": [
+      {
+        "name": "Bravely Dance",
+        "value": "https://www.youtube.com/watch?v=Az1cAvmmVYc"
+      }
+    ],
+    "id": "t7sbl",
+    "createdAt": "2025-02-23T18:25:01.936Z",
+    "updatedAt": "2025-02-26T19:57:23.991Z",
+    "__v": 0
+  },
+  {
+    "_id": "67b253266ac8810dfcab9858",
+    "isVerified": true,
+    "isPreAdded": false,
+    "type": "ENDING",
+    "name": {
+      "default": "Twinkle Days",
+      "native": "トゥインクル・デイズ"
+    },
+    "pubDate": "2025-01-08T00:00:00.000Z",
+    "artists": [
+      {
+        "id": "fpwb3"
+      }
+    ],
+    "links": [],
+    "id": "msd4i",
+    "createdAt": "2025-02-16T21:05:42.556Z",
+    "updatedAt": "2025-02-16T21:09:44.673Z",
+    "__v": 0
+  },
+  {
+    "_id": "67b1b8eecbbb2e62cb6e3c54",
+    "isVerified": true,
+    "isPreAdded": false,
+    "type": "OPENING",
+    "name": {
+      "default": "TREASURE!"
+    },
+    "pubDate": "2025-01-29T00:00:00.000Z",
+    "artists": [
+      {
+        "id": "qkw9n"
+      }
+    ],
+    "links": [
+      {
+        "name": "TREASURE!",
+        "value": "https://www.youtube.com/watch?v=8-6DJ3sOQO8"
+      }
+    ],
+    "id": "dwuw5",
+    "createdAt": "2025-02-16T10:07:42.792Z",
+    "updatedAt": "2025-02-16T21:09:40.772Z",
+    "__v": 0
+  },
+  {
+    "_id": "67aa30506894b68955696e27",
+    "isVerified": true,
+    "isPreAdded": false,
+    "type": "OPENING",
+    "name": {
+      "default": "Perfect Day"
+    },
+    "artists": [
+      {
+        "id": "rvxd0"
+      }
+    ],
+    "links": [
+      {
+        "name": "Perfect Day",
+        "value": "https://www.youtube.com/watch?v=djKkcJVKAbE"
+      }
+    ],
+    "id": "2wr4i",
+    "createdAt": "2025-02-10T16:58:56.491Z",
+    "updatedAt": "2025-02-16T21:09:37.680Z",
+    "__v": 0
+  },
+  {
+    "_id": "679a678ea59754ce26f48f67",
+    "isVerified": true,
+    "isPreAdded": false,
+    "type": "ENDING",
+    "name": {
+      "default": "Wonderful World",
+      "native": " Honey Lemon Soda - Ending | Wonderful World "
+    },
+    "artists": [
+      {
+        "id": "2ps86"
+      }
+    ],
+    "links": [
+      {
+        "name": "Honey Lemon Soda - Ending | Wonderful World",
+        "value": "https://www.youtube.com/watch?v=K-564woyCdc"
+      }
+    ],
+    "id": "xgjmr",
+    "createdAt": "2025-01-29T17:38:22.702Z",
+    "updatedAt": "2025-01-29T21:45:43.037Z",
+    "__v": 0
+  },
+  {
+    "_id": "679a678ea59754ce26f48f5b",
+    "isVerified": true,
+    "isPreAdded": false,
+    "type": "OPENING",
+    "name": {
+      "default": "Magic Hour",
+      "native": "「Magic Hour」"
+    },
+    "artists": [
+      {
+        "id": "8ib4e"
+      }
+    ],
+    "links": [
+      {
+        "name": "Magic Hour",
+        "value": "https://www.youtube.com/watch?v=x42MVRTKaaM"
+      }
+    ],
+    "id": "m69p5",
+    "createdAt": "2025-01-29T17:38:22.589Z",
+    "updatedAt": "2025-01-29T21:45:53.872Z",
+    "__v": 0
+  },
+  {
+    "_id": "6796274b1555ee5e3b137ed3",
+    "isVerified": true,
+    "isPreAdded": false,
+    "type": "OPENING",
+    "name": {
+      "default": "Zenshu Zen",
+      "native": "BAND-MAID « Zen »"
+    },
+    "pubDate": "2025-01-14T00:00:00.000Z",
+    "artists": [
+      {
+        "id": "rzdtm"
+      }
+    ],
+    "links": [
+      {
+        "name": "Opening ZENSHU",
+        "value": "https://www.youtube.com/watch?v=oygsxvHtU74"
+      }
+    ],
+    "id": "ah32p",
+    "createdAt": "2025-01-26T12:15:07.325Z",
+    "updatedAt": "2025-01-26T15:10:37.890Z",
+    "__v": 0
+  },
+  {
+    "_id": "6789535fdf05af50344c07da",
+    "isVerified": true,
+    "isPreAdded": false,
+    "type": "OPENING",
+    "name": {
+      "default": "Koibito Ijou, Suki Miman"
+    },
+    "pubDate": "2025-01-04T00:00:00.000Z",
+    "artists": [
+      {
+        "id": "ekcqg"
+      }
+    ],
+    "links": [
+      {
+        "name": "Classe no Daikirai na Joshi à Kekkon Suru Koto ni Natta Opening 1",
+        "value": "https://www.youtube.com/watch?v=khyWNmMGoGk"
+      }
+    ],
+    "id": "cgmn9",
+    "createdAt": "2025-01-16T18:43:43.977Z",
+    "updatedAt": "2025-01-25T21:45:15.464Z",
+    "__v": 0
+  }
+]

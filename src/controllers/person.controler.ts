@@ -1,7 +1,7 @@
 import { PersonModel } from "@actunime/mongoose-models";
 import { ClientSession, Document, Schema } from "mongoose";
 import { APIError } from "../_lib/Error";
-import { IPerson, IPatchType, IUser } from "@actunime/types";
+import { IPerson, IPatchType, IUser, PatchTypeObj } from "@actunime/types";
 import { PaginationControllers } from "./pagination.controllers";
 import { z } from "zod";
 import { PersonPaginationBody, IAdd_Person_ZOD, ICreate_Person_ZOD } from "@actunime/validations";
@@ -9,7 +9,10 @@ import { UtilControllers } from "../_utils/_controllers";
 import { PatchControllers } from "./patch";
 import DeepDiff from 'deep-diff';
 import { genPublicID } from "@actunime/utils";
-import { ImageController } from "./image.controllers";
+import { ImageController } from "./image.controller";
+import { MessageBuilder } from "discord-webhook-node";
+import { APIDiscordWebhook } from "../_utils";
+import LogSession from "../_utils/_logSession";
 
 type IPersonDoc = (Document<unknown, unknown, IPerson> & IPerson & Required<{
     _id: Schema.Types.ObjectId;
@@ -33,11 +36,14 @@ interface PersonPatchParams {
 
 class PersonController extends UtilControllers.withUser {
     private session: ClientSession | null = null;
+    private log?: LogSession;
 
-    constructor(session: ClientSession | null, user?: IUser) {
-        super(user);
+    constructor(session: ClientSession | null, options?: { log?: LogSession, user?: IUser }) {
+        super(options?.user);
         this.session = session;
+        this.log = options?.log;
     }
+
 
     parse(Person: Partial<IPerson>) {
         delete Person._id;
@@ -47,7 +53,7 @@ class PersonController extends UtilControllers.withUser {
 
     warpper(data: IPersonDoc): IPersonControlled {
         if (!data)
-            throw new APIError("Aucun utilisateur n'a été trouvé", "NOT_FOUND");
+            throw new APIError("Aucune personne n'a été trouvé", "NOT_FOUND");
 
         const res = data as IPersonControlled;
         res.parsedPerson = this.parse.bind(this, data)
@@ -115,6 +121,17 @@ class PersonController extends UtilControllers.withUser {
             ref: params.refId ? { id: params.refId } : undefined,
             moderator: isModerator ? { id: this.user.id } : undefined
         });
+
+        this.log?.add("Mise a jour | Personne", [
+            { name: "ID", content: res.id },
+            { name: "Nom", content: data.name?.default },
+            { name: "MajID", content: params.pathId },
+            { name: "RefID", content: params.refId },
+            { name: "Description", content: params.description },
+            { name: "Type", content: PatchTypeObj[params.type] },
+            { name: "Status", content: isModerator ? "Accepté" : "En attente" },
+        ])
+
         return res;
     }
 
@@ -125,7 +142,7 @@ class PersonController extends UtilControllers.withUser {
         const person: Partial<IPerson> = { ...rawInput };
 
         if (avatar) {
-            person.avatar = await new ImageController(this.session, this.user).create_relation(avatar,
+            person.avatar = await new ImageController(this.session, { log: this.log, user: this.user }).create_relation(avatar,
                 { ...params, targetPath: "Person" }
             );
         }

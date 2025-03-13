@@ -13,11 +13,14 @@ function getDevice(req: FastifyRequest) {
     return browser?.name && os?.name && browser.name + " " + os.name + `${location ? `(${location?.city}, ${location?.country})` : ""}`;
 }
 
-function getClientId(req: FastifyRequest) {
+function getClientId<T extends boolean = false>(req: FastifyRequest, noError?: T): T extends true ? string | null : string {
     const { "x-client-id": clientId = "", origin, referer } = req.headers;
-    if (!approuvedClient[(origin || referer) as keyof typeof approuvedClient])
-        throw new APIError("Invalid CLIENT", "BAD_REQUEST");
-
+    if (!approuvedClient[(origin || referer) as keyof typeof approuvedClient]) {
+        if (!noError)
+            throw new APIError("Invalid CLIENT", "BAD_REQUEST");
+        return null as T extends true ? string | null : string;
+    }
+    
     return clientId as string;
 }
 

@@ -16,10 +16,15 @@ export class withUser {
             throw new APIError("Aucun n'utilisateur n'a été défini pour cette action", "NOT_FOUND");
     }
 
-    public needRoles(roles: IUserRoles[]) {
+    public needRoles(roles: IUserRoles[], strict: boolean = false) {
         this.needUser(this.user);
-        if (!userPermissionIsHigherThan(this.user.roles, roles))
-            throw new APIError("Vous n'avez pas les permissions pour effectuer cette action", "UNAUTHORIZED");
+        console.info("User roles", this.user.roles);
+        if (strict)
+            if (!roles.every(role => this.user?.roles.includes(role)))
+                throw new APIError("Vous n'avez pas les permissions pour effectuer cette action", "UNAUTHORIZED");
+            else
+                if (!roles.some(role => this.user?.roles.includes(role)))
+                    throw new APIError("Vous n'avez pas les permissions pour effectuer cette action", "UNAUTHORIZED");
     }
 }
 

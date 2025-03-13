@@ -15,4 +15,9 @@ export const SendOnlineMessage = async () => {
     await DiscordWebhook.send(embed);
 }
 
+export const APIDiscordWebhook = new Webhook({
+    url: "https://discord.com/api/webhooks/1344763929867452497/ew5RSPo9OOjvt8V_Wscd4yBW9dGN6aRam-IQEh36M_UytOlVySLeH1IfGnTXtFyW6yob",
+    retryOnLimit: false
+});
+
 export { MessageBuilder }

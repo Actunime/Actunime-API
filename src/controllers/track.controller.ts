@@ -1,7 +1,7 @@
 import { TrackModel } from "@actunime/mongoose-models";
 import { ClientSession, Document, Schema } from "mongoose";
 import { APIError } from "../_lib/Error";
-import { ITrack, IPatchType, IUser } from "@actunime/types";
+import { ITrack, IPatchType, IUser, PatchTypeObj } from "@actunime/types";
 import { PaginationControllers } from "./pagination.controllers";
 import { z } from "zod";
 import { TrackPaginationBody, IAdd_Track_ZOD, ICreate_Track_ZOD } from "@actunime/validations";
@@ -10,7 +10,10 @@ import { PatchControllers } from "./patch";
 import DeepDiff from 'deep-diff';
 import { genPublicID } from "@actunime/utils";
 import { PersonController } from "./person.controler";
-import { ImageController } from "./image.controllers";
+import { ImageController } from "./image.controller";
+import { MessageBuilder } from "discord-webhook-node";
+import { APIDiscordWebhook } from "../_utils";
+import LogSession from "../_utils/_logSession";
 
 type ITrackDoc = (Document<unknown, unknown, ITrack> & ITrack & Required<{
     _id: Schema.Types.ObjectId;
@@ -35,11 +38,14 @@ interface TrackPatchParams {
 
 class TrackController extends UtilControllers.withUser {
     private session: ClientSession | null = null;
+    private log?: LogSession;
 
-    constructor(session: ClientSession | null, user?: IUser) {
-        super(user);
+    constructor(session: ClientSession | null, options?: { log?: LogSession, user?: IUser }) {
+        super(options?.user);
         this.session = session;
+        this.log = options?.log;
     }
+
 
     parse(Track: Partial<ITrack>) {
         delete Track._id;
@@ -49,7 +55,7 @@ class TrackController extends UtilControllers.withUser {
 
     warpper(data: ITrackDoc): ITrackControlled {
         if (!data)
-            throw new APIError("Aucun utilisateur n'a été trouvé", "NOT_FOUND");
+            throw new APIError("Aucune musique n'a été trouvé", "NOT_FOUND");
 
         const res = data as ITrackControlled;
         res.parsedTrack = this.parse.bind(this, data)
@@ -118,6 +124,17 @@ class TrackController extends UtilControllers.withUser {
             ref: params.refId ? { id: params.refId } : undefined,
             moderator: isModerator ? { id: this.user.id } : undefined
         });
+
+        this.log?.add("Mise a jour | Musique", [
+            { name: "ID", content: res.id },
+            { name: "Nom", content: data.name?.default },
+            { name: "MajID", content: params.pathId },
+            { name: "RefID", content: params.refId },
+            { name: "Description", content: params.description },
+            { name: "Type", content: PatchTypeObj[params.type] },
+            { name: "Status", content: isModerator ? "Accepté" : "En attente" },
+        ])
+
         return res;
     }
 
@@ -128,13 +145,13 @@ class TrackController extends UtilControllers.withUser {
         const track: Partial<ITrack> = { ...rawInput };
 
         if (cover)
-            track.cover = await new ImageController(this.session, this.user).create_relation(cover, {
+            track.cover = await new ImageController(this.session, { log: this.log, user: this.user }).create_relation(cover, {
                 ...params,
                 targetPath: "Track",
             });
 
         if (artists && artists.length) {
-            const controller = new PersonController(this.session, this.user);
+            const controller = new PersonController(this.session, { log: this.log, user: this.user });
             track.artists = await Promise.all(artists.map((artist) => controller.create_relation(artist, params)));
         }
 

@@ -1,24 +1,52 @@
-import { RouteHandler } from "fastify";
+import { FastifyRequest, RouteHandler } from "fastify";
 import { z } from "zod";
-import { UserControllers } from "../controllers/user.controllers";
+import { UserController } from "../controllers/user.controller";
 import { APIResponse } from "../_utils/_response";
-import { RequestUtil } from "../_utils/_request";
+import { IUserMutationBody, UserMutationBody } from "@actunime/validations";
+import { APIError } from "../_lib/Error";
+import { IUser } from "@actunime/types";
+import { genPublicID } from "@actunime/utils";
+import { ImageController } from "../controllers/image.controller";
 
 
 const getUserById: RouteHandler = async (req) => {
     const { id } = z.object({ id: z.string() }).parse(req.params);
-    UserControllers.useSession(req.session);
-    const res = await UserControllers.getById(id);
+    const res = await new UserController(req.mongooseSession).getById(id);
     return new APIResponse({ success: true, data: res });
 }
 
 const getCurrentUser: RouteHandler = async (req) => {
-    const token = RequestUtil.getToken(req);
-    const user = await UserControllers.getUserByToken(token);
-    return new APIResponse({ success: true, data: user });
+
+    return new APIResponse({ success: true, data: req.user });
+}
+
+const getUserByAccountId = async (req: FastifyRequest<{ Params: { id: string } }>) => {
+    const { id } = z.object({ id: z.string() }).parse(req.params);
+    const res = await new UserController(req.mongooseSession).getByAccountId(id);
+
+    return new APIResponse({ success: true, data: res });
+}
+
+const updateCurrentUser = async (req: FastifyRequest<{ Body: IUserMutationBody }>) => {
+    const body = req.body;
+
+    if (!Object.keys(body).length)
+        throw new APIError("Aucun champ n'a été modifié !", "EMPTY_CHANGES");
+
+    const refId = genPublicID(8);
+    const controller = new UserController(req.mongooseSession);
+    const description = "";
+
+    const builded = await controller.build(body, { username: req.account!.username, accountId: req.account!.id }, { refId, description });
+
+    const updatedUser = await builded.save({ session: req.mongooseSession });
+
+    return new APIResponse({ success: true, data: controller.parse(updatedUser) });
 }
 
 export const UserHandlers = {
     getUserById,
-    getCurrentUser
+    getCurrentUser,
+    getUserByAccountId,
+    updateCurrentUser
 };
