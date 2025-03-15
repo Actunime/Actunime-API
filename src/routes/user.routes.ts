@@ -22,12 +22,16 @@ function UserRoutes(fastify: FastifyInstance) {
         },
     }, UserHandlers.getCurrentUser);
 
-    app.get("/account/:id", {
+    app.route({
+        url: "/account/:id",
+        method: "GET",
         schema: {
             description: "",
             tags: ["User"]
         },
-    }, UserHandlers.getUserByAccountId);
+        preHandler: [fastify.authenticate],
+        handler: UserHandlers.getUserByAccountId
+    });
 
     app.route({
         method: "POST",
