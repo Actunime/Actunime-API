@@ -1,19 +1,18 @@
-import { FastifyRequest, RouteHandler } from "fastify";
+import { FastifyRequest, RouteHandlerMethod } from "fastify";
 import { z } from "zod";
 import { AnimeController } from "../controllers/anime.controller";
 import { APIResponse } from "../_utils/_response";
-import { AnimeCreateBody, AnimePaginationBody, ICreate_Anime_ZOD } from "@actunime/validations";
-import { genPublicID } from "@actunime/utils";
+import { AnimePaginationBody, IAnimeCreateBody, ICreate_Anime_ZOD, IMediaDeleteBody } from "@actunime/validations";
 
-const getAnimeById: RouteHandler = async (req) => {
+const getAnimeById: RouteHandlerMethod = async (req) => {
     const { id } = z.object({ id: z.string() }).parse(req.params);
-    const controller = new AnimeController(req.mongooseSession, { log: req.logSession });
+    const controller = new AnimeController(req.mongooseSession);
     const res = await controller.getById(id);
     return new APIResponse({ success: true, data: res });
 }
 
 const filterAnime = async (req: FastifyRequest<{ Body: z.infer<typeof AnimePaginationBody> }>) => {
-    const animes = await new AnimeController(req.mongooseSession, { log: req.logSession }).filter(req.body)
+    const animes = await new AnimeController(req.mongooseSession).filter(req.body)
     return new APIResponse({ success: true, data: animes });
 }
 
