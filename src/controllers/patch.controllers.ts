@@ -1,11 +1,12 @@
 import { PatchModel } from "@actunime/mongoose-models";
 import { ClientSession, Document, Schema } from "mongoose";
 import { APIError } from "../_lib/Error";
-import { IPatch, IPatchOptionnal, IUser } from "@actunime/types";
-import { PaginationControllers } from "../controllers/pagination.controllers";
+import { IPatch, IPatchStatus, ITargetPath, IUser } from "@actunime/types";
+import { PaginationControllers } from "./pagination.controllers";
 import { z } from "zod";
 import { PatchPaginationBody } from "@actunime/validations";
 import { UtilControllers } from "../_utils/_controllers";
+import LogSession from "../_utils/_logSession";
 
 type IPatchDoc = (Document<unknown, unknown, IPatch> & IPatch & Required<{
     _id: Schema.Types.ObjectId;
@@ -21,12 +22,14 @@ interface IPatchResponse extends IPatch {
 
 type IPatchControlled = IPatchDoc & IPatchResponse
 
-class PatchControllers extends UtilControllers.withUser {
+class PatchController extends UtilControllers.withUser {
     session: ClientSession | null = null;
+    log: LogSession | undefined
 
-    constructor(session: ClientSession | null, user: IUser | null) {
-        super(user);
+    constructor(session: ClientSession | null, options?: { log?: LogSession, user?: IUser }) {
+        super(options?.user);
         this.session = session;
+        this.log = options?.log;
     }
 
     private parse(patch: Partial<IPatchDoc>) {
@@ -54,13 +57,20 @@ class PatchControllers extends UtilControllers.withUser {
         const pagination = new PaginationControllers(PatchModel);
 
         pagination.useFilter(pageFilter);
+        pagination.setVerifiedOnly(false);
 
         const res = await pagination.getResults();
 
+        console.log("results", res)
         return res;
     }
 
-    async create(data: IPatchOptionnal) {
+    async fitlerPatchFrom(targetPath: ITargetPath, target: string, status?: IPatchStatus) {
+        const res = await PatchModel.find({ targetPath, target, status }).cache("60m");
+        return res;
+    }
+
+    async create(data: Partial<IPatch>) {
         const res = new PatchModel(data);
         await res.save({ session: this.session });
         return this.warpper(res);
@@ -77,4 +87,4 @@ class PatchControllers extends UtilControllers.withUser {
     }
 }
 
-export { PatchControllers };
+export { PatchController };
