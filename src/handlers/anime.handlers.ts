@@ -17,6 +17,21 @@ const filterAnime = async (req: FastifyRequest<{ Body: z.infer<typeof AnimePagin
     return new APIResponse({ success: true, data: animes });
 }
 
+const createAnime = async (req: FastifyRequest<{ Body: IAnimeCreateBody }>) => {
+    const user = req.me!;
+
+    const description = req.body.description;
+    const input: ICreate_Anime_ZOD = req.body.data;
+
+    // Médias attachées
+    const controller = new AnimeController(req.mongooseSession, { log: req.logSession, user });
+    // const anime = await controller.build(input, { refId, description });
+
+    const res = await controller.create(input, { description });
+
+    return new APIResponse({ success: true, data: res });
+}
+
 const createAnime = async (req: FastifyRequest<{ Body: z.infer<typeof AnimeCreateBody> }>) => {
     const user = req.me!;
 
