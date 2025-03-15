@@ -15,7 +15,7 @@ import { ZodError } from "zod";
 import fastifyJwt from '@fastify/jwt';
 import jwksRsa from 'jwks-rsa';
 import fastifyCors from "@fastify/cors";
-import RequestRoutes from "./routes/request.routes";
+import PatchRoutes from "./routes/patch.routes";
 import { swaggerOptions, SwaggerUiOptions } from "./_utils/_swagger";
 import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUi from "@fastify/swagger-ui";
@@ -23,6 +23,7 @@ import { IUser, IUserRoles, userPermissionIsHigherThan } from "@actunime/types";
 import { UserController } from "./controllers/user.controller";
 import { removeSessionHandler } from "./_utils";
 import LogSession, { EndLogSession } from "./_utils/_logSession";
+import { CheckRealmRoles, IRealmRole } from "./_utils/_realmRoles";
 
 declare module 'fastify' {
     interface FastifyRequest {
@@ -32,7 +33,8 @@ declare module 'fastify' {
         account?: {
             id: string,
             email: string,
-            username: string
+            username: string,
+            roles: IRealmRole[],
         }
     }
 
@@ -45,6 +47,7 @@ declare module 'fastify' {
             request: FastifyRequest,
             reply: FastifyReply
         ) => Promise<void>;
+        keycloakRoles: (roles: IRealmRole[], strict?: boolean) => (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
     }
 }
 
@@ -128,7 +131,7 @@ class Server {
         await this.app.register(AuthRoutes, { prefix: "/auth" });
         await this.app.register(UserRoutes, { prefix: "/v1/users", });
         await this.app.register(AnimeRoutes, { prefix: "/v1/animes" })
-        await this.app.register(RequestRoutes, { prefix: "/v1/requests" });
+        await this.app.register(PatchRoutes, { prefix: "/v1/patchs" });
         this.app.log.debug(this.app.printRoutes());
         console.debug("Routes chargé !");
 
@@ -183,7 +186,10 @@ class Server {
                     return {
                         id: payload.sub,
                         email: payload.email,
-                        username: payload.preferred_username
+                        username: payload.preferred_username,
+                        roles: payload.roles,
+                        discordID: payload.discordID,
+                        groups: payload.groups
                     }
                 }
             });
@@ -195,6 +201,9 @@ class Server {
             if (req.account) {
                 const getUser = await new UserController().getByAccountId(req.account.id);
                 req.me = getUser;
+                // Fussionner les roles
+                if (req.me)
+                    req.me.roles = req.me.roles.concat(req.account.roles as any);
             }
         }
 
@@ -221,6 +230,15 @@ class Server {
                         else
                             if (!roles.some(role => req.me?.roles.includes(role)))
                                 throw new APIError("Vous n'avez pas les permissions pour effectuer cette action", "UNAUTHORIZED");
+                });
+
+        this.app.decorate('keycloakRoles',
+            (roles, strict) =>
+                async function (req, res) {
+                    await checkJWT(req);
+                    await setUser(req);
+                    if (!CheckRealmRoles(roles, req.account?.roles || [], strict))
+                        throw new APIError("Vous n'avez pas les permissions pour effectuer cette action", "UNAUTHORIZED");
                 });
     }
 
