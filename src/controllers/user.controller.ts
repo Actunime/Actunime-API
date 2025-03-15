@@ -1,7 +1,6 @@
 import { UserModel } from "@actunime/mongoose-models";
-import { ClientSession, Document, ObjectId, Schema } from "mongoose";
-import { APIError } from "../_lib/Error";
-import { IUser } from "@actunime/types";
+import { ClientSession, Document } from "mongoose";
+import { ITargetPath, IUser } from "@actunime/types";
 import { UtilControllers } from "../_utils/_controllers";
 import LogSession from "../_utils/_logSession";
 import { IUserMutationBody } from "@actunime/validations";
@@ -18,6 +17,7 @@ type IUserControlled = IUserDoc & IUserResponse
 class UserController extends UtilControllers.withUser {
     private session: (ClientSession | null) = null;
     private log?: LogSession;
+    private targetPath: ITargetPath = "User";
 
     constructor(session: ClientSession | null = null, options?: { logSession?: LogSession, user?: IUser }) {
         super(options?.user);
@@ -76,21 +76,17 @@ class UserController extends UtilControllers.withUser {
         if (avatar || banner) {
             const imageController = new ImageController(this.session, { log: this.log, user });
 
-            if (avatar)
-                user.avatar = await imageController.create_relation(avatar, {
-                    refId,
-                    description,
-                    type: "UPDATE",
-                    targetPath: "User"
-                });
+            if (avatar && (avatar.id || avatar.newImage)) {
+                const getImage = avatar.id ? await imageController.getById(avatar.id) :
+                    await imageController.create_request(avatar.newImage!, { refId, target: { id: user.id }, targetPath: this.targetPath })
+                user.avatar = { id: getImage.id };
+            }
 
-            if (banner)
-                user.banner = await imageController.create_relation(banner, {
-                    refId,
-                    description,
-                    type: "UPDATE",
-                    targetPath: "User"
-                });
+            if (banner && (banner.id || banner.newImage)) {
+                const getImage = banner.id ? await imageController.getById(banner.id) :
+                    await imageController.create_request(banner.newImage!, { refId, target: { id: user.id }, targetPath: this.targetPath })
+                user.banner = { id: getImage.id };
+            }
         }
 
         user.set(userData);
