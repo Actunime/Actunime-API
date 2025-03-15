@@ -46,8 +46,21 @@ const updateAnime = async (req: FastifyRequest<{ Body: IAnimeCreateBody, Params:
     return new APIResponse({ success: true, data: res });
 }
 
+const deleteAnime = async (req: FastifyRequest<{ Body: IMediaDeleteBody, Params: { id: string } }>) => {
+    const user = req.me!;
+
+    // Médias attachées
+    const controller = new AnimeController(req.mongooseSession, { log: req.logSession, user });
+
+    const res = await controller.delete(req.params.id, req.body);
+
+    return new APIResponse({ success: res });
+}
+
 export const AnimeHandlers = {
     getAnimeById,
     filterAnime,
-    createAnime
+    createAnime,
+    updateAnime,
+    deleteAnime
 };
