@@ -1,10 +1,11 @@
 import { FastifyInstance } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { Utilchema } from "../schema/util.schema";
-import { Anime_Pagination_ZOD, AnimeCreateBody } from "@actunime/validations";
+import { AnimeCreateBody, AnimePaginationBody } from "@actunime/validations";
 import { AnimeHandlers } from "../handlers/anime.handlers";
 import { addSessionHandler } from "../_utils";
 import { AddLogSession } from "../_utils/_logSession";
+import { APIError } from "../_lib/Error";
 
 function AnimeRoutes(fastify: FastifyInstance) {
     const app = fastify.withTypeProvider<ZodTypeProvider>();
@@ -20,10 +21,9 @@ function AnimeRoutes(fastify: FastifyInstance) {
             tags,
             response: {
                 200: Utilchema.ResponseBody(),
-                401: Utilchema.UnauthorizedResponseBody()
             }
         },
-        handler: () => { }
+        handler: AnimeHandlers.getAnimeById
     });
 
     app.route({
@@ -37,7 +37,9 @@ function AnimeRoutes(fastify: FastifyInstance) {
                 401: Utilchema.UnauthorizedResponseBody()
             }
         },
-        handler: () => { }
+        handler: () => {
+            throw new APIError("Cette route n'est pas encore disponible", "NOT_FOUND");
+        }
     });
 
     /** POST */
@@ -48,7 +50,7 @@ function AnimeRoutes(fastify: FastifyInstance) {
         schema: {
             description: "Filtrer les animes",
             tags,
-            body: Anime_Pagination_ZOD.partial(),
+            body: AnimePaginationBody.partial(),
             response: {
                 200: Utilchema.ResponseBody(),
                 401: Utilchema.UnauthorizedResponseBody()
@@ -68,7 +70,7 @@ function AnimeRoutes(fastify: FastifyInstance) {
                 200: Utilchema.ResponseBody()
             }
         },
-        preHandler: [fastify.authenticateRoles(["ANIME_MODERATOR"]), addSessionHandler, AddLogSession],
+        preHandler: [fastify.authenticateRoles(["ANIME_MODERATOR"]), fastify.keycloakRoles(["ANIME_ADD"]), addSessionHandler, AddLogSession],
         handler: AnimeHandlers.createAnime
     });
 
@@ -83,8 +85,8 @@ function AnimeRoutes(fastify: FastifyInstance) {
                 401: Utilchema.UnauthorizedResponseBody()
             }
         },
-        preHandler: () => { },
-        handler: () => { }
+        preHandler: [fastify.keycloakRoles(["ANIME_PATCH"]), addSessionHandler, AddLogSession],
+        handler: AnimeHandlers.updateAnime
     });
 
     app.route({
@@ -95,11 +97,10 @@ function AnimeRoutes(fastify: FastifyInstance) {
             tags,
             response: {
                 200: Utilchema.ResponseBody(),
-                401: Utilchema.UnauthorizedResponseBody()
             }
         },
-        preHandler: () => { },
-        handler: () => { }
+        preHandler: [fastify.keycloakRoles(["ANIME_DELETE"]), addSessionHandler, AddLogSession],
+        handler: AnimeHandlers.deleteAnime
     });
 
     app.route({
@@ -113,7 +114,7 @@ function AnimeRoutes(fastify: FastifyInstance) {
                 401: Utilchema.UnauthorizedResponseBody()
             }
         },
-        preHandler: () => { },
+        preHandler: [fastify.keycloakRoles(["ANIME_VERIFY"]), addSessionHandler, AddLogSession],
         handler: () => { }
     });
 
@@ -128,7 +129,7 @@ function AnimeRoutes(fastify: FastifyInstance) {
                 401: Utilchema.UnauthorizedResponseBody()
             }
         },
-        preHandler: () => { },
+        preHandler: [fastify.keycloakRoles(["ANIME_VERIFY"]), addSessionHandler, AddLogSession],
         handler: () => { }
     });
 
@@ -159,7 +160,7 @@ function AnimeRoutes(fastify: FastifyInstance) {
                 401: Utilchema.UnauthorizedResponseBody()
             }
         },
-        preHandler: () => { },
+        preHandler: [fastify.keycloakRoles(["ANIME_REQUEST_PATCH"]), addSessionHandler, AddLogSession],
         handler: () => { }
     });
 
@@ -174,7 +175,7 @@ function AnimeRoutes(fastify: FastifyInstance) {
                 401: Utilchema.UnauthorizedResponseBody()
             }
         },
-        preHandler: () => { },
+        preHandler: [fastify.keycloakRoles(["ANIME_REQUEST_VERIFY"]), addSessionHandler, AddLogSession],
         handler: () => { }
     });
 
@@ -189,7 +190,7 @@ function AnimeRoutes(fastify: FastifyInstance) {
                 401: Utilchema.UnauthorizedResponseBody()
             }
         },
-        preHandler: () => { },
+        preHandler: [fastify.keycloakRoles(["ANIME_REQUEST_VERIFY"]), addSessionHandler, AddLogSession],
         handler: () => { }
     });
 
@@ -204,7 +205,7 @@ function AnimeRoutes(fastify: FastifyInstance) {
                 401: Utilchema.UnauthorizedResponseBody()
             }
         },
-        preHandler: () => { },
+        preHandler: [fastify.keycloakRoles(["ANIME_DELETE", "ANIME_REQUEST_DELETE"], false), addSessionHandler, AddLogSession],
         handler: () => { }
     });
 }

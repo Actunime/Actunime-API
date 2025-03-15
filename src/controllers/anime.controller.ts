@@ -1,12 +1,12 @@
 import { AnimeModel } from "@actunime/mongoose-models";
 import { ClientSession, Document, Schema } from "mongoose";
 import { APIError } from "../_lib/Error";
-import { IAnime, IPatchType, IUser, PatchTypeObj } from "@actunime/types";
+import { IAnime, ITargetPath, IUser } from "@actunime/types";
 import { PaginationControllers } from "./pagination.controllers";
 import { z } from "zod";
-import { AnimePaginationBody, IAdd_Anime_ZOD, ICreate_Anime_ZOD } from "@actunime/validations";
+import { AnimePaginationBody, ICreate_Anime_ZOD, IMediaDeleteBody } from "@actunime/validations";
 import { UtilControllers } from "../_utils/_controllers";
-import { PatchControllers } from "./patch";
+import { PatchController } from "./patch.controllers";
 import DeepDiff from 'deep-diff';
 import { GroupeController } from "./groupe.controller";
 import { ImageController } from "./image.controller";
@@ -15,9 +15,8 @@ import { CompanyController } from "./company.controller";
 import { PersonController } from "./person.controler";
 import { CharacterController } from "./character.controller";
 import { TrackController } from "./track.controller";
-import { MessageBuilder } from "discord-webhook-node";
-import { APIDiscordWebhook } from "../_utils";
 import LogSession from "../_utils/_logSession";
+import { genPublicID } from "@actunime/utils";
 
 type IAnimeDoc = (Document<unknown, unknown, IAnime> & IAnime & Required<{
     _id: Schema.Types.ObjectId;
@@ -27,26 +26,26 @@ type IAnimeDoc = (Document<unknown, unknown, IAnime> & IAnime & Required<{
 
 interface IAnimeResponse extends IAnime {
     parsedAnime: () => Partial<IAnime> | null
+    hasPendingPatch: () => Promise<boolean>
 }
 
 type IAnimeControlled = IAnimeDoc & IAnimeResponse
 
-interface AnimePatchParams {
-    mediaId?: string;
-    pathId?: string,
-    // refId: string,
+interface AnimeParams {
     description?: string,
-    type: IPatchType
 }
 
 class AnimeController extends UtilControllers.withUser {
     private session: ClientSession | null = null;
     private log?: LogSession;
+    private patchController: PatchController;
+    private targetPath: ITargetPath = "Anime";
 
     constructor(session: ClientSession | null, options?: { log?: LogSession, user?: IUser }) {
         super(options?.user);
         this.session = session;
         this.log = options?.log;
+        this.patchController = new PatchController(this.session, { log: this.log, user: options?.user });
     }
 
     parse(Anime: Partial<IAnime>) {
@@ -61,6 +60,7 @@ class AnimeController extends UtilControllers.withUser {
 
         const res = data as IAnimeControlled;
         res.parsedAnime = this.parse.bind(this, data)
+        res.hasPendingPatch = this.hasPendingPatch.bind(this, data.id);
 
         return res;
     }
@@ -70,7 +70,7 @@ class AnimeController extends UtilControllers.withUser {
         return this.warpper(res);
     }
 
-    async filter(pageFilter: z.infer<typeof AnimePaginationBody>) {
+    async filter(pageFilter?: z.infer<typeof AnimePaginationBody>) {
         const pagination = new PaginationControllers(AnimeModel);
 
         pagination.useFilter(pageFilter);
@@ -80,162 +80,307 @@ class AnimeController extends UtilControllers.withUser {
         return res;
     }
 
-    async build(input: ICreate_Anime_ZOD, { refId, description }: { refId: string, description?: string }) {
+    async build(input: ICreate_Anime_ZOD, params: { refId: string, isRequest: boolean, animeId?: string }) {
         const { groupe, parent, cover, banner, manga, companys, staffs, characters, tracks, ...rawAnime } = input;
-        const anime: Partial<IAnime> = { ...rawAnime };
+        const anime: Partial<IAnime> & { id: string } = {
+            ...rawAnime,
+            id: params.animeId || genPublicID(8)
+        };
         const user = this.user;
         this.needUser(user);
         const session = this.session;
+        const { refId, isRequest } = params;
 
-        if (groupe)
-            anime.groupe = await new GroupeController(session, { log: this.log, user })
-                .create_relation(groupe, { refId, description, type: "MODERATOR_CREATE" });
+        if (groupe && (groupe.id || groupe.newGroupe)) {
+            const groupeController = new GroupeController(session, { log: this.log, user });
+            const getGroupe = groupe.id ? await groupeController.getById(groupe.id) :
+                isRequest ?
+                    await groupeController.create_request(groupe.newGroupe!, { refId }) :
+                    await groupeController.create(groupe.newGroupe!, { refId })
+            anime.groupe = { id: getGroupe.id };
+        }
 
-        if (parent && parent.id)
-            anime.parent = await this.create_relation(parent);
+        if (parent && parent.id) {
+            const getParent = await this.getById(parent.id);
+            anime.parent = { id: getParent.id };
+        }
 
         if (cover || banner) {
             const imageController = new ImageController(session, { log: this.log, user });
 
-            if (cover)
-                anime.cover = await imageController.create_relation(cover,
-                    { refId, description, type: "MODERATOR_CREATE", targetPath: "Anime" }
-                );
+            if (cover && (cover.id || cover.newImage)) {
+                const getImage = cover.id ? await imageController.getById(cover.id) :
+                    isRequest ?
+                        await imageController.create_request(cover.newImage!, { refId, target: { id: anime.id }, targetPath: this.targetPath }) :
+                        await imageController.create(cover.newImage!, { refId, target: { id: anime.id }, targetPath: this.targetPath })
+                anime.cover = { id: getImage.id };
+            }
 
-            if (banner)
-                anime.banner = await imageController.create_relation(banner,
-                    { refId, description, type: "MODERATOR_CREATE", targetPath: "Anime" }
-                );
+            if (banner && (banner.id || banner.newImage)) {
+                const getImage = banner.id ? await imageController.getById(banner.id) :
+                    isRequest ?
+                        await imageController.create_request(banner.newImage!, { refId, target: { id: anime.id }, targetPath: this.targetPath }) :
+                        await imageController.create(banner.newImage!, { refId, target: { id: anime.id }, targetPath: this.targetPath })
+                anime.banner = { id: getImage.id };
+            }
         }
 
-        if (manga && manga.id)
-            anime.manga = await new MangaController(session, { log: this.log, user }).create_relation(manga);
+        if (manga && manga.id) {
+            const getManga = await new MangaController(session, { log: this.log, user }).getById(manga.id);
+            anime.manga = { id: getManga.id };
+        }
 
         if (companys && companys.length > 0) {
             const companyController = new CompanyController(session, { log: this.log, user });
-            anime.companys = await Promise.all(companys.map((company) => {
-                return companyController.create_relation(company,
-                    { refId, description, type: "MODERATOR_CREATE" }
-                );
-            }));
+            const getActors = await Promise.all(
+                companys.map(async (company) => {
+                    if (company && (company.id || company.newCompany)) {
+                        const getCompany = company.id ? await companyController.getById(company.id) :
+                            isRequest ?
+                                await companyController.create_request(company.newCompany!, { refId }) :
+                                await companyController.create(company.newCompany!, { refId })
+                        return { id: getCompany.id };
+                    }
+                }))
+            anime.companys = getActors.filter((company) => company) as typeof anime.companys;
         }
 
         if (staffs && staffs.length > 0) {
-            const personController = new PersonController(session, { log: this.log, user });
-            anime.staffs = await Promise.all(staffs.map((person) => {
-                return personController.create_relation(person,
-                    { refId, description, type: "MODERATOR_CREATE" }
-                );
-            }));
+            const staffController = new PersonController(session, { log: this.log, user });
+            const getActors = await Promise.all(
+                staffs.map(async (staff) => {
+                    if (staff && (staff.id || staff.newPerson)) {
+                        const getStaff = staff.id ? await staffController.getById(staff.id) :
+                            isRequest ?
+                                await staffController.create_request(staff.newPerson!, { refId }) :
+                                await staffController.create(staff.newPerson!, { refId })
+                        return { id: getStaff.id, role: staff.role };
+                    }
+                }))
+            anime.staffs = getActors.filter((staff) => staff) as typeof anime.staffs;
         }
 
         if (characters && characters.length > 0) {
             const characterController = new CharacterController(session, { log: this.log, user });
-            anime.characters = await Promise.all(characters.map((character) => {
-                return characterController.create_relation(character,
-                    { refId, description, type: "MODERATOR_CREATE" }
-                );
-            }));
+            const getActors = await Promise.all(
+                characters.map(async (character) => {
+                    if (character && (character.id || character.newCharacter)) {
+                        const getCharacter = character.id ? await characterController.getById(character.id) :
+                            isRequest ?
+                                await characterController.create_request(character.newCharacter!, { refId }) :
+                                await characterController.create(character.newCharacter!, { refId })
+                        return { id: getCharacter.id, role: character.role };
+                    }
+                }))
+            anime.characters = getActors.filter((character) => character) as typeof anime.characters;
         }
 
         if (tracks && tracks.length > 0) {
             const trackController = new TrackController(session, { log: this.log, user });
-            anime.tracks = await Promise.all(tracks.map((track) => {
-                return trackController.create_relation(track,
-                    { refId, description, type: "MODERATOR_CREATE" }
-                );
-            }));
+            const getActors = await Promise.all(
+                tracks.map(async (track) => {
+                    if (track && (track.id || track.newTrack)) {
+                        const getTrack = track.id ? await trackController.getById(track.id) :
+                            isRequest ?
+                                await trackController.create_request(track.newTrack!, { refId }) :
+                                await trackController.create(track.newTrack!, { refId })
+                        return { id: getTrack.id };
+                    }
+                }))
+            anime.tracks = getActors.filter((track) => track) as typeof anime.tracks;
         }
 
-        return anime;
+        return new AnimeModel(anime);
     }
 
-    // Création d'un anime
-    private async create(data: Partial<IAnime>) {
+    public async create(data: ICreate_Anime_ZOD, params: AnimeParams) {
         this.needUser(this.user);
-
-        const res = new AnimeModel(data);
-        await res.save({ session: this.session });
-
-        return this.warpper(res);
-    }
-
-    // Création avec patch (public)
-    public async create_patch(data: Partial<IAnime>, params: AnimePatchParams) {
-        this.needUser(this.user);
-        const res = await this.create(data);
-        const patch = new PatchControllers(this.session, this.user);
-        let changes;
-
-        if (params.type.endsWith("UPDATE")) {
-            if (!params.mediaId)
-                throw new APIError("Le mediaId est obligatoire", "BAD_ENTRY");
-
-            changes = DeepDiff.diff(res, data, {
-                prefilter: (path, key) => {
-                    return ["__v", "_id", "id"].includes(key) ? false : true
-                }
-            });
-        }
-
-        const isModerator = params.type.startsWith("MODERATOR") ? true : false;
-
-        if (isModerator)
-            this.needRoles(["ANIME_MODERATOR", "MANGA_MODERATOR"]);
-
-        await patch.create({
-            id: params.pathId,
-            type: params.type,
+        this.needRoles(["ANIME_ADD"], this.user.roles);
+        const refId = genPublicID(8);
+        const res = await this.build(data, {
+            refId,
+            isRequest: false
+        });
+        res.isVerified = true;
+        await this.patchController.create({
+            id: refId,
+            type: "CREATE",
             author: { id: this.user.id },
             target: { id: res.id },
-            targetPath: "Anime",
-            status: isModerator ? "ACCEPTED" : "PENDING",
+            targetPath: this.targetPath,
             original: res.toJSON(),
-            changes,
+            status: "ACCEPTED",
             description: params.description,
-            // ref: params.refId ? { id: params.refId } : undefined, // logique une modif d'anime ne peut pas avoir de ref
-            moderator: isModerator ? { id: this.user.id } : undefined
+            moderator: { id: this.user.id }
         });
 
-        const embed = new MessageBuilder()
-            .setTitle("Mise a jour | Anime")
-            .setDescription(`Une mise a jour sur l'anime ${res.title.default}`)
-            .addField("Type", PatchTypeObj[params.type], true)
-            .addField("Status", isModerator ? "Accepté" : "En attente", true)
+        await res.save({ session: this.session });
 
-        if (params.description)
-            embed.addField("Description", params.description, true)
-
-        if (isModerator)
-            embed.addField("Moderateur", `${this.user.displayName} (${this.user.id})`, true)
-        else embed.addField("Auteur", `${this.user.displayName} (${this.user.id})`, true)
-
-        this.log?.add("Mise a jour | Anime", [
+        this.log?.add("Création d'un anime", [
             { name: "Nom", content: res.title.default },
             { name: "ID", content: res.id },
-            { name: "MajID", content: params.pathId },
+            { name: "MajID", content: refId },
             { name: "Description", content: params.description },
-            { name: "Type", content: PatchTypeObj[params.type] },
-            { name: "Status", content: isModerator ? "Accepté" : "En attente" },
+            { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
         ])
 
-        return res;
-    }
-
-
-    async create_relation(anime: Partial<IAdd_Anime_ZOD>): Promise<IAnime['parent']> {
-        const res = await this.getById(anime.id!);
-        return { id: res.id, parentLabel: anime.parentLabel };
-    }
-
-    private async delete(id: string) {
-        const res = await AnimeModel.findOneAndDelete({ id }, { session: this.session });
         return this.warpper(res);
     }
 
-    private async update(id: string, data: Partial<IAnime>) {
-        const res = await AnimeModel.findOneAndUpdate({ id }, data, { session: this.session });
+    public async update(id: string, data: ICreate_Anime_ZOD, params: AnimeParams) {
+        this.needUser(this.user);
+        this.needRoles(["ANIME_PATCH"], this.user.roles);
+        const media = await this.getById(id);
+        // Mettre un warning coté client pour prévenir au cas ou il y a des mise a jour en attente de validation avant de faire une modif
+        const refId = genPublicID(8);
+        const res = await this.build(data, { refId, isRequest: false, animeId: media.id });
+        res._id = media._id;
+
+        await this.patchController.create({
+            id: refId,
+            type: "UPDATE",
+            author: { id: this.user.id },
+            target: { id: res.id },
+            targetPath: this.targetPath,
+            original: media.toJSON(),
+            changes: DeepDiff.diff(media, res, {
+                prefilter: (_, key) => (["__v", "_id", "id"].includes(key) ? false : true)
+            }),
+            status: "ACCEPTED",
+            description: params.description,
+            moderator: { id: this.user.id }
+        });
+
+        await media.updateOne(res).session(this.session);
+
+        this.log?.add("Modification d'un anime", [
+            { name: "Nom", content: res.title.default },
+            { name: "ID", content: res.id },
+            { name: "MajID", content: refId },
+            { name: "Description", content: params.description },
+            { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
+        ])
+
         return this.warpper(res);
+    }
+
+    public async delete(id: string, params: IMediaDeleteBody) {
+        this.needUser(this.user);
+        this.needRoles(["ANIME_DELETE"], this.user.roles);
+        const media = await this.getById(id);
+        const deleted = await media.deleteOne().session(this.session);
+        const refId = genPublicID(8);
+        if (deleted.deletedCount > 0) {
+            await this.patchController.create({
+                id: refId,
+                type: "DELETE",
+                author: { id: this.user.id },
+                target: { id: media.id },
+                targetPath: this.targetPath,
+                original: media.toJSON(),
+                status: "ACCEPTED",
+                reason: params.reason,
+                moderator: { id: this.user.id }
+            });
+
+            this.log?.add("Suppresion d'un anime", [
+                { name: "Nom", content: media.title.default },
+                { name: "ID", content: media.id },
+                { name: "Raison", content: params.reason },
+                { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
+            ])
+            return true;
+        }
+        return false;
+    }
+
+    public async verify(id: string) {
+        this.needUser(this.user);
+        this.needRoles(["ANIME_VERIFY"], this.user.roles);
+        const media = await this.getById(id);
+        media.isVerified = true;
+        await media.save({ session: this.session });
+        return this.warpper(media);
+    }
+
+    public async unverify(id: string) {
+        this.needUser(this.user);
+        this.needRoles(["ANIME_VERIFY"], this.user.roles);
+        const media = await this.getById(id);
+        media.isVerified = false;
+        await media.save({ session: this.session });
+        return this.warpper(media);
+    }
+
+    public async create_request(data: ICreate_Anime_ZOD, params: AnimeParams) {
+        this.needUser(this.user);
+        this.needRoles(["ANIME_ADD_REQUEST"], this.user.roles);
+        const refId = genPublicID(8);
+        const res = await this.build(data, { refId, isRequest: true });
+        res.isVerified = false;
+
+        await this.patchController.create({
+            id: refId,
+            type: "CREATE",
+            author: { id: this.user.id },
+            target: { id: res.id },
+            targetPath: this.targetPath,
+            original: res.toJSON(),
+            status: "PENDING",
+            description: params.description
+        });
+
+        await res.save({ session: this.session });
+
+        this.log?.add("Demande de création d'un anime", [
+            { name: "Nom", content: res.title.default },
+            { name: "ID", content: res.id },
+            { name: "MajID", content: refId },
+            { name: "Description", content: params.description },
+            { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
+        ])
+
+        return this.warpper(res);
+    }
+
+    public async update_request(id: string, data: ICreate_Anime_ZOD, params: AnimeParams) {
+        this.needUser(this.user);
+        this.needRoles(["ANIME_PATCH_REQUEST"], this.user.roles);
+        const media = await this.getById(id);
+        // Mettre un warning coté client pour prévenir au cas ou il y a des mise a jour en attente de validation avant de faire une modif
+        const refId = genPublicID(8);
+        const res = await this.build(data, { refId, isRequest: true, animeId: media.id });
+        res._id = media._id;
+
+        await this.patchController.create({
+            id: refId,
+            type: "UPDATE",
+            author: { id: this.user.id },
+            target: { id: res.id },
+            targetPath: this.targetPath,
+            original: media.toJSON(),
+            changes: DeepDiff.diff(media, res, {
+                prefilter: (_, key) => (["__v", "_id", "id"].includes(key) ? false : true)
+            }),
+            status: "PENDING",
+            description: params.description
+        });
+
+        this.log?.add("Demande de modification d'un anime", [
+            { name: "Nom", content: res.title.default },
+            { name: "ID", content: res.id },
+            { name: "MajID", content: refId },
+            { name: "Description", content: params.description },
+            { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
+        ])
+
+        return this.warpper(res);
+    }
+
+    private async hasPendingPatch(id: string) {
+        const res = await this.getById(id);
+        const patchs = await this.patchController.fitlerPatchFrom("Anime", res.id, "PENDING");
+        return patchs.length > 0;
     }
 }
 

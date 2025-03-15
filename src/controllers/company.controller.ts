@@ -1,12 +1,12 @@
 import { CompanyModel } from "@actunime/mongoose-models";
 import { ClientSession, Document, Schema } from "mongoose";
 import { APIError } from "../_lib/Error";
-import { ICompany, IPatchType, IUser, PatchTypeObj } from "@actunime/types";
+import { ICompany, ITargetPath, IUser } from "@actunime/types";
 import { PaginationControllers } from "./pagination.controllers";
 import { z } from "zod";
-import { CompanyPaginationBody, IAdd_Company_ZOD, ICreate_Company_ZOD } from "@actunime/validations";
+import { CompanyPaginationBody, ICreate_Company_ZOD, IMediaDeleteBody } from "@actunime/validations";
 import { UtilControllers } from "../_utils/_controllers";
-import { PatchControllers } from "./patch";
+import { PatchController } from "./patch.controllers";
 import DeepDiff from 'deep-diff';
 import { genPublicID } from "@actunime/utils";
 import { ImageController } from "./image.controller";
@@ -24,22 +24,22 @@ interface ICompanyResponse extends ICompany {
 
 type ICompanyControlled = ICompanyDoc & ICompanyResponse
 
-interface CompanyPatchParams {
-    mediaId?: string;
+interface CompanyParams {
     refId: string,
-    pathId?: string,
     description?: string,
-    type: IPatchType
 }
 
 class CompanyController extends UtilControllers.withUser {
     private session: ClientSession | null = null;
     private log?: LogSession;
+    private patchController: PatchController;
+    private targetPath: ITargetPath = "Company";
 
     constructor(session: ClientSession | null, options?: { log?: LogSession, user?: IUser }) {
         super(options?.user);
         this.session = session;
         this.log = options?.log;
+        this.patchController = new PatchController(this.session, { log: this.log, user: options?.user });
     }
 
 
@@ -73,104 +73,211 @@ class CompanyController extends UtilControllers.withUser {
 
         return res;
     }
+    async build(input: ICreate_Company_ZOD, params: { refId: string, isRequest: boolean, companyId?: string }) {
+        const { logo, ...rawCompany } = input;
+        const company: Partial<ICompany> & { id: string } = {
+            ...rawCompany,
+            id: params.companyId || genPublicID(8)
+        };
+        const user = this.user;
+        this.needUser(user);
+        const session = this.session;
+        const { refId, isRequest } = params;
 
-    // Création d'un company
-    private async create(data: Partial<ICompany>) {
+        if (logo && (logo.id || logo.newImage)) {
+            const imageController = new ImageController(session, { log: this.log, user });
+            const getImage = logo.id ? await imageController.getById(logo.id) :
+                isRequest ?
+                    await imageController.create_request(logo.newImage!, { refId, target: { id: company.id }, targetPath: "Company" }) :
+                    await imageController.create(logo.newImage!, { refId, target: { id: company.id }, targetPath: "Company" })
+            company.logo = { id: getImage.id };
+        }
+
+        return new CompanyModel(company);
+    }
+
+    public async create(data: ICreate_Company_ZOD, params: CompanyParams) {
         this.needUser(this.user);
+        this.needRoles(["COMPANY_ADD"], this.user.roles, false);
+        const patchID = genPublicID(8);
+        const res = await this.build(data, { refId: patchID, isRequest: false });
+        res.isVerified = true;
 
-        const res = new CompanyModel(data);
+        await this.patchController.create({
+            id: patchID,
+            ...params.refId && { ref: { id: params.refId } },
+            type: "CREATE",
+            author: { id: this.user.id },
+            target: { id: res.id },
+            targetPath: this.targetPath,
+            original: res.toJSON(),
+            status: "ACCEPTED",
+            description: params.description,
+            moderator: { id: this.user.id }
+        });
+
         await res.save({ session: this.session });
+
+        this.log?.add("Création d'une société (studio, production, etc)", [
+            { name: "Nom", content: res.name },
+            { name: "ID", content: res.id },
+            { name: "MajID", content: patchID },
+            { name: "Description", content: params.description },
+            { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
+        ])
+
         return this.warpper(res);
     }
 
-    // Création avec patch (public)
-    public async create_patch(data: Partial<ICompany>, params: CompanyPatchParams) {
+
+    public async update(id: string, data: ICreate_Company_ZOD, params: Omit<CompanyParams, "refId">) {
         this.needUser(this.user);
-        const res = await this.create(data);
-        const patch = new PatchControllers(this.session, this.user);
-        let changes;
+        this.needRoles(["COMPANY_PATCH"], this.user.roles, false);
+        const media = await this.getById(id);
+        // Mettre un warning coté client pour prévenir au cas ou il y a des mise a jour en attente de validation avant de faire une modif
+        const refId = genPublicID(8);
+        const res = await this.build(data, { refId, isRequest: false, companyId: media.id });
+        res._id = media._id;
 
-        if (params.type.endsWith("UPDATE")) {
-            if (!params.mediaId)
-                throw new APIError("Le mediaId est obligatoire", "BAD_ENTRY");
+        await this.patchController.create({
+            id: refId,
+            type: "UPDATE",
+            author: { id: this.user.id },
+            target: { id: res.id },
+            targetPath: this.targetPath,
+            original: media.toJSON(),
+            changes: DeepDiff.diff(media, res, {
+                prefilter: (_, key) => (["__v", "_id", "id"].includes(key) ? false : true)
+            }),
+            status: "ACCEPTED",
+            description: params.description,
+            moderator: { id: this.user.id }
+        });
 
-            changes = DeepDiff.diff(res, data, {
-                prefilter: (path, key) => {
-                    return ["__v", "_id", "id"].includes(key) ? false : true
-                }
+        await media.updateOne(res).session(this.session);
+
+        this.log?.add("Modification d'une société (studio, production, etc)", [
+            { name: "Nom", content: res.name },
+            { name: "ID", content: res.id },
+            { name: "MajID", content: refId },
+            { name: "Description", content: params.description },
+            { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
+        ])
+
+        return this.warpper(res);
+    }
+
+    public async delete(id: string, params: IMediaDeleteBody) {
+        this.needUser(this.user);
+        this.needRoles(["COMPANY_DELETE"], this.user.roles);
+        const media = await this.getById(id);
+        const deleted = await media.deleteOne().session(this.session);
+        const refId = genPublicID(8);
+        if (deleted.deletedCount > 0) {
+            await this.patchController.create({
+                id: refId,
+                type: "DELETE",
+                author: { id: this.user.id },
+                target: { id: media.id },
+                targetPath: this.targetPath,
+                original: media.toJSON(),
+                status: "ACCEPTED",
+                reason: params.reason,
+                moderator: { id: this.user.id }
             });
+
+            this.log?.add("Suppresion d'une société (studio, production, etc)", [
+                { name: "Nom", content: media.name },
+                { name: "ID", content: media.id },
+                { name: "Raison", content: params.reason },
+                { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
+            ])
+            return true;
         }
+        return false;
+    }
 
-        const isModerator = params.type.startsWith("MODERATOR") ? true : false;
+    public async verify(id: string) {
+        this.needUser(this.user);
+        this.needRoles(["COMPANY_VERIFY"], this.user.roles);
+        const media = await this.getById(id);
+        media.isVerified = true;
+        await media.save({ session: this.session });
+        return this.warpper(media);
+    }
 
-        if (isModerator)
-            this.needRoles(["ANIME_MODERATOR", "MANGA_MODERATOR"]);
+    public async unverify(id: string) {
+        this.needUser(this.user);
+        this.needRoles(["COMPANY_VERIFY"], this.user.roles);
+        const media = await this.getById(id);
+        media.isVerified = false;
+        await media.save({ session: this.session });
+        return this.warpper(media);
+    }
 
-        await patch.create({
-            id: params.pathId ? params.pathId : undefined,
-            type: params.type,
+    public async create_request(data: ICreate_Company_ZOD, params: CompanyParams) {
+        this.needUser(this.user);
+        this.needRoles(["COMPANY_ADD_REQUEST"], this.user.roles);
+        const refId = genPublicID(8);
+        const res = await this.build(data, { refId, isRequest: true });
+        res.isVerified = false;
+
+        await this.patchController.create({
+            id: refId,
+            type: "CREATE",
             author: { id: this.user.id },
             target: { id: res.id },
             targetPath: "Company",
-            status: isModerator ? "ACCEPTED" : "PENDING",
             original: res.toJSON(),
-            changes,
-            description: params.description,
-            ref: params.refId ? { id: params.refId } : undefined,
-            moderator: isModerator ? { id: this.user.id } : undefined
+            status: "PENDING",
+            description: params.description
         });
 
-        this.log?.add("Mise a jour | Société", [
+        await res.save({ session: this.session });
+
+        this.log?.add("Demande de création d'une société (studio, production, etc)", [
+            { name: "Nom", content: res.name },
             { name: "ID", content: res.id },
-            { name: "Nom", content: data.name },
-            { name: "MajID", content: params.pathId },
-            { name: "RefID", content: params.refId },
+            { name: "MajID", content: refId },
             { name: "Description", content: params.description },
-            { name: "Type", content: PatchTypeObj[params.type] },
-            { name: "Status", content: isModerator ? "Accepté" : "En attente" },
+            { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
         ])
 
-        return res;
-    }
-
-    async parseZOD(input: Partial<ICreate_Company_ZOD>, params: CompanyPatchParams) {
-        this.needUser(this.user);
-        // Médias attachées
-        const { logo, ...rawInput } = input;
-        const company: Partial<ICompany> = { ...rawInput };
-
-        if (logo)
-            company.logo = await new ImageController(this.session, { log: this.log, user: this.user })
-                .create_relation(logo, { ...params, targetPath: "Company" });
-
-        return company;
-    }
-
-
-    async create_relation(company: IAdd_Company_ZOD, params: CompanyPatchParams) {
-        if (!company.id && !company.newCompany)
-            throw new APIError("Le company est obligatoire", "BAD_ENTRY");
-        if (company.id && company.newCompany)
-            throw new APIError("Faites un choix... vous ne pouvez pas assigner un nouveau company et un existant", "BAD_ENTRY");
-
-        if (company.newCompany) {
-            const refId = genPublicID(8); // Création d'une référence pour les medias attachées
-            const newCompany = await this.parseZOD(company.newCompany, { ...params, refId });
-            const res = await this.create_patch(newCompany, { ...params, pathId: refId }); // forcé le patch a prendre la ref comme id, comme ça les médias attachées seront bien lié;
-            return { id: res.id };
-        }
-
-        const res = await this.getById(company.id!);
-        return { id: res.id };
-    }
-
-    private async delete(id: string) {
-        const res = await CompanyModel.findOneAndDelete({ id }, { session: this.session });
         return this.warpper(res);
     }
 
-    private async update(id: string, data: Partial<ICompany>) {
-        const res = await CompanyModel.findOneAndUpdate({ id }, data, { session: this.session });
+    public async update_request(id: string, data: ICreate_Company_ZOD, params: CompanyParams) {
+        this.needUser(this.user);
+        this.needRoles(["COMPANY_PATCH_REQUEST"], this.user.roles);
+        const media = await this.getById(id);
+        // Mettre un warning coté client pour prévenir au cas ou il y a des mise a jour en attente de validation avant de faire une modif
+        const refId = genPublicID(8);
+        const res = await this.build(data, { refId, isRequest: true, companyId: media.id });
+        res._id = media._id;
+
+        await this.patchController.create({
+            id: refId,
+            type: "UPDATE",
+            author: { id: this.user.id },
+            target: { id: res.id },
+            targetPath: "Company",
+            original: media.toJSON(),
+            changes: DeepDiff.diff(media, res, {
+                prefilter: (_, key) => (["__v", "_id", "id"].includes(key) ? false : true)
+            }),
+            status: "PENDING",
+            description: params.description
+        });
+
+
+        this.log?.add("Demande de modification d'une société (studio, production, etc)", [
+            { name: "Nom", content: res.name },
+            { name: "ID", content: res.id },
+            { name: "MajID", content: refId },
+            { name: "Description", content: params.description },
+            { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
+        ])
+
         return this.warpper(res);
     }
 }

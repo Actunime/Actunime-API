@@ -1,17 +1,15 @@
 import { ImageModel } from "@actunime/mongoose-models";
 import { ClientSession, Document, Schema } from "mongoose";
 import { APIError } from "../_lib/Error";
-import { IAdd_Image_ZOD, ICreate_Image_ZOD, ImagePaginationBody } from "@actunime/validations";
+import { IAdd_Image_ZOD, ICreate_Image_ZOD, ImagePaginationBody, IMediaDeleteBody } from "@actunime/validations";
 import { CreateImageCDN, DeleteImageCDN, IImage, IPatchType, ITargetPath, IUser, PatchTypeObj } from "@actunime/types";
 import { UtilControllers } from "../_utils/_controllers";
 import { z } from "zod";
 import { PaginationControllers } from "./pagination.controllers";
-import { PatchControllers } from "./patch";
+import { PatchController } from "./patch.controllers";
 import DeepDiff from 'deep-diff';
 import { genPublicID } from "@actunime/utils";
 import { Checker } from "../_utils/_checker";
-import { MessageBuilder } from "discord-webhook-node";
-import { APIDiscordWebhook } from "../_utils";
 import LogSession from "../_utils/_logSession";
 
 type IImageDoc = (Document<unknown, unknown, IImage> & IImage & Required<{
@@ -26,26 +24,38 @@ interface IImageResponse extends IImage {
 
 type IImageControlled = IImageDoc & IImageResponse
 
-interface ImagePatchParams {
-    useMediaId?: string
-    mediaId?: string;
-    refId: string,
-    pathId?: string,
-    description?: string,
-    type: IPatchType,
+interface ImageParams {
+    refId?: string,
+    description?: string
+    target: { id: string }
     targetPath: ITargetPath
 }
 
+interface ImageFile {
+    id: string;
+    path: ITargetPath;
+    value: string;
+    valueIsUrl: boolean;
+    IMAGE_LOCAL_HOST?: string;
+    IMAGE_PORT?: string;
+}
 
 class ImageController extends UtilControllers.withUser {
-    static savedImages: Partial<IImage>[] = [];
+    static saveImages: {
+        data: ImageFile,
+        session_id: ClientSession["id"]
+    }[] = [];
+    static deleteImages: { id: string, path: ITargetPath, session_id: ClientSession["id"] }[] = [];
     private session: ClientSession | null = null
     private log?: LogSession;
+    private patchController: PatchController
+    private targetPath: ITargetPath = "Image";
 
     constructor(session: ClientSession | null, options?: { log?: LogSession, user?: IUser }) {
         super(options?.user);
         this.session = session;
         this.log = options?.log;
+        this.patchController = new PatchController(this.session, { log: this.log, user: options?.user });
     }
 
 
@@ -71,38 +81,6 @@ class ImageController extends UtilControllers.withUser {
         return this.warpper(res);
     }
 
-    async createImage(
-        data: ICreate_Image_ZOD,
-        options: {
-            target: string,
-            targetPath: ITargetPath,
-            valueIsUrl?: boolean
-        }
-    ) {
-        const { value, label } = data;
-        const { target, targetPath, valueIsUrl } = options;
-        const newImage = new ImageModel({ label, target, targetPath });
-
-        await CreateImageCDN({
-            id: newImage.id,
-            path: targetPath,
-            value,
-            valueIsUrl: valueIsUrl || false,
-            IMAGE_LOCAL_HOST: process.env.IMAGE_LOCAL_HOST,
-            IMAGE_PORT: process.env.IMAGE_PORT
-        })
-
-        await newImage.save({ session: this.session });
-
-        return newImage;
-    }
-
-    async deleteImage(id: string, path: ITargetPath) {
-        await DeleteImageCDN({ id, path });
-        await ImageModel.findOneAndDelete({ id })
-            .session(this.session);
-    }
-
     async filter(pageFilter: z.infer<typeof ImagePaginationBody>) {
         const pagination = new PaginationControllers(ImageModel);
 
@@ -113,112 +91,255 @@ class ImageController extends UtilControllers.withUser {
         return res;
     }
 
-    // Création d'un image
-    private async create(data: Partial<IImage>) {
-        // this.needUser(this.user);
+    async build(input: ICreate_Image_ZOD, params: ImageParams) {
+        const { value, ...rawImage } = input;
+        const image: Partial<IImage> = { ...rawImage, target: params.target, targetPath: params.targetPath };
 
-        const res = new ImageModel(data);
+        return new ImageModel(image);
+    }
+
+
+    public async create(data: ICreate_Image_ZOD, params: ImageParams) {
+        this.needUser(this.user);
+        this.needRoles(["IMAGE_ADD"], this.user.roles, false);
+        const patchID = genPublicID(8);
+        const res = await this.build(data, params);
+        res.isVerified = true;
+
+        ImageController.saveImages.push({
+            data: {
+                id: res.id,
+                path: params.targetPath,
+                value: data.value,
+                valueIsUrl: Checker.textHasLink(data.value) || false,
+                IMAGE_LOCAL_HOST: process.env.IMAGE_LOCAL_HOST,
+                IMAGE_PORT: process.env.IMAGE_PORT
+            },
+            session_id: this.session?.id
+        })
+
+        await this.patchController.create({
+            id: patchID,
+            ...params.refId && { ref: { id: params.refId } },
+            type: "CREATE",
+            author: { id: this.user.id },
+            target: { id: res.id },
+            targetPath: this.targetPath,
+            original: res.toJSON(),
+            status: "ACCEPTED",
+            description: params.description,
+            moderator: { id: this.user.id }
+        });
+
         await res.save({ session: this.session });
+
+        this.log?.add("Création d'une image", [
+            { name: "CibleID", content: res.target.id },
+            { name: "CibleType", content: res.targetPath },
+            { name: "Label", content: res.label },
+            { name: "ID", content: res.id },
+            { name: "MajID", content: patchID },
+            { name: "Description", content: params.description },
+            { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
+        ])
 
         return this.warpper(res);
     }
 
-    // Création avec patch (public)
-    public async create_patch(data: Partial<IImage>, params: ImagePatchParams) {
+    public async update(id: string, data: ICreate_Image_ZOD, params: ImageParams) {
         this.needUser(this.user);
-        const res = await this.create(data);
-        const patch = new PatchControllers(this.session, this.user);
-        let changes;
+        this.needRoles(["IMAGE_PATCH"], this.user.roles, false);
+        const media = await this.getById(id);
 
-        if (params.type.endsWith("UPDATE")) {
-            if (!params.mediaId)
-                throw new APIError("Le mediaId est obligatoire", "BAD_ENTRY");
+        ImageController.saveImages.push({
+            data: {
+                id: media.id,
+                path: params.targetPath,
+                value: data.value,
+                valueIsUrl: Checker.textHasLink(data.value) || false,
+                IMAGE_LOCAL_HOST: process.env.IMAGE_LOCAL_HOST,
+                IMAGE_PORT: process.env.IMAGE_PORT
+            },
+            session_id: this.session?.id
+        })
 
-            changes = DeepDiff.diff(res, data, {
-                prefilter: (path, key) => {
-                    return ["__v", "_id", "id"].includes(key) ? false : true
-                }
+        const patchID = genPublicID(8);
+        const res = await this.build(data, params);
+        res.id = media.id;
+        res._id = media._id;
+
+        await this.patchController.create({
+            id: patchID,
+            type: "UPDATE",
+            author: { id: this.user.id },
+            target: { id: res.id },
+            targetPath: this.targetPath,
+            original: media.toJSON(),
+            changes: DeepDiff.diff(media, res, {
+                prefilter: (_, key) => (["__v", "_id", "id"].includes(key) ? false : true)
+            }),
+            status: "ACCEPTED",
+            description: params.description,
+            moderator: { id: this.user.id }
+        });
+
+        await media.updateOne(res).session(this.session);
+
+        this.log?.add("Modification d'une image", [
+            { name: "CibleID", content: res.target.id },
+            { name: "CibleType", content: res.targetPath },
+            { name: "Label", content: res.label },
+            { name: "ID", content: res.id },
+            { name: "MajID", content: patchID },
+            { name: "Description", content: params.description },
+            { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
+        ])
+
+        return this.warpper(res);
+    }
+
+
+    public async delete(id: string, params: IMediaDeleteBody) {
+        this.needUser(this.user);
+        this.needRoles(["IMAGE_DELETE"], this.user.roles);
+        const media = await this.getById(id);
+        const deleted = await media.deleteOne().session(this.session);
+        ImageController.deleteImages.push({ id: media.id, path: this.targetPath, session_id: this.session?.id });
+        const refId = genPublicID(8);
+        if (deleted.deletedCount > 0) {
+            await this.patchController.create({
+                id: refId,
+                type: "DELETE",
+                author: { id: this.user.id },
+                target: { id: media.id },
+                targetPath: this.targetPath,
+                original: media.toJSON(),
+                status: "ACCEPTED",
+                reason: params.reason,
+                moderator: { id: this.user.id }
             });
+
+            this.log?.add("Suppresion d'une image", [
+                { name: "CibleID", content: media.target.id },
+                { name: "CibleType", content: media.targetPath },
+                { name: "Label", content: media.label },
+                { name: "ID", content: media.id },
+                { name: "MajID", content: refId },
+                { name: "Raison", content: params.reason },
+                { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
+            ])
+            return true;
         }
+        return false;
+    }
 
-        const isModerator = params.type.startsWith("MODERATOR") ? true : false;
+    public async verify(id: string) {
+        this.needUser(this.user);
+        this.needRoles(["IMAGE_VERIFY"], this.user.roles);
+        const media = await this.getById(id);
+        media.isVerified = true;
+        await media.save({ session: this.session });
+        return this.warpper(media);
+    }
 
-        if (isModerator)
-            this.needRoles(["ANIME_MODERATOR", "MANGA_MODERATOR"]);
+    public async unverify(id: string) {
+        this.needUser(this.user);
+        this.needRoles(["IMAGE_VERIFY"], this.user.roles);
+        const media = await this.getById(id);
+        media.isVerified = false;
+        await media.save({ session: this.session });
+        return this.warpper(media);
+    }
 
-        await patch.create({
-            id: params.pathId ? params.pathId : undefined,
-            type: params.type,
+    async createImageFile(data: ImageFile) {
+        await CreateImageCDN(data);
+    }
+
+    async deleteImageFile(id: string, path: ITargetPath) {
+        await DeleteImageCDN({ id, path });
+    }
+
+    public async create_request(data: ICreate_Image_ZOD, params: ImageParams) {
+        this.needUser(this.user);
+        this.needRoles(["IMAGE_ADD_REQUEST"], this.user.roles);
+        const patchID = genPublicID(8);
+        const res = await this.build(data, params);
+        res.isVerified = false;
+
+        ImageController.saveImages.push({
+            data: {
+                id: res.id,
+                path: params.targetPath,
+                value: data.value,
+                valueIsUrl: Checker.textHasLink(data.value) || false,
+                IMAGE_LOCAL_HOST: process.env.IMAGE_LOCAL_HOST,
+                IMAGE_PORT: process.env.IMAGE_PORT
+            },
+            session_id: this.session?.id
+        })
+
+        await this.patchController.create({
+            id: patchID,
+            ...params.refId && { ref: { id: params.refId } },
+            type: "CREATE",
             author: { id: this.user.id },
             target: { id: res.id },
             targetPath: "Image",
-            status: isModerator ? "ACCEPTED" : "PENDING",
             original: res.toJSON(),
-            changes,
-            description: params.description,
-            ref: params.refId ? { id: params.refId } : undefined,
-            moderator: isModerator ? { id: this.user.id } : undefined
+            status: "PENDING",
+            description: params.description
         });
 
-        this.log?.add("Mise a jour | Image", [
+        await res.save({ session: this.session });
+
+        this.log?.add("Demande de création d'une image", [
+            { name: "CibleID", content: res.target.id },
+            { name: "CibleType", content: res.targetPath },
+            { name: "Label", content: res.label },
             { name: "ID", content: res.id },
-            { name: "pathID", content: params.pathId },
-            { name: "RefID", content: params.refId },
+            { name: "MajID", content: patchID },
             { name: "Description", content: params.description },
-            { name: "Type", content: PatchTypeObj[params.type] },
-            { name: "Status", content: isModerator ? "Accepté" : "En attente" },
+            { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
         ])
 
-        return res;
+        return this.warpper(res);
     }
 
+    public async update_request(id: string, data: ICreate_Image_ZOD, params: ImageParams) {
+        this.needUser(this.user);
+        this.needRoles(["IMAGE_PATCH_REQUEST"], this.user.roles);
+        const media = await this.getById(id);
+        const patchID = genPublicID(8);
+        const res = await this.build(data, params);
+        res.id = media.id;
+        res._id = media._id;
+        
+        await this.patchController.create({
+            id: patchID,
+            type: "UPDATE",
+            author: { id: this.user.id },
+            target: { id: res.id },
+            targetPath: "Image",
+            original: media.toJSON(),
+            // Sauvegarde de la value dans les modifications
+            changes: DeepDiff.diff(media, { ...res, value: data.value }, {
+                prefilter: (_, key) => (["__v", "_id", "id"].includes(key) ? false : true)
+            }),
+            status: "PENDING",
+            description: params.description
+        });
 
-    async parseZOD(input: Partial<ICreate_Image_ZOD>, params: ImagePatchParams) {
+        this.log?.add("Demande de modification d'une image", [
+            { name: "CibleID", content: res.target.id },
+            { name: "CibleType", content: res.targetPath },
+            { name: "Label", content: res.label },
+            { name: "ID", content: res.id },
+            { name: "MajID", content: patchID },
+            { name: "Description", content: params.description },
+            { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
+        ])
 
-        const { value, ...rawInput } = input;
-        if (!params.useMediaId)
-            throw new APIError("Le useMediaId est obligatoire", "BAD_ENTRY");
-
-        const image: Partial<IImage> = {
-            id: params.useMediaId,
-            target: { id: params.useMediaId },
-            targetPath: params?.targetPath,
-            ...rawInput
-        };
-
-        if (!value)
-            throw new APIError("Le value de l'image est obligatoire", "BAD_ENTRY");
-
-        await CreateImageCDN({
-            id: params.useMediaId,
-            path: params?.targetPath,
-            value,
-            valueIsUrl: Checker.textHasLink(value),
-            IMAGE_LOCAL_HOST: process.env.IMAGE_LOCAL_HOST,
-            IMAGE_PORT: process.env.IMAGE_PORT
-        })
-
-        ImageController.savedImages.push(image);
-
-        return image;
-    }
-
-
-    async create_relation(image: IAdd_Image_ZOD, params: ImagePatchParams) {
-        if (!image.id && !image.newImage)
-            throw new APIError("Le image est obligatoire", "BAD_ENTRY");
-        if (image.id && image.newImage)
-            throw new APIError("Faites un choix... vous ne pouvez pas assigner un nouveau image et un existant", "BAD_ENTRY");
-
-        if (image.newImage) {
-            const imageId = genPublicID(5);
-            const newImage = await this.parseZOD(image.newImage, { ...params, useMediaId: imageId });
-            const res = await this.create_patch(newImage, { ...params, useMediaId: imageId }); // forcé le patch a prendre la ref comme id, comme ça les médias attachées seront bien lié;
-            return { id: res.id };
-        }
-
-        const res = await this.getById(image.id!);
-        return { id: res.id };
+        return this.warpper(res);
     }
 
 }

@@ -31,7 +31,9 @@ class Pagination<T> {
         return this;
     }
 
-    public useFilter({ page, limit, strict, sort, query, onlyVerified }: Partial<z.infer<typeof PaginationBody>>) {
+    public useFilter(filter: Partial<z.infer<typeof PaginationBody>> | undefined) {
+        const { page, limit, strict, sort, query, onlyVerified } = filter || {};
+
         if (page)
             this.setPage(page)
         if (limit)
@@ -153,7 +155,7 @@ class Pagination<T> {
                 parsedObj[key] = { $in: value };
                 continue;
             }
-            objB[key] = this.regexInclude(value);
+            objB[key] = forSort ? value : this.regexInclude(value);
         }
 
         Object.assign(parsedObj, flatten(objB));
@@ -163,6 +165,7 @@ class Pagination<T> {
 
     private parseSort() {
         const parsedObj = this.parseObj(this.sort, true);
+
         for (const value of Object.values(parsedObj)) {
             if (value !== 1 && value !== -1)
                 throw new APIError("sort utilise que des valeurs de 1 ou -1", "BAD_ENTRY");
@@ -208,6 +211,8 @@ class Pagination<T> {
         this.aggregation.push({ $facet: facet });
         this.aggregation.push({ $unwind: "$total" });
         this.aggregation.push({ $project: this.getProject() })
+
+        console.log(this.aggregation[0])
     }
 
     private emptyResponse(): IPaginationResponse<T> {
