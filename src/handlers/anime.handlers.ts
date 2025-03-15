@@ -32,7 +32,7 @@ const createAnime = async (req: FastifyRequest<{ Body: IAnimeCreateBody }>) => {
     return new APIResponse({ success: true, data: res });
 }
 
-const createAnime = async (req: FastifyRequest<{ Body: z.infer<typeof AnimeCreateBody> }>) => {
+const updateAnime = async (req: FastifyRequest<{ Body: IAnimeCreateBody, Params: { id: string } }>) => {
     const user = req.me!;
 
     const description = req.body.description;
@@ -40,10 +40,8 @@ const createAnime = async (req: FastifyRequest<{ Body: z.infer<typeof AnimeCreat
 
     // Médias attachées
     const controller = new AnimeController(req.mongooseSession, { log: req.logSession, user });
-    const refId = genPublicID(8);
-    const anime = await controller.build(input, { refId, description });
 
-    const res = await controller.create_patch(anime, { type: "MODERATOR_CREATE", description, pathId: refId });
+    const res = await controller.update(req.params.id, input, { description });
 
     return new APIResponse({ success: true, data: res });
 }
