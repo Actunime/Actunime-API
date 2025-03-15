@@ -1,26 +1,22 @@
 import { FastifyInstance, FastifyRequest } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { Utilchema } from "../schema/util.schema";
-import { AnimeHandlers } from "../handlers/anime.handlers";
-import { ITargetPath } from "@actunime/types";
+import { PatchHandlers } from "../handlers/patch.handlers";
 
-function RequestRoutes(fastify: FastifyInstance) {
+function PatchRoutes(fastify: FastifyInstance) {
     const app = fastify.withTypeProvider<ZodTypeProvider>();
-    const tags = ["Request"]
+    const tags = ["Patch"]
     app.route({
-        method: "GET",
+        method: "POST",
         url: "/",
         schema: {
             description: "",
             tags,
             response: {
                 200: Utilchema.ResponseBody(),
-                401: Utilchema.UnauthorizedResponseBody()
             }
         },
-        handler: (req: FastifyRequest<{ Params: { mediaId?: string, id?: string } }>) => {
-            console.log(req.params);
-        }
+        handler: PatchHandlers.filterPatch
     });
 
     app.route({
@@ -128,4 +124,4 @@ function RequestRoutes(fastify: FastifyInstance) {
     });
 }
 
-export default RequestRoutes;
+export default PatchRoutes;
