@@ -15,8 +15,6 @@ interface IUserResponse extends IUser {
 type IUserControlled = IUserDoc & IUserResponse
 
 class UserController extends UtilControllers.withUser {
-    private session: (ClientSession | null) = null;
-    private log?: LogSession;
     private targetPath: ITargetPath = "User";
 
     constructor(session: ClientSession | null = null, options?: { logSession?: LogSession, user?: IUser }) {

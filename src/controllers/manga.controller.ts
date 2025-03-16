@@ -35,8 +35,6 @@ interface MangaParams {
 }
 
 class MangaController extends UtilControllers.withUser {
-    private session: ClientSession | null = null;
-    private log?: LogSession;
     private patchController: PatchController;
 
     constructor(session: ClientSession | null, options?: { log?: LogSession, user?: IUser }) {
@@ -79,7 +77,7 @@ class MangaController extends UtilControllers.withUser {
     }
 
     async build(input: ICreate_Manga_ZOD, params: { refId: string, isRequest: boolean, mangaId?: string }) {
-        const { groupe, parent, cover, banner, companys, staffs, characters, tracks, ...rawManga } = input;
+        const { groupe, parent, cover, banner, companys, staffs, characters, ...rawManga } = input;
         const manga: Partial<IManga> & { id: string } = {
             ...rawManga,
             id: params.mangaId || genPublicID(8)
@@ -176,7 +174,7 @@ class MangaController extends UtilControllers.withUser {
 
     public async create(data: ICreate_Manga_ZOD, params: MangaParams) {
         this.needUser(this.user);
-        this.needRoles(["MANGA_ADD"], this.user.roles);
+        this.needRoles(["MANGA_CREATE"], this.user.roles);
         const refId = genPublicID(8);
         const res = await this.build(data, {
             refId,
@@ -295,7 +293,7 @@ class MangaController extends UtilControllers.withUser {
 
     public async create_request(data: ICreate_Manga_ZOD, params: MangaParams) {
         this.needUser(this.user);
-        this.needRoles(["MANGA_ADD_REQUEST"], this.user.roles);
+        this.needRoles(["MANGA_CREATE_REQUEST"], this.user.roles);
         const refId = genPublicID(8);
         const res = await this.build(data, { refId, isRequest: true });
         res.isVerified = false;

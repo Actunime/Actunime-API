@@ -26,8 +26,6 @@ type IGroupeControlled = IGroupeDoc & IGroupeResponse
 interface GroupeParams { refId?: string, description?: string }
 
 class GroupeController extends UtilControllers.withUser {
-    private session: ClientSession | null = null;
-    private log?: LogSession;
     private patchController: PatchController;
     private targetPath: ITargetPath = "Groupe";
 
@@ -77,7 +75,7 @@ class GroupeController extends UtilControllers.withUser {
 
     public async create(data: ICreate_Groupe_ZOD, params: GroupeParams) {
         this.needUser(this.user);
-        this.needRoles(["GROUPE_ADD", "ANIME_ADD", "MANGA_ADD"], this.user.roles, false);
+        this.needRoles(["GROUPE_CREATE", "ANIME_CREATE", "MANGA_CREATE"], this.user.roles, false);
         const patchID = genPublicID(8);
         const res = await this.build(data);
         res.isVerified = true;
@@ -197,7 +195,7 @@ class GroupeController extends UtilControllers.withUser {
 
     public async create_request(data: ICreate_Groupe_ZOD, params: GroupeParams) {
         this.needUser(this.user);
-        this.needRoles(["GROUPE_ADD_REQUEST"], this.user.roles);
+        this.needRoles(["GROUPE_CREATE_REQUEST"], this.user.roles);
         const refId = genPublicID(8);
         const res = await this.build(data);
         res.isVerified = false;

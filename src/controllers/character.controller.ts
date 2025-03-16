@@ -31,8 +31,6 @@ interface CharacterParams {
 }
 
 class CharacterController extends UtilControllers.withUser {
-    private session: ClientSession | null = null;
-    private log?: LogSession;
     private patchController: PatchController;
     private targetPath: ITargetPath = "Character";
 
@@ -114,7 +112,7 @@ class CharacterController extends UtilControllers.withUser {
 
     public async create(data: ICreate_Character_ZOD, params: CharacterParams) {
         this.needUser(this.user);
-        this.needRoles(["CHARACTER_ADD"], this.user.roles, false);
+        this.needRoles(["CHARACTER_CREATE"], this.user.roles, false);
         const patchID = genPublicID(8);
         const res = await this.build(data, { refId: patchID, isRequest: false });
         res.isVerified = true;
@@ -233,7 +231,7 @@ class CharacterController extends UtilControllers.withUser {
 
     public async create_request(data: ICreate_Character_ZOD, params: CharacterParams) {
         this.needUser(this.user);
-        this.needRoles(["CHARACTER_ADD_REQUEST"], this.user.roles);
+        this.needRoles(["CHARACTER_CREATE_REQUEST"], this.user.roles);
         const refId = genPublicID(8);
         const res = await this.build(data, { refId, isRequest: true });
         res.isVerified = false;

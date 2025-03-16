@@ -31,8 +31,6 @@ interface TrackParams {
 }
 
 class TrackController extends UtilControllers.withUser {
-    private session: ClientSession | null = null;
-    private log?: LogSession;
     private patchController: PatchController;
     private targetPath: ITargetPath = "Track";
 
@@ -114,7 +112,7 @@ class TrackController extends UtilControllers.withUser {
 
     public async create(data: ICreate_Track_ZOD, params: TrackParams) {
         this.needUser(this.user);
-        this.needRoles(["TRACK_ADD"], this.user.roles, false);
+        this.needRoles(["TRACK_CREATE"], this.user.roles, false);
         const patchID = genPublicID(8);
         const res = await this.build(data, { refId: patchID, isRequest: false });
         res.isVerified = true;
@@ -233,7 +231,7 @@ class TrackController extends UtilControllers.withUser {
 
     public async create_request(data: ICreate_Track_ZOD, params: TrackParams) {
         this.needUser(this.user);
-        this.needRoles(["TRACK_ADD_REQUEST"], this.user.roles);
+        this.needRoles(["TRACK_CREATE_REQUEST"], this.user.roles);
         const refId = genPublicID(8);
         const res = await this.build(data, { refId, isRequest: true });
         res.isVerified = false;

@@ -46,8 +46,6 @@ class ImageController extends UtilControllers.withUser {
         session_id: ClientSession["id"]
     }[] = [];
     static deleteImages: { id: string, path: ITargetPath, session_id: ClientSession["id"] }[] = [];
-    private session: ClientSession | null = null
-    private log?: LogSession;
     private patchController: PatchController
     private targetPath: ITargetPath = "Image";
 
@@ -101,7 +99,7 @@ class ImageController extends UtilControllers.withUser {
 
     public async create(data: ICreate_Image_ZOD, params: ImageParams) {
         this.needUser(this.user);
-        this.needRoles(["IMAGE_ADD"], this.user.roles, false);
+        this.needRoles(["IMAGE_CREATE"], this.user.roles, false);
         const patchID = genPublicID(8);
         const res = await this.build(data, params);
         res.isVerified = true;
@@ -261,7 +259,7 @@ class ImageController extends UtilControllers.withUser {
 
     public async create_request(data: ICreate_Image_ZOD, params: ImageParams) {
         this.needUser(this.user);
-        this.needRoles(["IMAGE_ADD_REQUEST"], this.user.roles);
+        this.needRoles(["IMAGE_CREATE_REQUEST"], this.user.roles);
         const patchID = genPublicID(8);
         const res = await this.build(data, params);
         res.isVerified = false;

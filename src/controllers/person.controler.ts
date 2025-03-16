@@ -30,8 +30,6 @@ interface PersonParams {
 }
 
 class PersonController extends UtilControllers.withUser {
-    private session: ClientSession | null = null;
-    private log?: LogSession;
     private patchController: PatchController;
     private targetPath: ITargetPath = "Person";
 
@@ -100,7 +98,7 @@ class PersonController extends UtilControllers.withUser {
 
     public async create(data: ICreate_Person_ZOD, params: PersonParams) {
         this.needUser(this.user);
-        this.needRoles(["PERSON_ADD"], this.user.roles, false);
+        this.needRoles(["PERSON_CREATE"], this.user.roles, false);
         const patchID = genPublicID(8);
         const res = await this.build(data, { refId: patchID, isRequest: false });
         res.isVerified = true;
@@ -219,7 +217,7 @@ class PersonController extends UtilControllers.withUser {
 
     public async create_request(data: ICreate_Person_ZOD, params: PersonParams) {
         this.needUser(this.user);
-        this.needRoles(["PERSON_ADD_REQUEST"], this.user.roles);
+        this.needRoles(["PERSON_CREATE_REQUEST"], this.user.roles);
         const refId = genPublicID(8);
         const res = await this.build(data, { refId, isRequest: true });
         res.isVerified = false;
