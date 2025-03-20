@@ -12,7 +12,7 @@ interface IUserResponse extends IUser {
     parsedUser: () => Partial<IUser> | null
 }
 
-type IUserControlled = IUserDoc & IUserResponse
+type IUserControlled = IUserDoc
 
 class UserController extends UtilControllers.withUser {
     private targetPath: ITargetPath = "User";
@@ -34,7 +34,7 @@ class UserController extends UtilControllers.withUser {
             return null;
 
         const res = data as IUserControlled;
-        res.parsedUser = this.parse.bind(this, data)
+        // res.parsedUser = this.parse.bind(this, data)
 
         return res;
     }
