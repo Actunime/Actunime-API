@@ -50,3 +50,14 @@ Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJlZm1ycV
 ###
 
 GET http://localhost:3005/v1/animes/testId/requests/reqIdTest HTTP/1.1
+
+###
+
+POST http://localhost:3005/v1/animes/create HTTP/1.1
+content-type: application/json
+
+{
+   "data": {
+     "test": "dqqzdqzd"
+   }
+}

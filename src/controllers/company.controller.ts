@@ -1,16 +1,17 @@
-import { CompanyModel } from "@actunime/mongoose-models";
 import { ClientSession, Document, Schema } from "mongoose";
 import { APIError } from "../_lib/Error";
 import { ICompany, ITargetPath, IUser } from "@actunime/types";
 import { PaginationControllers } from "./pagination.controllers";
 import { z } from "zod";
-import { CompanyPaginationBody, ICreate_Company_ZOD, IMediaDeleteBody } from "@actunime/validations";
+import { CompanyPaginationBody, ICompanyBody, IMediaDeleteBody } from "@actunime/validations";
 import { UtilControllers } from "../_utils/_controllers";
-import { PatchController } from "./patch.controllers";
 import DeepDiff from 'deep-diff';
+import { DevLog } from "../_lib/logger";
 import { genPublicID } from "@actunime/utils";
 import { ImageController } from "./image.controller";
 import LogSession from "../_utils/_logSession";
+import { PatchController } from "./patch.controllers";
+import { CompanyModel } from "../_lib/models";
 
 type ICompanyDoc = (Document<unknown, unknown, ICompany> & ICompany & Required<{
     _id: Schema.Types.ObjectId;
@@ -33,16 +34,14 @@ class CompanyController extends UtilControllers.withUser {
     private patchController: PatchController;
     private targetPath: ITargetPath = "Company";
 
-    constructor(session: ClientSession | null, options?: { log?: LogSession, user?: IUser }) {
-        super(options?.user);
-        this.session = session;
-        this.log = options?.log;
-        this.patchController = new PatchController(this.session, { log: this.log, user: options?.user });
+    constructor(session?: ClientSession | null, options?: { log?: LogSession, user?: IUser }) {
+        super({ session, ...options });
+        this.patchController = new PatchController(session, options);
     }
 
 
     parse(Company: Partial<ICompany>) {
-        delete Company._id;
+        // delete Company._id;
 
         return Company;
     }
@@ -58,20 +57,26 @@ class CompanyController extends UtilControllers.withUser {
     }
 
     async getById(id: string) {
-        const res = await CompanyModel.findOne({ id }).cache("60m");
+        DevLog(`Récupération de la société ID: ${id}`, "debug");
+        const promise = CompanyModel.findOne({ id });
+        if (this.session) promise.session(this.session); else promise.cache("60m");
+        const res = await promise;
+        DevLog(`Société ${res ? "trouvée" : "non trouvée"}, ID Société: ${id}`, "debug");
         return this.warpper(res);
     }
 
     async filter(pageFilter: z.infer<typeof CompanyPaginationBody>) {
+        DevLog("Filtrage des societes...", "debug");
         const pagination = new PaginationControllers(CompanyModel);
 
         pagination.useFilter(pageFilter);
 
         const res = await pagination.getResults();
 
+        DevLog(`Societes trouvées: ${res.resultsCount}`, "debug");
         return res;
     }
-    async build(input: ICreate_Company_ZOD, params: { refId: string, isRequest: boolean, companyId?: string }) {
+    async build(input: ICompanyBody, params: { refId: string, isRequest: boolean, companyId?: string }) {
         const { logo, ...rawCompany } = input;
         const company: Partial<ICompany> & { id: string } = {
             ...rawCompany,
@@ -82,21 +87,25 @@ class CompanyController extends UtilControllers.withUser {
         const session = this.session;
         const { refId, isRequest } = params;
 
+        DevLog(`Build d'une société...`, "debug");
+
         if (logo && (logo.id || logo.newImage)) {
+            DevLog(`Ajout de l'image a a la societé... ${logo.id ? `ID: ${logo.id}` : `Nouvelle image: ${JSON.stringify(logo.newImage)}`}`, "debug");
             const imageController = new ImageController(session, { log: this.log, user });
             const getImage = logo.id ? await imageController.getById(logo.id) :
                 isRequest ?
                     await imageController.create_request(logo.newImage!, { refId, target: { id: company.id }, targetPath: "Company" }) :
                     await imageController.create(logo.newImage!, { refId, target: { id: company.id }, targetPath: "Company" })
+            DevLog(`Ajout de l'image a la société...`, "debug");
             company.logo = { id: getImage.id };
         }
 
         return new CompanyModel(company);
     }
 
-    public async create(data: ICreate_Company_ZOD, params: CompanyParams) {
+    public async create(data: ICompanyBody, params: CompanyParams) {
+        DevLog(`Création d'une société...`, "debug");
         this.needUser(this.user);
-        this.needRoles(["COMPANY_CREATE"], this.user.roles, false);
         const patchID = genPublicID(8);
         const res = await this.build(data, { refId: patchID, isRequest: false });
         res.isVerified = true;
@@ -124,13 +133,14 @@ class CompanyController extends UtilControllers.withUser {
             { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
         ])
 
+        DevLog(`Société crée, ID Société: ${res.id}`, "debug");
         return this.warpper(res);
     }
 
 
-    public async update(id: string, data: ICreate_Company_ZOD, params: Omit<CompanyParams, "refId">) {
+    public async update(id: string, data: ICompanyBody, params: Omit<CompanyParams, "refId">) {
+        DevLog(`Mise à jour d'une societe...`, "debug");
         this.needUser(this.user);
-        this.needRoles(["COMPANY_PATCH"], this.user.roles, false);
         const media = await this.getById(id);
         // Mettre un warning coté client pour prévenir au cas ou il y a des mise a jour en attente de validation avant de faire une modif
         const refId = genPublicID(8);
@@ -162,12 +172,13 @@ class CompanyController extends UtilControllers.withUser {
             { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
         ])
 
+        DevLog(`Société mise à jour, ID Société: ${res.id}`, "debug");
         return this.warpper(res);
     }
 
     public async delete(id: string, params: IMediaDeleteBody) {
+        DevLog(`Suppression d'une societe...`, "debug");
         this.needUser(this.user);
-        this.needRoles(["COMPANY_DELETE"], this.user.roles);
         const media = await this.getById(id);
         const deleted = await media.deleteOne().session(this.session);
         const refId = genPublicID(8);
@@ -190,32 +201,38 @@ class CompanyController extends UtilControllers.withUser {
                 { name: "Raison", content: params.reason },
                 { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
             ])
+
+            DevLog(`Société supprimé, ID Société: ${media.id}, ID Maj: ${refId}`, "debug");
             return true;
         }
+
+        DevLog(`Société non supprimé, ID Société: ${media.id}`, "debug");
         return false;
     }
 
     public async verify(id: string) {
+        DevLog("Verification de la societe...", "debug");
         this.needUser(this.user);
-        this.needRoles(["COMPANY_VERIFY"], this.user.roles);
         const media = await this.getById(id);
         media.isVerified = true;
         await media.save({ session: this.session });
+        DevLog(`Société verifiée, ID Société: ${media.id}`, "debug");
         return this.warpper(media);
     }
 
     public async unverify(id: string) {
+        DevLog("Verification de la societe...", "debug");
         this.needUser(this.user);
-        this.needRoles(["COMPANY_VERIFY"], this.user.roles);
         const media = await this.getById(id);
         media.isVerified = false;
         await media.save({ session: this.session });
+        DevLog(`Société non verifiée, ID Société: ${media.id}`, "debug");
         return this.warpper(media);
     }
 
-    public async create_request(data: ICreate_Company_ZOD, params: CompanyParams) {
+    public async create_request(data: ICompanyBody, params: CompanyParams) {
+        DevLog("Demande de creation de societe...", "debug");
         this.needUser(this.user);
-        this.needRoles(["COMPANY_CREATE_REQUEST"], this.user.roles);
         const refId = genPublicID(8);
         const res = await this.build(data, { refId, isRequest: true });
         res.isVerified = false;
@@ -241,12 +258,13 @@ class CompanyController extends UtilControllers.withUser {
             { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
         ])
 
+        DevLog(`Société crée, Demande crée... ID Société: ${res.id}, ID Demande: ${refId}`, "debug");
         return this.warpper(res);
     }
 
-    public async update_request(id: string, data: ICreate_Company_ZOD, params: CompanyParams) {
+    public async update_request(id: string, data: ICompanyBody, params: CompanyParams) {
+        DevLog("Demande de modification de societe...", "debug");
         this.needUser(this.user);
-        this.needRoles(["COMPANY_PATCH_REQUEST"], this.user.roles);
         const media = await this.getById(id);
         // Mettre un warning coté client pour prévenir au cas ou il y a des mise a jour en attente de validation avant de faire une modif
         const refId = genPublicID(8);
@@ -276,6 +294,7 @@ class CompanyController extends UtilControllers.withUser {
             { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
         ])
 
+        DevLog(`Demande crée... ID Société: ${res.id}, ID Demande: ${refId}`, "debug");
         return this.warpper(res);
     }
 }

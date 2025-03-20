@@ -1,0 +1,1031 @@
+[
+  {
+    "_id": "67daf55e2648d2b5d7a34359",
+    "id": "uwxearhi",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "2snsj"
+    },
+    "targetPath": "Groupe",
+    "original": {
+      "name": {
+        "default": "Izure Saikyou no Renkinjutsushi?"
+      },
+      "isVerified": true,
+      "_id": "67daf55e2648d2b5d7a34358",
+      "id": "2snsj"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:30.724Z",
+    "updatedAt": "2025-03-19T16:48:30.724Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a3436b",
+    "id": "fs46987q",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "8q27pu1u"
+    },
+    "targetPath": "Company",
+    "original": {
+      "id": "8q27pu1u",
+      "type": "STUDIO",
+      "name": {
+        "default": "Studio Comet"
+      },
+      "createdDate": {
+        "year": 986,
+        "month": 11,
+        "day": 21,
+        "hours": 0,
+        "minutes": 9,
+        "seconds": 21
+      },
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a3436a"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.038Z",
+    "updatedAt": "2025-03-19T16:48:31.038Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a34376",
+    "id": "0vtaxx17",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "qmoxskhb"
+    },
+    "targetPath": "Person",
+    "original": {
+      "id": "qmoxskhb",
+      "name": {
+        "default": "Kogitsune Maru",
+        "alias": []
+      },
+      "links": [],
+      "isGroupe": false,
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a34371"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.121Z",
+    "updatedAt": "2025-03-19T16:48:31.121Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a34378",
+    "id": "wcnl286r",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "1lzgpgjb"
+    },
+    "targetPath": "Person",
+    "original": {
+      "id": "1lzgpgjb",
+      "name": {
+        "default": "Kuzuya Naoyuki",
+        "alias": []
+      },
+      "links": [],
+      "isGroupe": false,
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a34373"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.121Z",
+    "updatedAt": "2025-03-19T16:48:31.121Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a34377",
+    "id": "0xnbzo5k",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "uw5c9xce"
+    },
+    "targetPath": "Person",
+    "original": {
+      "id": "uw5c9xce",
+      "name": {
+        "default": "Sasakama Taro",
+        "alias": []
+      },
+      "links": [],
+      "isGroupe": false,
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a34372"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.121Z",
+    "updatedAt": "2025-03-19T16:48:31.121Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a34379",
+    "id": "ct9uvhyo",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "zixsb2oo"
+    },
+    "targetPath": "Person",
+    "original": {
+      "id": "zixsb2oo",
+      "name": {
+        "default": "Anesaki Sayaka",
+        "alias": []
+      },
+      "links": [],
+      "isGroupe": false,
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a34374"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.121Z",
+    "updatedAt": "2025-03-19T16:48:31.121Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a3437a",
+    "id": "vuforff3",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "k4n9zhre"
+    },
+    "targetPath": "Person",
+    "original": {
+      "id": "k4n9zhre",
+      "name": {
+        "default": "Nakamura Hiroshi",
+        "alias": []
+      },
+      "links": [],
+      "isGroupe": false,
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a34375"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.121Z",
+    "updatedAt": "2025-03-19T16:48:31.121Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a3438b",
+    "id": "qvbu2d07",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "xuof1j3c"
+    },
+    "targetPath": "Character",
+    "original": {
+      "id": "xuof1j3c",
+      "name": {
+        "default": "Takumi Iruma",
+        "alias": []
+      },
+      "gender": "MASCULIN",
+      "species": "HUMAIN",
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a34385"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.189Z",
+    "updatedAt": "2025-03-19T16:48:31.189Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a3438e",
+    "id": "rd8gfq4v",
+    "ref": {
+      "id": "hrrc650w"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "8gbuso47"
+    },
+    "targetPath": "Person",
+    "original": {
+      "id": "8gbuso47",
+      "name": {
+        "default": "Afumi Hashi",
+        "alias": []
+      },
+      "links": [
+        {
+          "name": "Profil",
+          "value": "https://www.81produce.co.jp/dcms_plusdb/index.php/item?cell003=%E3%81%AF%E8%A1%8C&cell029=%E5%A5%B3%E6%80%A7&keyword=%E5%9C%9F%E5%B8%AB+%E4%BA%9C%E6%96%87&cell028=&cell004=&name=%E5%9C%9F%E5%B8%AB%E3%80%80%E4%BA%9C%E6%96%87&id=270&label=1"
+        }
+      ],
+      "isGroupe": false,
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a34388"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.189Z",
+    "updatedAt": "2025-03-19T16:48:31.189Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a3438d",
+    "id": "r1chf4o5",
+    "ref": {
+      "id": "xc1ervl1"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "5xaa6c26"
+    },
+    "targetPath": "Person",
+    "original": {
+      "id": "5xaa6c26",
+      "name": {
+        "default": "Nao Touyama",
+        "alias": []
+      },
+      "birthDate": {
+        "year": 1992,
+        "month": 3,
+        "day": 11,
+        "hours": 1,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "links": [
+        {
+          "name": "Profil",
+          "value": "https://www.jvcmusic.co.jp/flyingdog/-/Profile/A023615.html"
+        }
+      ],
+      "isGroupe": false,
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a34387"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.189Z",
+    "updatedAt": "2025-03-19T16:48:31.189Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a3438f",
+    "id": "vkfst54c",
+    "ref": {
+      "id": "v1x88hmx"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "evy6a89p"
+    },
+    "targetPath": "Person",
+    "original": {
+      "id": "evy6a89p",
+      "name": {
+        "default": "Sora Amamiya",
+        "alias": []
+      },
+      "birthDate": {
+        "year": 1993,
+        "month": 8,
+        "day": 28,
+        "hours": 2,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "links": [
+        {
+          "name": "Profil",
+          "value": "https://musicrayn.com/amamiya_sora"
+        }
+      ],
+      "isGroupe": false,
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a34389"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.189Z",
+    "updatedAt": "2025-03-19T16:48:31.189Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a3438c",
+    "id": "r5v6jvdn",
+    "ref": {
+      "id": "5076dua5"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "91vvr29t"
+    },
+    "targetPath": "Person",
+    "original": {
+      "id": "91vvr29t",
+      "name": {
+        "default": "Ai Kayano",
+        "alias": []
+      },
+      "birthDate": {
+        "year": 1987,
+        "month": 9,
+        "day": 13,
+        "hours": 2,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "links": [
+        {
+          "name": "Profil",
+          "value": "https://osawa-inc.co.jp/women/kayanoai/"
+        }
+      ],
+      "isGroupe": false,
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a34386"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.189Z",
+    "updatedAt": "2025-03-19T16:48:31.189Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a3439d",
+    "id": "hrrc650w",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "44fwhd1h"
+    },
+    "targetPath": "Character",
+    "original": {
+      "id": "44fwhd1h",
+      "name": {
+        "default": "Maple",
+        "alias": []
+      },
+      "gender": "FEMININ",
+      "species": "AUTRE",
+      "actors": [
+        {
+          "id": "8gbuso47"
+        }
+      ],
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a3439c"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.237Z",
+    "updatedAt": "2025-03-19T16:48:31.237Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a343a0",
+    "id": "v1x88hmx",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "gbudi7mz"
+    },
+    "targetPath": "Character",
+    "original": {
+      "id": "gbudi7mz",
+      "name": {
+        "default": "Megami Nolyn",
+        "alias": [
+          "Goddess Nolyn "
+        ]
+      },
+      "gender": "FEMININ",
+      "species": "AUTRE",
+      "actors": [
+        {
+          "id": "evy6a89p"
+        }
+      ],
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a3439f"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.239Z",
+    "updatedAt": "2025-03-19T16:48:31.239Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a343a3",
+    "id": "5076dua5",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "198o9bp6"
+    },
+    "targetPath": "Character",
+    "original": {
+      "id": "198o9bp6",
+      "name": {
+        "default": "Sofia Sylphid",
+        "alias": []
+      },
+      "gender": "FEMININ",
+      "species": "ELFE",
+      "actors": [
+        {
+          "id": "91vvr29t"
+        }
+      ],
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a343a2"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.254Z",
+    "updatedAt": "2025-03-19T16:48:31.254Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a343a6",
+    "id": "xc1ervl1",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "nupqnhr2"
+    },
+    "targetPath": "Character",
+    "original": {
+      "id": "nupqnhr2",
+      "name": {
+        "default": "Maria",
+        "alias": []
+      },
+      "gender": "FEMININ",
+      "species": "HUMAIN",
+      "actors": [
+        {
+          "id": "5xaa6c26"
+        }
+      ],
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a343a5"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.257Z",
+    "updatedAt": "2025-03-19T16:48:31.257Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a34390",
+    "id": "t4940c86",
+    "ref": {
+      "id": "qya6mn6v"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "rhypbgi8"
+    },
+    "targetPath": "Person",
+    "original": {
+      "id": "rhypbgi8",
+      "name": {
+        "default": "Nene Hieda",
+        "alias": []
+      },
+      "birthDate": {
+        "year": 1997,
+        "month": 1,
+        "day": 15,
+        "hours": 1,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "links": [
+        {
+          "name": "Profil",
+          "value": "https://www.81produce.co.jp/actor_search/index.php/item?id=279"
+        }
+      ],
+      "isGroupe": false,
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a3438a"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.189Z",
+    "updatedAt": "2025-03-19T16:48:31.189Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a343ae",
+    "id": "qya6mn6v",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "8uytfqyz"
+    },
+    "targetPath": "Character",
+    "original": {
+      "id": "8uytfqyz",
+      "name": {
+        "default": "Reyva",
+        "alias": []
+      },
+      "gender": "FEMININ",
+      "species": "AUTRE",
+      "actors": [
+        {
+          "id": "rhypbgi8"
+        }
+      ],
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a343ad"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.377Z",
+    "updatedAt": "2025-03-19T16:48:31.377Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a343b3",
+    "id": "o6z9yhjo",
+    "ref": {
+      "id": "cgpl8vbj"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "0r84haok"
+    },
+    "targetPath": "Person",
+    "original": {
+      "id": "0r84haok",
+      "name": {
+        "default": "DIALOGUE＋",
+        "alias": []
+      },
+      "birthDate": {
+        "year": 2019,
+        "month": 6,
+        "day": 24,
+        "hours": 2,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "description": "Yurina Uchiyama (内山 悠里菜)\nNene Hieda (稗田 寧々)\nKyōka Moriya (守屋 亨香)\nYuna Ogata (緒方 佑奈)\nAyaka Takamura (鷹村 彩花)\nSatsuki Miyahara (宮原 颯希)\nMayu Iizuka (飯塚 麻結)\nManatsu Murakami (村上 まなつ)",
+      "links": [
+        {
+          "name": "Dialogue+",
+          "value": "https://dialogue-music.jp/"
+        }
+      ],
+      "isGroupe": true,
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a343b1"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.423Z",
+    "updatedAt": "2025-03-19T16:48:31.423Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a343b4",
+    "id": "qv5lf5mf",
+    "ref": {
+      "id": "1y3392r6"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "992xxcnu"
+    },
+    "targetPath": "Person",
+    "original": {
+      "id": "992xxcnu",
+      "name": {
+        "default": "Harmoe",
+        "alias": []
+      },
+      "description": "harmoe est une unité de seiyu japonaises composé de Iwata Haruki et Koizumi Moeka.",
+      "links": [
+        {
+          "name": "Site officiel",
+          "value": "https://harmoe.jp/"
+        }
+      ],
+      "isGroupe": true,
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a343b2"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.423Z",
+    "updatedAt": "2025-03-19T16:48:31.423Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a343ba",
+    "id": "cgpl8vbj",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "31b88djt"
+    },
+    "targetPath": "Track",
+    "original": {
+      "id": "31b88djt",
+      "type": "OPENING",
+      "name": {
+        "default": "TREASURE!"
+      },
+      "releaseDate": {
+        "year": 2025,
+        "month": 1,
+        "day": 29,
+        "hours": 1,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "artists": [
+        {
+          "id": "0r84haok"
+        }
+      ],
+      "links": [
+        {
+          "name": "TREASURE!",
+          "value": "https://www.youtube.com/watch?v=8-6DJ3sOQO8"
+        }
+      ],
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a343b9"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.466Z",
+    "updatedAt": "2025-03-19T16:48:31.466Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a343bd",
+    "id": "1y3392r6",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "vpf9o9ei"
+    },
+    "targetPath": "Track",
+    "original": {
+      "id": "vpf9o9ei",
+      "type": "ENDING",
+      "name": {
+        "default": "Twinkle Days"
+      },
+      "releaseDate": {
+        "year": 2025,
+        "month": 1,
+        "day": 8,
+        "hours": 1,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "artists": [
+        {
+          "id": "992xxcnu"
+        }
+      ],
+      "links": [],
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a343bc"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.469Z",
+    "updatedAt": "2025-03-19T16:48:31.469Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a343c1",
+    "id": "m89fw6ab",
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "sbw8ze2t"
+    },
+    "targetPath": "Anime",
+    "description": "TEST",
+    "original": {
+      "groupe": {
+        "id": "2snsj"
+      },
+      "source": "LIGHT_NOVEL",
+      "title": {
+        "default": "Izure Saikyou no Renkinjutsushi?",
+        "alias": [
+          "Possibly the Greatest Alchemist of All Time",
+          "Someday Will I Be The Greatest Alchemist?"
+        ]
+      },
+      "synopsis": "Takumi Iruma, un homme ordinaire, a été invoqué dans un monde fantastique pour devenir un héros. Mais il n'en a pas les capacités et il demande juste à vivre simplement. La déesse Nolyn lui accorde alors le pouvoir de l'alchimie, une compétence ultra-puissante qui lui permet de créer n'importe quoi, comme des épées sacrées et même des vaisseaux volants. Une incroyable aventure commence alors pour lui !",
+      "date": {
+        "start": {
+          "year": 2025,
+          "month": 1,
+          "day": 1
+        },
+        "end": {
+          "year": 2025,
+          "month": 3,
+          "day": 19
+        }
+      },
+      "status": "AIRING",
+      "trailer": "https://www.youtube.com/watch?v=1_KLp1C_lAQ",
+      "format": "SERIE",
+      "vf": false,
+      "episodes": {
+        "airing": 9,
+        "nextAiringDate": {
+          "year": 2025,
+          "month": 3,
+          "day": 5,
+          "hours": 17,
+          "minutes": 30
+        },
+        "total": 12,
+        "durationMinutes": 23
+      },
+      "adult": false,
+      "explicit": true,
+      "genres": [
+        "FANTAISIE"
+      ],
+      "links": [
+        {
+          "name": "Crunchyroll",
+          "value": "https://www.crunchyroll.com/fr/series/GQWH0M1P3/possibly-the-greatest-alchemist-of-all-time"
+        },
+        {
+          "name": "Site de l'Anime",
+          "value": "https://izuresaikyo-pr.com/"
+        },
+        {
+          "name": "X  (Twitter)",
+          "value": "https://x.com/izuresaikyo_pr"
+        }
+      ],
+      "companys": [
+        {
+          "id": "8q27pu1u"
+        }
+      ],
+      "staffs": [
+        {
+          "id": "qmoxskhb",
+          "role": "AUTEUR"
+        },
+        {
+          "id": "uw5c9xce",
+          "role": "AUTEUR"
+        },
+        {
+          "id": "1lzgpgjb",
+          "role": "REALISATEUR"
+        },
+        {
+          "id": "zixsb2oo",
+          "role": "CHARACTER_DESIGNER"
+        },
+        {
+          "id": "k4n9zhre",
+          "role": "COMPOSITEUR"
+        }
+      ],
+      "characters": [
+        {
+          "id": "xuof1j3c",
+          "role": "PRINCIPAL"
+        },
+        {
+          "id": "198o9bp6",
+          "role": "SOUTIEN"
+        },
+        {
+          "id": "nupqnhr2",
+          "role": "SOUTIEN"
+        },
+        {
+          "id": "44fwhd1h",
+          "role": "SOUTIEN"
+        },
+        {
+          "id": "gbudi7mz",
+          "role": "SOUTIEN"
+        },
+        {
+          "id": "8uytfqyz",
+          "role": "SOUTIEN"
+        }
+      ],
+      "tracks": [
+        {
+          "id": "31b88djt"
+        },
+        {
+          "id": "vpf9o9ei"
+        }
+      ],
+      "id": "sbw8ze2t",
+      "isVerified": true
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.513Z",
+    "updatedAt": "2025-03-19T16:48:31.513Z",
+    "__v": 0
+  }
+]

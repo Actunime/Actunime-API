@@ -1,0 +1,113 @@
+[
+  {
+    "_id": "67daf55f2648d2b5d7a34385",
+    "id": "xuof1j3c",
+    "name": {
+      "default": "Takumi Iruma",
+      "alias": []
+    },
+    "gender": "MASCULIN",
+    "species": "HUMAIN",
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.213Z",
+    "updatedAt": "2025-03-19T16:48:31.213Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a3439c",
+    "id": "44fwhd1h",
+    "name": {
+      "default": "Maple",
+      "alias": []
+    },
+    "gender": "FEMININ",
+    "species": "AUTRE",
+    "actors": [
+      {
+        "id": "8gbuso47"
+      }
+    ],
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.258Z",
+    "updatedAt": "2025-03-19T16:48:31.258Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a3439f",
+    "id": "gbudi7mz",
+    "name": {
+      "default": "Megami Nolyn",
+      "alias": [
+        "Goddess Nolyn "
+      ]
+    },
+    "gender": "FEMININ",
+    "species": "AUTRE",
+    "actors": [
+      {
+        "id": "evy6a89p"
+      }
+    ],
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.260Z",
+    "updatedAt": "2025-03-19T16:48:31.260Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a343a2",
+    "id": "198o9bp6",
+    "name": {
+      "default": "Sofia Sylphid",
+      "alias": []
+    },
+    "gender": "FEMININ",
+    "species": "ELFE",
+    "actors": [
+      {
+        "id": "91vvr29t"
+      }
+    ],
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.276Z",
+    "updatedAt": "2025-03-19T16:48:31.276Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a343a5",
+    "id": "nupqnhr2",
+    "name": {
+      "default": "Maria",
+      "alias": []
+    },
+    "gender": "FEMININ",
+    "species": "HUMAIN",
+    "actors": [
+      {
+        "id": "5xaa6c26"
+      }
+    ],
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.278Z",
+    "updatedAt": "2025-03-19T16:48:31.278Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a343ad",
+    "id": "8uytfqyz",
+    "name": {
+      "default": "Reyva",
+      "alias": []
+    },
+    "gender": "FEMININ",
+    "species": "AUTRE",
+    "actors": [
+      {
+        "id": "rhypbgi8"
+      }
+    ],
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.397Z",
+    "updatedAt": "2025-03-19T16:48:31.397Z",
+    "__v": 0
+  }
+]

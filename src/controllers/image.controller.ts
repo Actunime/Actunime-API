@@ -1,16 +1,19 @@
-import { ImageModel } from "@actunime/mongoose-models";
+
 import { ClientSession, Document, Schema } from "mongoose";
 import { APIError } from "../_lib/Error";
 import { IAdd_Image_ZOD, ICreate_Image_ZOD, ImagePaginationBody, IMediaDeleteBody } from "@actunime/validations";
-import { CreateImageCDN, DeleteImageCDN, IImage, IPatchType, ITargetPath, IUser, PatchTypeObj } from "@actunime/types";
+import { IImage, ITargetPath, IUser } from "@actunime/types";
 import { UtilControllers } from "../_utils/_controllers";
 import { z } from "zod";
 import { PaginationControllers } from "./pagination.controllers";
-import { PatchController } from "./patch.controllers";
 import DeepDiff from 'deep-diff';
+import { DevLog } from "../_lib/logger";
 import { genPublicID } from "@actunime/utils";
 import { Checker } from "../_utils/_checker";
 import LogSession from "../_utils/_logSession";
+import { PatchController } from "./patch.controllers";
+import { ImageModel } from "../_lib/models";
+import { CreateImageCDN, DeleteImageCDN } from "../_lib/image";
 
 type IImageDoc = (Document<unknown, unknown, IImage> & IImage & Required<{
     _id: Schema.Types.ObjectId;
@@ -46,19 +49,17 @@ class ImageController extends UtilControllers.withUser {
         session_id: ClientSession["id"]
     }[] = [];
     static deleteImages: { id: string, path: ITargetPath, session_id: ClientSession["id"] }[] = [];
-    private patchController: PatchController
     private targetPath: ITargetPath = "Image";
+    private patchController: PatchController;
 
     constructor(session: ClientSession | null, options?: { log?: LogSession, user?: IUser }) {
-        super(options?.user);
-        this.session = session;
-        this.log = options?.log;
-        this.patchController = new PatchController(this.session, { log: this.log, user: options?.user });
+        super({ session, ...options });
+        this.patchController = new PatchController(session, options);
     }
 
 
     parse(Image: Partial<IImage>) {
-        delete Image._id;
+        // delete Image._id;
 
         return Image;
     }
@@ -75,31 +76,37 @@ class ImageController extends UtilControllers.withUser {
 
 
     async getById(id: string) {
-        const res = await ImageModel.findOne({ id }).cache("60m");
+        DevLog(`Récupération de l'image ID: ${id}`, "debug");
+        const promise = ImageModel.findOne({ id });
+        if (this.session) promise.session(this.session); else promise.cache("60m");
+        const res = await promise;
+        DevLog(`Image ${res ? "trouvée" : "non trouvée"}, ID Image: ${id}`, "debug");
         return this.warpper(res);
     }
 
     async filter(pageFilter: z.infer<typeof ImagePaginationBody>) {
+        DevLog("Filtrage des images...", "debug");
         const pagination = new PaginationControllers(ImageModel);
 
         pagination.useFilter(pageFilter);
 
         const res = await pagination.getResults();
 
+        DevLog(`Images trouvées: ${res.resultsCount}`, "debug");
         return res;
     }
 
     async build(input: ICreate_Image_ZOD, params: ImageParams) {
         const { value, ...rawImage } = input;
         const image: Partial<IImage> = { ...rawImage, target: params.target, targetPath: params.targetPath };
-
+        DevLog(`Build Image...`);
         return new ImageModel(image);
     }
 
 
     public async create(data: ICreate_Image_ZOD, params: ImageParams) {
+        DevLog("Création d'une image...", "debug");
         this.needUser(this.user);
-        this.needRoles(["IMAGE_CREATE"], this.user.roles, false);
         const patchID = genPublicID(8);
         const res = await this.build(data, params);
         res.isVerified = true;
@@ -141,12 +148,13 @@ class ImageController extends UtilControllers.withUser {
             { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
         ])
 
+        DevLog(`Image crée, ID Image: ${res.id}`, "debug");
         return this.warpper(res);
     }
 
     public async update(id: string, data: ICreate_Image_ZOD, params: ImageParams) {
+        DevLog("Modification d'une image...", "debug");
         this.needUser(this.user);
-        this.needRoles(["IMAGE_PATCH"], this.user.roles, false);
         const media = await this.getById(id);
 
         ImageController.saveImages.push({
@@ -193,13 +201,14 @@ class ImageController extends UtilControllers.withUser {
             { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
         ])
 
+        DevLog(`Image modifiée, ID Image: ${res.id}`, "debug");
         return this.warpper(res);
     }
 
 
     public async delete(id: string, params: IMediaDeleteBody) {
+        DevLog("Suppression d'une image...", "debug");
         this.needUser(this.user);
-        this.needRoles(["IMAGE_DELETE"], this.user.roles);
         const media = await this.getById(id);
         const deleted = await media.deleteOne().session(this.session);
         ImageController.deleteImages.push({ id: media.id, path: this.targetPath, session_id: this.session?.id });
@@ -226,40 +235,50 @@ class ImageController extends UtilControllers.withUser {
                 { name: "Raison", content: params.reason },
                 { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
             ])
+
+            DevLog(`Image supprimée, ID Image: ${media.id}, ID Maj: ${refId}`, "debug");
             return true;
         }
+
+        DevLog(`Image non supprimée, ID Image: ${media.id}`, "debug");
         return false;
     }
 
     public async verify(id: string) {
+        DevLog("Verification de l'image...", "debug");
         this.needUser(this.user);
-        this.needRoles(["IMAGE_VERIFY"], this.user.roles);
         const media = await this.getById(id);
         media.isVerified = true;
         await media.save({ session: this.session });
+        DevLog(`Image verifiée, ID Image: ${media.id}`, "debug");
         return this.warpper(media);
     }
 
     public async unverify(id: string) {
+        DevLog("Verification de l'image...", "debug");
         this.needUser(this.user);
-        this.needRoles(["IMAGE_VERIFY"], this.user.roles);
         const media = await this.getById(id);
         media.isVerified = false;
         await media.save({ session: this.session });
+        DevLog(`Image non verifiée, ID Image: ${media.id}`, "debug");
         return this.warpper(media);
     }
 
     async createImageFile(data: ImageFile) {
+        DevLog("Creation du fichier de l'image...", "debug");
         await CreateImageCDN(data);
+        DevLog(`Fichier de l'image crée, ID Image: ${data.id}`, "debug");
     }
 
     async deleteImageFile(id: string, path: ITargetPath) {
+        DevLog("Suppression du fichier de l'image...", "debug");
         await DeleteImageCDN({ id, path });
+        DevLog(`Fichier de l'image supprimée, ID Image: ${id}`, "debug");
     }
 
     public async create_request(data: ICreate_Image_ZOD, params: ImageParams) {
+        DevLog("Creation de la demande de l'image...", "debug");
         this.needUser(this.user);
-        this.needRoles(["IMAGE_CREATE_REQUEST"], this.user.roles);
         const patchID = genPublicID(8);
         const res = await this.build(data, params);
         res.isVerified = false;
@@ -300,18 +319,19 @@ class ImageController extends UtilControllers.withUser {
             { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
         ])
 
+        DevLog(`Image crée, Demande crée... ID Image: ${res.id}, ID Demande: ${patchID}`, "debug");
         return this.warpper(res);
     }
 
     public async update_request(id: string, data: ICreate_Image_ZOD, params: ImageParams) {
+        DevLog("Création demande de modification de l'image...", "debug");
         this.needUser(this.user);
-        this.needRoles(["IMAGE_PATCH_REQUEST"], this.user.roles);
         const media = await this.getById(id);
         const patchID = genPublicID(8);
         const res = await this.build(data, params);
         res.id = media.id;
         res._id = media._id;
-        
+
         await this.patchController.create({
             id: patchID,
             type: "UPDATE",
@@ -337,6 +357,7 @@ class ImageController extends UtilControllers.withUser {
             { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
         ])
 
+        DevLog(`Demande crée... ID Image: ${res.id}, ID Demande: ${patchID}`, "debug");
         return this.warpper(res);
     }
 

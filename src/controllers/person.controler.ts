@@ -1,16 +1,17 @@
-import { PersonModel } from "@actunime/mongoose-models";
 import { ClientSession, Document, Schema } from "mongoose";
 import { APIError } from "../_lib/Error";
-import { IPerson, IPatchType, IUser, PatchTypeObj, ITargetPath } from "@actunime/types";
+import { IPerson, IUser, ITargetPath } from "@actunime/types";
 import { PaginationControllers } from "./pagination.controllers";
 import { z } from "zod";
-import { PersonPaginationBody, IAdd_Person_ZOD, ICreate_Person_ZOD, IMediaDeleteBody } from "@actunime/validations";
+import { PersonPaginationBody, IPersonBody, IMediaDeleteBody } from "@actunime/validations";
 import { UtilControllers } from "../_utils/_controllers";
-import { PatchController } from "./patch.controllers";
 import DeepDiff from 'deep-diff';
+import { DevLog } from "../_lib/logger";
 import { genPublicID } from "@actunime/utils";
 import { ImageController } from "./image.controller";
 import LogSession from "../_utils/_logSession";
+import { PatchController } from "./patch.controllers";
+import { PersonModel } from "../_lib/models";
 
 type IPersonDoc = (Document<unknown, unknown, IPerson> & IPerson & Required<{
     _id: Schema.Types.ObjectId;
@@ -33,16 +34,14 @@ class PersonController extends UtilControllers.withUser {
     private patchController: PatchController;
     private targetPath: ITargetPath = "Person";
 
-    constructor(session: ClientSession | null, options?: { log?: LogSession, user?: IUser }) {
-        super(options?.user);
-        this.session = session;
-        this.log = options?.log;
-        this.patchController = new PatchController(this.session, { log: this.log, user: options?.user });
+    constructor(session?: ClientSession | null, options?: { log?: LogSession, user?: IUser }) {
+        super({ session, ...options });
+        this.patchController = new PatchController(session, options);
     }
 
 
     parse(Person: Partial<IPerson>) {
-        delete Person._id;
+        // delete Person._id;
 
         return Person;
     }
@@ -58,21 +57,27 @@ class PersonController extends UtilControllers.withUser {
     }
 
     async getById(id: string) {
-        const res = await PersonModel.findOne({ id }).cache("60m");
+        DevLog(`Récupération de la personne ID: ${id}`, "debug");
+        const promise = PersonModel.findOne({ id });
+        if (this.session) promise.session(this.session); else promise.cache("60m");
+        const res = await promise;
+        DevLog(`Personne ${res ? "trouvée" : "non trouvée"}, ID Personne: ${id}`, "debug");
         return this.warpper(res);
     }
 
     async filter(pageFilter: z.infer<typeof PersonPaginationBody>) {
+        DevLog("Filtrage des personnes...", "debug");
         const pagination = new PaginationControllers(PersonModel);
 
         pagination.useFilter(pageFilter);
 
         const res = await pagination.getResults();
 
+        DevLog(`Personnes trouvées: ${res.resultsCount}`, "debug");
         return res;
     }
 
-    async build(input: ICreate_Person_ZOD, params: { refId: string, isRequest: boolean, personId?: string }) {
+    async build(input: IPersonBody, params: { refId: string, isRequest: boolean, personId?: string }) {
         const { avatar, ...rawPerson } = input;
         const person: Partial<IPerson> & { id: string } = {
             ...rawPerson,
@@ -82,13 +87,16 @@ class PersonController extends UtilControllers.withUser {
         this.needUser(user);
         const session = this.session;
         const { refId, isRequest } = params;
+        DevLog(`Build de la personne...`, "debug");
 
         if (avatar && (avatar.id || avatar.newImage)) {
+            DevLog(`Ajout de l'image a la Personne... ${avatar.id ? `ID: ${avatar.id}` : `Nouvelle image: ${JSON.stringify(avatar.newImage)}`}`, "debug");
             const imageController = new ImageController(session, { log: this.log, user });
             const getImage = avatar.id ? await imageController.getById(avatar.id) :
                 isRequest ?
                     await imageController.create_request(avatar.newImage!, { refId, target: { id: person.id }, targetPath: this.targetPath }) :
                     await imageController.create(avatar.newImage!, { refId, target: { id: person.id }, targetPath: this.targetPath })
+            DevLog(`Image ajoutée, ID Image: ${getImage.id}`, "debug");
             person.avatar = { id: getImage.id };
         }
 
@@ -96,9 +104,9 @@ class PersonController extends UtilControllers.withUser {
     }
 
 
-    public async create(data: ICreate_Person_ZOD, params: PersonParams) {
+    public async create(data: IPersonBody, params: PersonParams) {
+        DevLog("Création d'une personne...", "debug");
         this.needUser(this.user);
-        this.needRoles(["PERSON_CREATE"], this.user.roles, false);
         const patchID = genPublicID(8);
         const res = await this.build(data, { refId: patchID, isRequest: false });
         res.isVerified = true;
@@ -126,13 +134,14 @@ class PersonController extends UtilControllers.withUser {
             { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
         ])
 
+        DevLog(`Personne crée, Demande crée... ID Personne: ${res.id}, ID Demande: ${patchID}`, "debug");
         return this.warpper(res);
     }
 
 
-    public async update(id: string, data: ICreate_Person_ZOD, params: Omit<PersonParams, "refId">) {
+    public async update(id: string, data: IPersonBody, params: Omit<PersonParams, "refId">) {
+        DevLog("Mise à jour d'une personne...", "debug");
         this.needUser(this.user);
-        this.needRoles(["PERSON_PATCH"], this.user.roles, false);
         const media = await this.getById(id);
         // Mettre un warning coté client pour prévenir au cas ou il y a des mise a jour en attente de validation avant de faire une modif
         const refId = genPublicID(8);
@@ -164,12 +173,13 @@ class PersonController extends UtilControllers.withUser {
             { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
         ])
 
+        DevLog(`Personne mise à jour, Demande crée... ID Personne: ${res.id}, ID Demande: ${refId}`, "debug");
         return this.warpper(res);
     }
 
     public async delete(id: string, params: IMediaDeleteBody) {
+        DevLog("Suppression d'une personne...", "debug");
         this.needUser(this.user);
-        this.needRoles(["PERSON_DELETE"], this.user.roles);
         const media = await this.getById(id);
         const deleted = await media.deleteOne().session(this.session);
         const refId = genPublicID(8);
@@ -192,32 +202,38 @@ class PersonController extends UtilControllers.withUser {
                 { name: "Raison", content: params.reason },
                 { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
             ])
+
+            DevLog(`Personne supprimé, Demande crée... ID Personne: ${media.id}, ID Demande: ${refId}`, "debug");
             return true;
         }
+
+        DevLog(`Personne non supprimé, ID Personne: ${media.id}`, "debug");
         return false;
     }
 
     public async verify(id: string) {
+        DevLog("Verification de personne...", "debug");
         this.needUser(this.user);
-        this.needRoles(["PERSON_VERIFY", "ANIME_VERIFY", "MANGA_VERIFY"], this.user.roles);
         const media = await this.getById(id);
         media.isVerified = true;
         await media.save({ session: this.session });
+        DevLog(`Personne verifiée, ID Personne: ${media.id}`, "debug");
         return this.warpper(media);
     }
 
     public async unverify(id: string) {
+        DevLog("Verification de personne...", "debug");
         this.needUser(this.user);
-        this.needRoles(["PERSON_VERIFY", "ANIME_VERIFY", "MANGA_VERIFY"], this.user.roles);
         const media = await this.getById(id);
         media.isVerified = false;
         await media.save({ session: this.session });
+        DevLog(`Personne non verifiée, ID Personne: ${media.id}`, "debug");
         return this.warpper(media);
     }
 
-    public async create_request(data: ICreate_Person_ZOD, params: PersonParams) {
+    public async create_request(data: IPersonBody, params: PersonParams) {
+        DevLog("Demande de création de personne...", "debug");
         this.needUser(this.user);
-        this.needRoles(["PERSON_CREATE_REQUEST"], this.user.roles);
         const refId = genPublicID(8);
         const res = await this.build(data, { refId, isRequest: true });
         res.isVerified = false;
@@ -243,12 +259,13 @@ class PersonController extends UtilControllers.withUser {
             { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
         ])
 
+        DevLog(`Personne crée, Demande crée... ID Personne: ${res.id}, ID Demande: ${refId}`, "debug");
         return this.warpper(res);
     }
 
-    public async update_request(id: string, data: ICreate_Person_ZOD, params: PersonParams) {
+    public async update_request(id: string, data: IPersonBody, params: PersonParams) {
+        DevLog("Demande de modification de personne...", "debug");
         this.needUser(this.user);
-        this.needRoles(["PERSON_PATCH_REQUEST"], this.user.roles);
         const media = await this.getById(id);
         // Mettre un warning coté client pour prévenir au cas ou il y a des mise a jour en attente de validation avant de faire une modif
         const refId = genPublicID(8);
@@ -278,6 +295,7 @@ class PersonController extends UtilControllers.withUser {
             { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
         ])
 
+        DevLog(`Demande crée... ID Personne: ${res.id}, ID Demande: ${refId}`, "debug");
         return this.warpper(res);
     }
 }

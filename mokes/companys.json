@@ -1,0 +1,22 @@
+[
+  {
+    "_id": "67daf55f2648d2b5d7a3436a",
+    "id": "8q27pu1u",
+    "type": "STUDIO",
+    "name": {
+      "default": "Studio Comet"
+    },
+    "createdDate": {
+      "year": 986,
+      "month": 11,
+      "day": 21,
+      "hours": 0,
+      "minutes": 9,
+      "seconds": 21
+    },
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.089Z",
+    "updatedAt": "2025-03-19T16:48:31.089Z",
+    "__v": 0
+  }
+]

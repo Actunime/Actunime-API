@@ -1,0 +1,59 @@
+[
+  {
+    "_id": "67daf55f2648d2b5d7a343b9",
+    "id": "31b88djt",
+    "type": "OPENING",
+    "name": {
+      "default": "TREASURE!"
+    },
+    "releaseDate": {
+      "year": 2025,
+      "month": 1,
+      "day": 29,
+      "hours": 1,
+      "minutes": 0,
+      "seconds": 0
+    },
+    "artists": [
+      {
+        "id": "0r84haok"
+      }
+    ],
+    "links": [
+      {
+        "name": "TREASURE!",
+        "value": "https://www.youtube.com/watch?v=8-6DJ3sOQO8"
+      }
+    ],
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.487Z",
+    "updatedAt": "2025-03-19T16:48:31.487Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a343bc",
+    "id": "vpf9o9ei",
+    "type": "ENDING",
+    "name": {
+      "default": "Twinkle Days"
+    },
+    "releaseDate": {
+      "year": 2025,
+      "month": 1,
+      "day": 8,
+      "hours": 1,
+      "minutes": 0,
+      "seconds": 0
+    },
+    "artists": [
+      {
+        "id": "992xxcnu"
+      }
+    ],
+    "links": [],
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.490Z",
+    "updatedAt": "2025-03-19T16:48:31.490Z",
+    "__v": 0
+  }
+]

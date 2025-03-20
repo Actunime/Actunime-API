@@ -1,4 +1,5 @@
 import { IUserRoles } from "@actunime/types";
+import { DevLog } from "../_lib/logger";
 
 
 
@@ -87,8 +88,14 @@ const realmRoles = {
 export type IRealmRole = keyof typeof realmRoles;
 
 export const CheckRealmRoles = (roles: IRealmRole[], accountRoles: (IRealmRole | IUserRoles)[], strict: boolean = true) => {
-    console.log("CheckRealmRoles", roles, "<==>", accountRoles);
+    DevLog(`Roles requis : ${roles?.join(', ')}, user roles : ${accountRoles?.join(', ')} | (strict: ${strict})`, "debug");
+    // console.log("CheckRealmRoles", roles, "<==>", accountRoles);
+    let valid = false;
+
     if (!strict)
-        return roles.some((role) => accountRoles.includes(role));
-    return roles.every(role => accountRoles.includes(role));
+        valid = roles.some((role) => accountRoles.includes(role));
+    valid = roles.every(role => accountRoles.includes(role));
+
+    DevLog(`Roles validées : ${valid}`, "debug");
+    return valid;
 }

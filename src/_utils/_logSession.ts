@@ -36,9 +36,9 @@ export default class LogSession {
             for (let y = 0; y < groupeLogs[i].length; y++) {
                 const log = groupeLogs[i][y];
                 if (typeof log.content === "string")
-                    embed.addField(log.name, log.content, true);
+                    embed.addField(log.name, log.content);
                 else
-                    embed.addField(log.name, log.content.map(x => `${x.name}: \`${x.content ? x.content : "???"}\``).join("\n"), true);
+                    embed.addField(log.name, log.content.map(x => `${x.name}: \`${x.content ? x.content : "???"}\``).join("\n"));
             }
             if (this.user)
                 embed.setFooter(`Auteur: ${this.user?.displayName} (${this.user?.id})`);
@@ -59,7 +59,7 @@ export function AddLogSession(req: FastifyRequest, res: FastifyReply, next: () =
 }
 
 export async function EndLogSession(req: FastifyRequest) {
-    if (req.logSession)
+    if (req.logSession && !req.isTesting)
         await req.logSession.commit();
     req.logSession = undefined;
 }

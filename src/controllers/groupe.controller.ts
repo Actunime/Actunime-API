@@ -1,15 +1,16 @@
-import { GroupeModel } from "@actunime/mongoose-models";
 import { ClientSession, Document, Schema } from "mongoose";
 import { APIError } from "../_lib/Error";
-import { IGroupe, IPatchType, ITargetPath, IUser } from "@actunime/types";
+import { IGroupe, ITargetPath, IUser } from "@actunime/types";
 import { PaginationControllers } from "./pagination.controllers";
 import { z } from "zod";
-import { GroupePaginationBody, IAdd_Groupe_ZOD, ICreate_Groupe_ZOD, IMediaDeleteBody } from "@actunime/validations";
+import { GroupePaginationBody, IGroupeBody, IMediaDeleteBody } from "@actunime/validations";
 import { UtilControllers } from "../_utils/_controllers";
 import LogSession from "../_utils/_logSession";
+import { DevLog } from "../_lib/logger";
 import { genPublicID } from "@actunime/utils";
-import { PatchController } from "./patch.controllers";
 import DeepDiff from 'deep-diff';
+import { PatchController } from "./patch.controllers";
+import { GroupeModel } from "../_lib/models";
 
 type IGroupeDoc = (Document<unknown, unknown, IGroupe> & IGroupe & Required<{
     _id: Schema.Types.ObjectId;
@@ -26,19 +27,16 @@ type IGroupeControlled = IGroupeDoc & IGroupeResponse
 interface GroupeParams { refId?: string, description?: string }
 
 class GroupeController extends UtilControllers.withUser {
-    private patchController: PatchController;
     private targetPath: ITargetPath = "Groupe";
+    private patchController: PatchController;
 
-    constructor(session: ClientSession | null, options?: { log?: LogSession, user?: IUser }) {
-        super(options?.user);
-        this.session = session;
-        this.log = options?.log;
-        this.patchController = new PatchController(this.session, { log: this.log, user: options?.user });
+    constructor(session?: ClientSession | null, options?: { log?: LogSession, user?: IUser }) {
+        super({ session, ...options });
+        this.patchController = new PatchController(session, options);
     }
 
-
     parse(Groupe: Partial<IGroupe>) {
-        delete Groupe._id;
+        // delete Groupe._id;
 
         return Groupe;
     }
@@ -54,28 +52,35 @@ class GroupeController extends UtilControllers.withUser {
     }
 
     async getById(id: string) {
-        const res = await GroupeModel.findOne({ id }).cache("60m");
+        DevLog(`Récupération du groupe ID: ${id}`, "debug");
+        const promise = GroupeModel.findOne({ id });
+        if (this.session) promise.session(this.session); else promise.cache("60m");
+        const res = await promise;
+        DevLog(`Groupe ${res ? "trouvée" : "non trouvée"}, ID Groupe: ${id}`, "debug");
         return this.warpper(res);
     }
 
     async filter(pageFilter: z.infer<typeof GroupePaginationBody>) {
+        DevLog("Filtrage des groupes...", "debug");
         const pagination = new PaginationControllers(GroupeModel);
 
         pagination.useFilter(pageFilter);
 
         const res = await pagination.getResults();
 
+        DevLog(`Groupes trouvées: ${res.resultsCount}`, "debug");
         return res;
     }
 
-    async build(input: ICreate_Groupe_ZOD) {
+    async build(input: IGroupeBody) {
         const groupe: Partial<IGroupe> = input;
+        DevLog(`Build Groupe...`)
         return new GroupeModel(groupe);
     }
 
-    public async create(data: ICreate_Groupe_ZOD, params: GroupeParams) {
+    public async create(data: IGroupeBody, params: GroupeParams) {
+        DevLog(`Création d'un groupe...`);
         this.needUser(this.user);
-        this.needRoles(["GROUPE_CREATE", "ANIME_CREATE", "MANGA_CREATE"], this.user.roles, false);
         const patchID = genPublicID(8);
         const res = await this.build(data);
         res.isVerified = true;
@@ -103,13 +108,14 @@ class GroupeController extends UtilControllers.withUser {
             { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
         ])
 
+        DevLog(`Groupe créé, ID Groupe: ${res.id}`, "debug");
         return this.warpper(res);
     }
 
 
-    public async update(id: string, data: ICreate_Groupe_ZOD, params: GroupeParams) {
+    public async update(id: string, data: IGroupeBody, params: GroupeParams) {
+        DevLog(`Mise à jour d'un groupe...`);
         this.needUser(this.user);
-        this.needRoles(["GROUPE_PATCH", "ANIME_PATCH", "MANGA_PATCH"], this.user.roles, false);
         const media = await this.getById(id);
         // Mettre un warning coté client pour prévenir au cas ou il y a des mise a jour en attente de validation avant de faire une modif
         const refId = genPublicID(8);
@@ -142,12 +148,13 @@ class GroupeController extends UtilControllers.withUser {
             { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
         ])
 
+        DevLog(`Groupe mis à jour, ID Groupe: ${res.id}`, "debug");
         return this.warpper(res);
     }
 
     public async delete(id: string, params: IMediaDeleteBody) {
+        DevLog(`Suppression d'un groupe...`);
         this.needUser(this.user);
-        this.needRoles(["GROUPE_DELETE", "ANIME_DELETE", "MANGA_DELETE"], this.user.roles);
         const media = await this.getById(id);
         const deleted = await media.deleteOne().session(this.session);
         const refId = genPublicID(8);
@@ -170,32 +177,38 @@ class GroupeController extends UtilControllers.withUser {
                 { name: "Raison", content: params.reason },
                 { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
             ])
+
+            DevLog(`Groupe supprimé, ID Groupe: ${media.id}, ID Maj: ${refId}`, "debug");
             return true;
         }
+
+        DevLog(`Groupe non supprimé, ID Groupe: ${media.id}`, "debug");
         return false;
     }
 
     public async verify(id: string) {
+        DevLog("Verification de groupe...", "debug");
         this.needUser(this.user);
-        this.needRoles(["GROUPE_VERIFY", "ANIME_VERIFY", "MANGA_VERIFY"], this.user.roles);
         const media = await this.getById(id);
         media.isVerified = true;
         await media.save({ session: this.session });
+        DevLog(`Groupe verifié, ID Groupe: ${media.id}`, "debug");
         return this.warpper(media);
     }
 
     public async unverify(id: string) {
+        DevLog("Verification de groupe...", "debug");
         this.needUser(this.user);
-        this.needRoles(["GROUPE_VERIFY", "ANIME_VERIFY", "MANGA_VERIFY"], this.user.roles);
         const media = await this.getById(id);
         media.isVerified = false;
         await media.save({ session: this.session });
+        DevLog(`Groupe non verifié, ID Groupe: ${media.id}`, "debug");
         return this.warpper(media);
     }
 
-    public async create_request(data: ICreate_Groupe_ZOD, params: GroupeParams) {
+    public async create_request(data: IGroupeBody, params: GroupeParams) {
+        DevLog("Demande de création de groupe...", "debug");
         this.needUser(this.user);
-        this.needRoles(["GROUPE_CREATE_REQUEST"], this.user.roles);
         const refId = genPublicID(8);
         const res = await this.build(data);
         res.isVerified = false;
@@ -221,12 +234,13 @@ class GroupeController extends UtilControllers.withUser {
             { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
         ])
 
+        DevLog(`Groupe crée, Demande crée... ID Groupe: ${res.id}, ID Demande: ${refId}`, "debug");
         return this.warpper(res);
     }
 
-    public async update_request(id: string, data: ICreate_Groupe_ZOD, params: GroupeParams) {
+    public async update_request(id: string, data: IGroupeBody, params: GroupeParams) {
+        DevLog("Demande de modification de groupe...", "debug");
         this.needUser(this.user);
-        this.needRoles(["GROUPE_PATCH_REQUEST"], this.user.roles);
         const media = await this.getById(id);
         // Mettre un warning coté client pour prévenir au cas ou il y a des mise a jour en attente de validation avant de faire une modif
         const refId = genPublicID(8);
@@ -257,6 +271,7 @@ class GroupeController extends UtilControllers.withUser {
             { name: "Modérateur", content: `${this.user.username} (${this.user.id})` }
         ])
 
+        DevLog(`Groupe modifié, Demande crée... ID Groupe: ${res.id}, ID Demande: ${refId}`, "debug");
         return this.warpper(res);
     }
 

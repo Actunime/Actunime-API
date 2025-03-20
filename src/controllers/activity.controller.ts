@@ -1,4 +1,3 @@
-import { ActivityModel } from "@actunime/mongoose-models";
 import { ClientSession, Document, Schema } from "mongoose";
 import { APIError } from "../_lib/Error";
 import { IActivity, ITargetPath, IUser } from "@actunime/types";
@@ -6,6 +5,7 @@ import { PaginationControllers } from "./pagination.controllers";
 import { UtilControllers } from "../_utils/_controllers";
 import LogSession from "../_utils/_logSession";
 import { IActivityPaginationBody } from "@actunime/validations";
+import { ActivityModel } from "../_lib/models";
 
 type IActivityDoc = (Document<unknown, unknown, IActivity> & IActivity & Required<{
     _id: Schema.Types.ObjectId;
@@ -22,13 +22,9 @@ interface IActivityResponse extends IActivity {
 type IActivityControlled = IActivityDoc & IActivityResponse
 
 class ActivityController extends UtilControllers.withUser {
-    session: ClientSession | null = null;
-    log: LogSession | undefined
 
     constructor(session: ClientSession | null, options?: { log?: LogSession, user?: IUser }) {
-        super(options?.user);
-        this.session = session;
-        this.log = options?.log;
+        super({ session, ...options });
     }
 
     private parse(Activity: Partial<IActivityDoc>) {

@@ -1,4 +1,4 @@
-import { DevLog } from "@actunime/utils";
+import { DevLog } from "../_lib/logger";
 import { MessageBuilder } from "discord-webhook-node";
 import { FastifyReply, FastifyRequest } from "fastify";
 import mongoose, { ClientSession } from "mongoose";
@@ -6,13 +6,14 @@ import { APIDiscordWebhook } from "./_discordWebhook";
 import { ImageController } from "../controllers/image.controller";
 import { APIError } from "../_lib/Error";
 
-export const activesSessions = new Map<string, ClientSession>();
+export const activesSessions = new Map<ClientSession["id"], ClientSession>();
 
 export const addSessionHandler = async (req: FastifyRequest) => {
     const session = await mongoose.startSession();
     session.startTransaction();
     req.mongooseSession = session;
-    activesSessions.set(req.id, session);
+
+    activesSessions.set(session.id, session);
     DevLog("SessionMongoose en cours d'utilisation", "debug");
 };
 
@@ -34,12 +35,13 @@ export const removeSessionHandler = async (req: FastifyRequest, res: FastifyRepl
         if (status >= 400) {
             await req.mongooseSession.abortTransaction();
             await req.mongooseSession.endSession();
-            activesSessions.delete(req.id);
-            DevLog("SessionMongoose annulée", "warn");
-            await APIDiscordWebhook.send(embedAborted);
+            activesSessions.delete(req.mongooseSession.id);
+            DevLog(`Session annulé a cause du status ${status}`, "warn");
+            if (!req.isTesting)
+                await APIDiscordWebhook.send(embedAborted);
         } else {
             // Pour éviter de sauvegarder pendant les tests
-            const commit = true;
+            const commit = req.isTesting ? false : true;
 
             if (commit) {
                 try {
@@ -56,19 +58,26 @@ export const removeSessionHandler = async (req: FastifyRequest, res: FastifyRepl
                             await imageController.deleteImageFile(image.id, image.path);
                         }));
                     await req.mongooseSession.commitTransaction();
+                    DevLog("Session validé", "debug");
                 } catch (error) {
-                    res.send(new APIError("Les fichiers des images n'ont pas pu étre crée/supprimé pour une raison inconnue", "SERVER_ERROR"));
-                    DevLog("SessionMongoose annulée", "warn");
+                    DevLog(`Session annulé a cause d'une erreur ${status}`, "warn");
+                    console.error(error);
+                    throw new APIError("Les fichiers des images n'ont pas pu étre crée/supprimé pour une raison inconnue", "SERVER_ERROR")
                 }
+            } else {
+                DevLog(`Aucune données n'a été pris en compte ! ${req.isTesting ? "(test)" : ""}`, "warn");
             }
-            await req.mongooseSession.endSession();
-            activesSessions.delete(req.id);
-            DevLog("SessionMongoose validée", "debug");
 
-            if (commit) {
-                await APIDiscordWebhook.send(embedCommited);
-            } else
-                await APIDiscordWebhook.send(embedAborted);
+            await req.mongooseSession.endSession();
+            activesSessions.delete(req.mongooseSession.id);
+            DevLog("Session terminé", "debug");
+
+            if (!req.isTesting) {
+                if (commit) {
+                    await APIDiscordWebhook.send(embedCommited);
+                } else
+                    await APIDiscordWebhook.send(embedAborted);
+            }
         }
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

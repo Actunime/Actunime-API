@@ -1,0 +1,247 @@
+[
+  {
+    "_id": "67daf55f2648d2b5d7a34371",
+    "id": "qmoxskhb",
+    "name": {
+      "default": "Kogitsune Maru",
+      "alias": []
+    },
+    "links": [],
+    "isGroupe": false,
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.144Z",
+    "updatedAt": "2025-03-19T16:48:31.144Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a34373",
+    "id": "1lzgpgjb",
+    "name": {
+      "default": "Kuzuya Naoyuki",
+      "alias": []
+    },
+    "links": [],
+    "isGroupe": false,
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.145Z",
+    "updatedAt": "2025-03-19T16:48:31.145Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a34372",
+    "id": "uw5c9xce",
+    "name": {
+      "default": "Sasakama Taro",
+      "alias": []
+    },
+    "links": [],
+    "isGroupe": false,
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.146Z",
+    "updatedAt": "2025-03-19T16:48:31.146Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a34374",
+    "id": "zixsb2oo",
+    "name": {
+      "default": "Anesaki Sayaka",
+      "alias": []
+    },
+    "links": [],
+    "isGroupe": false,
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.151Z",
+    "updatedAt": "2025-03-19T16:48:31.151Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a34375",
+    "id": "k4n9zhre",
+    "name": {
+      "default": "Nakamura Hiroshi",
+      "alias": []
+    },
+    "links": [],
+    "isGroupe": false,
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.155Z",
+    "updatedAt": "2025-03-19T16:48:31.155Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a34388",
+    "id": "8gbuso47",
+    "name": {
+      "default": "Afumi Hashi",
+      "alias": []
+    },
+    "links": [
+      {
+        "name": "Profil",
+        "value": "https://www.81produce.co.jp/dcms_plusdb/index.php/item?cell003=%E3%81%AF%E8%A1%8C&cell029=%E5%A5%B3%E6%80%A7&keyword=%E5%9C%9F%E5%B8%AB+%E4%BA%9C%E6%96%87&cell028=&cell004=&name=%E5%9C%9F%E5%B8%AB%E3%80%80%E4%BA%9C%E6%96%87&id=270&label=1"
+      }
+    ],
+    "isGroupe": false,
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.215Z",
+    "updatedAt": "2025-03-19T16:48:31.215Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a34389",
+    "id": "evy6a89p",
+    "name": {
+      "default": "Sora Amamiya",
+      "alias": []
+    },
+    "birthDate": {
+      "year": 1993,
+      "month": 8,
+      "day": 28,
+      "hours": 2,
+      "minutes": 0,
+      "seconds": 0
+    },
+    "links": [
+      {
+        "name": "Profil",
+        "value": "https://musicrayn.com/amamiya_sora"
+      }
+    ],
+    "isGroupe": false,
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.216Z",
+    "updatedAt": "2025-03-19T16:48:31.216Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a34386",
+    "id": "91vvr29t",
+    "name": {
+      "default": "Ai Kayano",
+      "alias": []
+    },
+    "birthDate": {
+      "year": 1987,
+      "month": 9,
+      "day": 13,
+      "hours": 2,
+      "minutes": 0,
+      "seconds": 0
+    },
+    "links": [
+      {
+        "name": "Profil",
+        "value": "https://osawa-inc.co.jp/women/kayanoai/"
+      }
+    ],
+    "isGroupe": false,
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.219Z",
+    "updatedAt": "2025-03-19T16:48:31.219Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a34387",
+    "id": "5xaa6c26",
+    "name": {
+      "default": "Nao Touyama",
+      "alias": []
+    },
+    "birthDate": {
+      "year": 1992,
+      "month": 3,
+      "day": 11,
+      "hours": 1,
+      "minutes": 0,
+      "seconds": 0
+    },
+    "links": [
+      {
+        "name": "Profil",
+        "value": "https://www.jvcmusic.co.jp/flyingdog/-/Profile/A023615.html"
+      }
+    ],
+    "isGroupe": false,
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.218Z",
+    "updatedAt": "2025-03-19T16:48:31.218Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a3438a",
+    "id": "rhypbgi8",
+    "name": {
+      "default": "Nene Hieda",
+      "alias": []
+    },
+    "birthDate": {
+      "year": 1997,
+      "month": 1,
+      "day": 15,
+      "hours": 1,
+      "minutes": 0,
+      "seconds": 0
+    },
+    "links": [
+      {
+        "name": "Profil",
+        "value": "https://www.81produce.co.jp/actor_search/index.php/item?id=279"
+      }
+    ],
+    "isGroupe": false,
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.355Z",
+    "updatedAt": "2025-03-19T16:48:31.355Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a343b1",
+    "id": "0r84haok",
+    "name": {
+      "default": "DIALOGUE＋",
+      "alias": []
+    },
+    "birthDate": {
+      "year": 2019,
+      "month": 6,
+      "day": 24,
+      "hours": 2,
+      "minutes": 0,
+      "seconds": 0
+    },
+    "description": "Yurina Uchiyama (内山 悠里菜)\nNene Hieda (稗田 寧々)\nKyōka Moriya (守屋 亨香)\nYuna Ogata (緒方 佑奈)\nAyaka Takamura (鷹村 彩花)\nSatsuki Miyahara (宮原 颯希)\nMayu Iizuka (飯塚 麻結)\nManatsu Murakami (村上 まなつ)",
+    "links": [
+      {
+        "name": "Dialogue+",
+        "value": "https://dialogue-music.jp/"
+      }
+    ],
+    "isGroupe": true,
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.444Z",
+    "updatedAt": "2025-03-19T16:48:31.444Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a343b2",
+    "id": "992xxcnu",
+    "name": {
+      "default": "Harmoe",
+      "alias": []
+    },
+    "description": "harmoe est une unité de seiyu japonaises composé de Iwata Haruki et Koizumi Moeka.",
+    "links": [
+      {
+        "name": "Site officiel",
+        "value": "https://harmoe.jp/"
+      }
+    ],
+    "isGroupe": true,
+    "isVerified": true,
+    "createdAt": "2025-03-19T16:48:31.446Z",
+    "updatedAt": "2025-03-19T16:48:31.446Z",
+    "__v": 0
+  }
+]

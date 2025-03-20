@@ -1,0 +1,10 @@
+// @index('./*', f => `export * from '${f.path}'`)
+export * from './_create.request.test'
+export * from './_create.test'
+export * from './_delete.test'
+export * from './_filter.test'
+export * from './_get.test'
+export * from './_unverify.test'
+export * from './_update.request.test'
+export * from './_update.test'
+export * from './_verify.test'

@@ -1,10 +1,10 @@
-import { UserModel } from "@actunime/mongoose-models";
 import { ClientSession, Document } from "mongoose";
 import { ITargetPath, IUser } from "@actunime/types";
 import { UtilControllers } from "../_utils/_controllers";
 import LogSession from "../_utils/_logSession";
 import { IUserMutationBody } from "@actunime/validations";
 import { ImageController } from "./image.controller";
+import { UserModel } from "../_lib/models";
 
 type IUserDoc = (Document<unknown, {}, IUser> & IUser & { _id: import("mongoose").Types.ObjectId; } & { __v: number; }) | null
 
@@ -18,7 +18,7 @@ class UserController extends UtilControllers.withUser {
     private targetPath: ITargetPath = "User";
 
     constructor(session: ClientSession | null = null, options?: { logSession?: LogSession, user?: IUser }) {
-        super(options?.user);
+        super({session, ...options});
         this.session = session;
         this.log = options?.logSession;
     }
@@ -29,7 +29,7 @@ class UserController extends UtilControllers.withUser {
         return user;
     }
 
-    warpper(data: IUserDoc): IUserControlled | null {
+    warpper(data: any): IUserControlled | null {
         if (!data)
             return null;
 
@@ -65,7 +65,8 @@ class UserController extends UtilControllers.withUser {
         }
 
         if (!user) {
-            user = await this.genNewUser(userData);
+            user = await this.genNewUser(userData) as any;
+            if (user)
             user.isNew = true;
         }
 
