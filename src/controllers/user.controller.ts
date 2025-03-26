@@ -1,121 +1,325 @@
-import { ClientSession, Document } from "mongoose";
-import { ITargetPath, IUser } from "@actunime/types";
-import { UtilControllers } from "../_utils/_controllers";
-import LogSession from "../_utils/_logSession";
-import { IUserMutationBody } from "@actunime/validations";
-import { ImageController } from "./image.controller";
-import { UserModel } from "../_lib/models";
-
-type IUserDoc = (Document<unknown, {}, IUser> & IUser & { _id: import("mongoose").Types.ObjectId; } & { __v: number; }) | null
-
-interface IUserResponse extends IUser {
-    parsedUser: () => Partial<IUser> | null
-}
-
-type IUserControlled = IUserDoc
+import { ClientSession } from 'mongoose';
+import { ITargetPath, IUser, IUserPaginationResponse } from '@actunime/types';
+import { UtilControllers } from '../_utils/_controllers';
+import LogSession from '../_utils/_logSession';
+import { DevLog, genPublicID } from '@actunime/utils';
+import {
+  IMediaDeleteBody,
+  IUserAddBody,
+  IUserBody,
+  IUserCreateBody,
+  IUserPaginationBody,
+} from '@actunime/validations';
+import { User } from '../_lib/media/_user';
+import { UserModel } from '../_lib/models';
+import { PaginationControllers } from './pagination.controllers';
+import { ImageController } from './image.controller';
+import { APIError } from '../_lib/error';
+import { Patch } from '../_lib/media';
 
 class UserController extends UtilControllers.withUser {
-    private targetPath: ITargetPath = "User";
+  private targetPath: ITargetPath = 'User';
 
-    constructor(session: ClientSession | null = null, options?: { logSession?: LogSession, user?: IUser }) {
-        super({session, ...options});
-        this.session = session;
-        this.log = options?.logSession;
+  constructor(
+    session?: ClientSession | null,
+    options?: { log?: LogSession; user?: IUser }
+  ) {
+    super({ session, ...options });
+  }
+
+  async pagination(
+    pageFilter?: Partial<IUserPaginationBody>
+  ): Promise<IUserPaginationResponse> {
+    DevLog(`Pagination des users...`, 'debug');
+    const pagination = new PaginationControllers(UserModel);
+
+    pagination.useFilter(pageFilter);
+
+    const res = await pagination.getResults();
+    res.results = res.results.map((result) => new User(result).toJSON());
+
+    DevLog(`Users trouvées: ${res.resultsCount}`, 'debug');
+    return res;
+  }
+
+  async build(
+    input: IUserBody,
+    params: { refId: string; isRequest: boolean; userId?: string }
+  ) {
+    const { avatar, banner, ...rawUser } = input;
+    const user: Partial<IUser> & { id: string } = {
+      ...rawUser,
+      id: params.userId || genPublicID(8),
+    };
+
+    const session = this.session;
+    this.needSession(session);
+
+    if (params?.userId) {
+      // Vérification que l'user existe;
+      const get = await User.get(params.userId, {
+        cache: '5s',
+        nullThrowErr: true,
+        session,
+      });
+      // Valeur a synchroniser;
+      user.roles = get.roles;
+      user.accountId = get.accountId;
+      user.username = get.username;
     }
+    this.needUser(this.user);
+    const { refId, isRequest } = params;
+    DevLog(`Build de la userne...`, 'debug');
 
+    const imageController = new ImageController(session, {
+      user: this.user,
+      log: this.log,
+    });
 
-    parse(user: Partial<IUser & { _id: any }>) {
-        delete user._id;
-        return user;
-    }
+    const avatarData = await imageController.add(
+      avatar,
+      refId,
+      isRequest,
+      { id: this.user.id },
+      this.targetPath
+    );
 
-    warpper(data: any): IUserControlled | null {
-        if (!data)
-            return null;
+    if (avatarData) user.avatar = { id: avatarData.id };
 
-        const res = data as IUserControlled;
-        // res.parsedUser = this.parse.bind(this, data)
+    const bannerData = await imageController.add(
+      banner,
+      refId,
+      isRequest,
+      { id: this.user.id },
+      this.targetPath
+    );
 
-        return res;
-    }
+    if (bannerData) user.banner = { id: bannerData.id };
 
-    async build(input: IUserMutationBody, defInput: { username: string, accountId: string }, { refId, description }: { refId: string, description?: string }) {
-        const { avatar, banner, ...rawUser } = input;
-        const userData: Partial<IUser> = {
-            ...rawUser,
-            ...defInput,
-        };
+    return new User(user, this.session);
+  }
 
-        let user: IUserDoc | null = null;
+  public async add(item: IUserAddBody | undefined) {
+    const session = this.session;
+    if (item?.id) {
+      const get = await User.get(item.id, {
+        nullThrowErr: true,
+        session,
+      });
+      return { id: get.id };
+    } else if (item)
+      throw new APIError(
+        'Vous devez fournir un utilisateur valide',
+        'BAD_REQUEST'
+      );
+    return;
+  }
 
-        if (this.user) {
-            const getUser = await this.getById(this.user.id);
-            if (getUser) {
-                user = getUser;
-                user.isNew = false;
-            }
-        }
+  public async bulkAdd(mangas: IUserAddBody[] | undefined) {
+    if (!mangas?.length) return undefined;
+    const items = await Promise.all(
+      mangas.map(async (manga) => this.add(manga))
+    );
 
-        if (!user && defInput.username) {
-            const getUser = await this.getByUsername(defInput.username);
-            if (getUser) {
-                user = getUser;
-                user.isNew = false;
-            }
-        }
+    return {
+      items: items.filter((data) => data?.id).map((data) => ({ id: data!.id })),
+    };
+  }
 
-        if (!user) {
-            user = await this.genNewUser(userData) as any;
-            if (user)
-            user.isNew = true;
-        }
+  public async create(
+    data: IUserBody,
+    params: Omit<IUserCreateBody, 'data'> & { refId?: string }
+  ) {
+    DevLog("Création de l'user...", 'debug');
+    this.needUser(this.user);
+    this.needSession(this.session);
+    const patchID = genPublicID(8);
+    const build = await this.build(data, { refId: patchID, isRequest: false });
 
-        this.needUser(user);
+    const newPatch = new Patch(
+      {
+        ...(params.refId && { ref: { id: params.refId } }),
+        id: patchID,
+        type: 'CREATE',
+        author: { id: this.user.id },
+        target: build.asRelation(),
+        targetPath: this.targetPath,
+        original: build.toJSON(),
+        status: 'ACCEPTED',
+        description: params.description,
+        moderator: { id: this.user.id },
+      },
+      this.session
+    );
 
-        if (avatar || banner) {
-            const imageController = new ImageController(this.session, { log: this.log, user });
+    await newPatch.save({ nullThrowErr: true });
 
-            if (avatar && (avatar.id || avatar.newImage)) {
-                const getImage = avatar.id ? await imageController.getById(avatar.id) :
-                    await imageController.create_request(avatar.newImage!, { refId, target: { id: user.id }, targetPath: this.targetPath })
-                user.avatar = { id: getImage.id };
-            }
+    this.log?.add("Création d'un user", [
+      { name: 'Nom', content: build.displayName },
+      { name: 'ID', content: build.id },
+      { name: 'MajID', content: patchID },
+      { name: 'Description', content: params.description },
+      {
+        name: 'Modérateur',
+        content: `${this.user.username} (${this.user.id})`,
+      },
+    ]);
 
-            if (banner && (banner.id || banner.newImage)) {
-                const getImage = banner.id ? await imageController.getById(banner.id) :
-                    await imageController.create_request(banner.newImage!, { refId, target: { id: user.id }, targetPath: this.targetPath })
-                user.banner = { id: getImage.id };
-            }
-        }
+    const saved = await build.save({ nullThrowErr: true });
 
-        user.set(userData);
+    DevLog(`User créé... ID User: ${saved.id}, ID Maj: ${patchID}`, 'debug');
 
-        return user;
-    }
+    return {
+      patch: newPatch.toJSON(),
+      data: saved,
+    };
+  }
 
-    async getById(id: string) {
-        const res = await UserModel.findOne({ id }).cache("10s");
-        return this.warpper(res);
-    }
+  public async update(
+    id: string,
+    data: IUserCreateBody['data'],
+    params: Omit<IUserCreateBody, 'data'> & { refId?: string }
+  ) {
+    DevLog("Mise à jour de l'user...", 'debug');
+    this.needUser(this.user);
+    this.needSession(this.session);
+    const patchID = genPublicID(8);
+    const build = await this.build(data, {
+      refId: patchID,
+      isRequest: false,
+      userId: id,
+    });
+    const { original, changes } = await build.getDBDiff();
 
-    async getByUsername(username: string) {
-        const res = await UserModel.findOne({ username }).cache("10s");
-        return this.warpper(res);
-    }
+    console.log('changements', changes);
 
-    async getByAccountId(id: string) {
-        const res = await UserModel.findOne({ accountId: id }).cache("10s");
-        return this.warpper(res);
-    }
+    if (!changes || (changes && !changes.length))
+      throw new APIError("Aucun changement n'a été détecté !", 'EMPTY_CHANGES');
 
-    async genNewUser(data: Partial<IUser>) {
-        const newUser = new UserModel(data);
-        return newUser;
-    }
+    const newPatch = new Patch(
+      {
+        ...(params.refId && { ref: { id: params.refId } }),
+        id: patchID,
+        type: 'UPDATE',
+        author: { id: this.user.id },
+        target: build.asRelation(),
+        targetPath: this.targetPath,
+        original,
+        changes,
+        status: 'ACCEPTED',
+        description: params.description,
+      },
+      this.session
+    );
 
-    async updateUser(id: string, data: Partial<IUser>) {
-        await UserModel.updateOne({ id }, data).session(this.session);
-    }
+    await newPatch.save({ nullThrowErr: true });
+
+    this.log?.add("Modification d'un user", [
+      { name: 'Nom', content: build.displayName },
+      { name: 'ID', content: build.id },
+      { name: 'MajID', content: patchID },
+      { name: 'Description', content: params.description },
+      {
+        name: 'Modérateur',
+        content: `${this.user.username} (${this.user.id})`,
+      },
+    ]);
+
+    const updated = await build.update({ nullThrowErr: true });
+
+    DevLog(
+      `User mis à jour, ID User: ${build.id}, ID Maj: ${patchID}`,
+      'debug'
+    );
+
+    return {
+      patch: newPatch.toJSON(),
+      data: updated,
+    };
+  }
+
+  public async delete(id: string, params: IMediaDeleteBody) {
+    DevLog("Suppression de l'user...", 'debug');
+    this.needUser(this.user);
+    this.needSession(this.session);
+    const media = await User.get(id, {
+      json: false,
+      nullThrowErr: true,
+      session: this.session,
+    });
+    const deleted = await media.delete({ nullThrowErr: true });
+    const patchID = genPublicID(8);
+
+    // Créez un patch que si l'user était un user vérifié;
+    const newPatch = new Patch(
+      {
+        id: patchID,
+        type: 'DELETE',
+        author: { id: this.user.id },
+        target: media.asRelation(),
+        targetPath: this.targetPath,
+        original: media.toJSON(),
+        status: 'ACCEPTED',
+        reason: params.reason,
+        moderator: { id: this.user.id },
+      },
+      this.session
+    );
+
+    await newPatch.save({ nullThrowErr: true });
+
+    this.log?.add("Suppresion d'un user", [
+      { name: 'Nom', content: media.displayName },
+      { name: 'ID', content: media.id },
+      { name: 'Raison', content: params.reason },
+      {
+        name: 'Modérateur',
+        content: `${this.user.username} (${this.user.id})`,
+      },
+    ]);
+
+    DevLog(`User supprimé, ID User: ${media.id}, ID Maj: ${patchID}`, 'debug');
+
+    return {
+      patch: newPatch.toJSON(),
+      data: deleted,
+    };
+  }
+
+  public async delete_patch(
+    personID: string,
+    patchID: string
+    // params: IMediaDeleteBody
+  ) {
+    DevLog("Suppression d'une demande de modification d'un person...", 'debug');
+    this.needUser(this.user);
+    const request = await Patch.get(patchID, {
+      nullThrowErr: true,
+      json: false,
+      session: this.session,
+    });
+
+    if (!request.targetIdIs(personID))
+      throw new APIError(
+        "L'identifiant de l'person n'est pas celui qui est lié a la requête",
+        'BAD_REQUEST'
+      );
+
+    const deleted = await request.delete({ nullThrowErr: true });
+
+    // Gérer le reccursive
+    // if (params.deleteTarget)
+    //     await this.delete(request.target.id, params, ["PERSON_REQUEST_DELETE"]);
+
+    DevLog(
+      `Demande supprimée (${deleted}), ID Person: ${request.target.id}, ID Demande: ${request.id}`,
+      'debug'
+    );
+
+    return {
+      patch: deleted,
+    };
+  }
 }
 
 export { UserController };

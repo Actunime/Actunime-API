@@ -1,228 +1,163 @@
 import { ClientSession } from 'mongoose';
 import { APIError } from '../_lib/error';
 import {
-  IAnime,
-  IAnimePaginationResponse,
-  IPatch,
-  ITargetPath,
+  IPerson,
   IUser,
+  ITargetPath,
+  IPersonPaginationResponse,
 } from '@actunime/types';
-import { PaginationControllers } from './pagination.controllers';
 import {
-  IAnimeAddBody,
-  IAnimeCreateBody,
-  IAnimePaginationBody,
+  IPersonBody,
   IMediaDeleteBody,
+  IPersonCreateBody,
+  IPersonPaginationBody,
+  IPersonAddBody,
 } from '@actunime/validations';
 import { UtilControllers } from '../_utils/_controllers';
-import { GroupeController } from './groupe.controller';
-import { ImageController } from './image.controller';
-import { MangaController } from './manga.controller';
-import { CompanyController } from './company.controller';
-import { PersonController } from './person.controller';
-import { CharacterController } from './character.controller';
-import { TrackController } from './track.controller';
-import LogSession from '../_utils/_logSession';
 import { DevLog } from '../_lib/logger';
 import { genPublicID } from '@actunime/utils';
-import { Anime } from '../_lib/media/_anime';
-import { AnimeModel } from '../_lib/models';
+import { ImageController } from './image.controller';
+import LogSession from '../_utils/_logSession';
+import { Person } from '../_lib/media/_person';
 import { Patch } from '../_lib/media';
+import { PersonModel } from '../_lib/models';
+import { PaginationControllers } from './pagination.controllers';
 
-class AnimeController extends UtilControllers.withUser {
-  // private patchController: PatchController;
-  private targetPath: ITargetPath = 'Anime';
-  private groupeController: GroupeController;
-  private imageController: ImageController;
-  private mangaController: MangaController;
-  private companyController: CompanyController;
-  private personController: PersonController;
-  private characterController: CharacterController;
-  private trackController: TrackController;
+class PersonController extends UtilControllers.withUser {
+  private targetPath: ITargetPath = 'Person';
 
   constructor(
-    session: ClientSession | null = null,
+    session?: ClientSession | null,
     options?: { log?: LogSession; user?: IUser }
   ) {
     super({ session, ...options });
-    // this.patchController = new PatchController(session, options);
-    this.groupeController = new GroupeController(session, options);
-    this.imageController = new ImageController(session, options);
-    this.mangaController = new MangaController(session, options);
-    this.companyController = new CompanyController(session, options);
-    this.personController = new PersonController(session, options);
-    this.characterController = new CharacterController(session, options);
-    this.trackController = new TrackController(session, options);
   }
 
   async pagination(
-    pageFilter?: Partial<IAnimePaginationBody>
-  ): Promise<IAnimePaginationResponse<IAnime>> {
-    DevLog(`Pagination des animes...`, 'debug');
-    const pagination = new PaginationControllers(AnimeModel);
+    pageFilter?: Partial<IPersonPaginationBody>
+  ): Promise<IPersonPaginationResponse> {
+    DevLog(`Pagination des persons...`, 'debug');
+    const pagination = new PaginationControllers(PersonModel);
 
     pagination.useFilter(pageFilter);
 
     const res = await pagination.getResults();
-    res.results = res.results.map((result) => new Anime(result).toJSON());
+    res.results = res.results.map((result) => new Person(result).toJSON());
 
-    DevLog(`Animes trouvées: ${res.resultsCount}`, 'debug');
+    DevLog(`Persons trouvées: ${res.resultsCount}`, 'debug');
     return res;
   }
 
   async build(
-    input: IAnimeCreateBody['data'],
-    params: { refId: string; isRequest: boolean; animeId?: string }
+    input: IPersonBody,
+    params: { refId: string; isRequest: boolean; personId?: string }
   ) {
-    const {
-      groupe,
-      parent,
-      cover,
-      banner,
-      manga,
-      companys,
-      staffs,
-      characters,
-      tracks,
-      ...rawAnime
-    } = input;
-    const { refId, isRequest, animeId } = params;
-    const session = this.session;
-    this.needSession(session);
-
-    const anime: Partial<IAnime> & Required<{ id: string }> = {
-      ...rawAnime,
-      id: params.animeId || genPublicID(8),
+    const { avatar, ...rawPerson } = input;
+    const person: Partial<IPerson> & { id: string } = {
+      ...rawPerson,
+      id: params.personId || genPublicID(8),
       isVerified: false,
     };
-    let patchs: IPatch[] = [];
 
-    if (animeId) {
+    const session = this.session;
+    this.needSession(session);
+    if (params?.personId) {
       // Vérification que l'anime existe;
-      const getAnime = await Anime.get(animeId, {
+      const get = await Person.get(params.personId, {
         cache: '5s',
         nullThrowErr: true,
+        session,
       });
       // Valeur a synchroniser;
-      anime.isVerified = getAnime.isVerified;
+      person.isVerified = get.isVerified;
     }
 
-    DevLog(`Build anime... ID: ${anime.id}`, 'debug');
+    const user = this.user;
+    this.needUser(user);
+    const { refId, isRequest } = params;
+    DevLog(`Build de la personne...`, 'debug');
 
-    const groupeData = await this.groupeController.add(
-      groupe,
-      refId,
-      isRequest
-    );
-    if (groupeData?.patch) patchs.push(groupeData.patch);
-    if (groupeData) anime.groupe = { id: groupeData.id };
-
-    const animeData = await this.add(parent);
-    anime.parent = animeData;
-
-    const mangaData = await this.mangaController.add(manga);
-    anime.manga = mangaData;
-
-    const companyData = await this.companyController.bulkAdd(
-      companys,
-      refId,
-      isRequest
-    );
-    if (companyData?.patchs) patchs = patchs.concat(companyData.patchs);
-    anime.companys = companyData?.items;
-
-    const coverData = await this.imageController.add(
-      cover,
+    const imageController = new ImageController(session, {
+      user,
+      log: this.log,
+    });
+    const imageData = await imageController.add(
+      avatar,
       refId,
       isRequest,
-      { id: anime.id },
+      { id: person.id },
       this.targetPath
     );
 
-    if (coverData?.patch) patchs.push(coverData.patch);
-    if (coverData) anime.cover = { id: coverData.id };
+    if (imageData) person.avatar = { id: imageData.id };
 
-    const bannerData = await this.imageController.add(
-      banner,
-      refId,
-      isRequest,
-      { id: anime.id },
-      this.targetPath
-    );
-
-    if (bannerData?.patch) patchs.push(bannerData.patch);
-    if (bannerData) anime.banner = { id: bannerData.id };
-
-    const staffData = await this.personController.bulkAdd(
-      staffs,
-      refId,
-      isRequest
-    );
-
-    if (staffData?.patchs) patchs = patchs.concat(staffData.patchs);
-    anime.staffs = staffData?.items;
-
-    const characterData = await this.characterController.bulkAdd(
-      characters,
-      refId,
-      isRequest
-    );
-
-    if (characterData?.patchs) patchs = patchs.concat(characterData.patchs);
-    anime.characters = characterData?.items;
-
-    const trackData = await this.trackController.bulkAdd(
-      tracks,
-      refId,
-      isRequest
-    );
-
-    if (trackData?.patchs) patchs = patchs.concat(trackData.patchs);
-    anime.tracks = trackData?.items;
-
-    return {
-      build: new Anime(anime, this.session),
-      patchs,
-    };
+    return new Person(person, this.session);
   }
-  public async add(item: IAnimeAddBody | undefined) {
+
+  public async add(
+    item: IPersonAddBody | undefined,
+    refId: string,
+    isRequest: boolean
+  ) {
     const session = this.session;
     if (item?.id) {
-      const get = await Anime.get(item.id, {
+      const get = await Person.get(item.id, {
         nullThrowErr: true,
         session,
       });
       return { id: get.id };
+    } else if (item?.newPerson) {
+      if (isRequest) {
+        const { data, patch } = await this.create_request(item.newPerson!, {
+          refId,
+        });
+        return { id: data.id, role: item.role, patch };
+      } else {
+        const { data, patch } = await this.create(item.newPerson!, {
+          refId,
+        });
+        return { id: data.id, role: item.role, patch };
+      }
     } else if (item)
-      throw new APIError('Vous devez fournir un anime valide', 'BAD_REQUEST');
+      throw new APIError(
+        'Vous devez fournir une personne valide',
+        'BAD_REQUEST'
+      );
     return;
   }
 
-  public async bulkAdd(mangas: IAnimeAddBody[] | undefined) {
-    if (!mangas?.length) return undefined;
+  public async bulkAdd(
+    persons: IPersonAddBody[] | undefined,
+    refId: string,
+    isRequest: boolean
+  ) {
+    if (!persons?.length) return undefined;
     const items = await Promise.all(
-      mangas.map(async (manga) => this.add(manga))
+      persons.map(async (person) => this.add(person, refId, isRequest))
     );
-
     return {
-      items: items,
+      items: items
+        .filter((data) => data?.id)
+        .map((data) => ({ id: data!.id, role: data!.role })),
+      patchs: items.filter((data) => data?.patch).map((data) => data!.patch!),
     };
   }
 
   public async create(
-    data: IAnimeCreateBody['data'],
-    params: Omit<IAnimeCreateBody, 'data'>
+    data: IPersonCreateBody['data'],
+    params: Omit<IPersonCreateBody, 'data'> & { refId?: string }
   ) {
-    DevLog("Création de l'anime...", 'debug');
+    DevLog("Création de l'person...", 'debug');
     this.needUser(this.user);
     this.needSession(this.session);
-    const refId = genPublicID(8);
-    const { build } = await this.build(data, { refId, isRequest: false });
+    const patchID = genPublicID(8);
+    const build = await this.build(data, { refId: patchID, isRequest: false });
     build.setVerified();
 
     const newPatch = new Patch(
       {
-        id: refId,
+        ...(params.refId && { ref: { id: params.refId } }),
+        id: patchID,
         type: 'CREATE',
         author: { id: this.user.id },
         target: build.asRelation(),
@@ -237,10 +172,10 @@ class AnimeController extends UtilControllers.withUser {
 
     await newPatch.save({ nullThrowErr: true });
 
-    this.log?.add("Création d'un anime", [
-      { name: 'Nom', content: build.title.default },
+    this.log?.add("Création d'un person", [
+      { name: 'Nom', content: build.name.default },
       { name: 'ID', content: build.id },
-      { name: 'MajID', content: refId },
+      { name: 'MajID', content: patchID },
       { name: 'Description', content: params.description },
       {
         name: 'Modérateur',
@@ -250,26 +185,30 @@ class AnimeController extends UtilControllers.withUser {
 
     const saved = await build.save({ nullThrowErr: true });
 
-    DevLog(`Anime créé... ID Anime: ${saved.id}, ID Maj: ${refId}`, 'debug');
+    DevLog(
+      `Person créé... ID Person: ${saved.id}, ID Maj: ${patchID}`,
+      'debug'
+    );
+
     return {
-      data: saved,
       patch: newPatch.toJSON(),
+      data: saved,
     };
   }
 
   public async update(
     id: string,
-    data: IAnimeCreateBody['data'],
-    params: Omit<IAnimeCreateBody, 'data'>
+    data: IPersonCreateBody['data'],
+    params: Omit<IPersonCreateBody, 'data'> & { refId?: string }
   ) {
-    DevLog("Mise à jour de l'anime...", 'debug');
+    DevLog("Mise à jour de l'person...", 'debug');
     this.needUser(this.user);
     this.needSession(this.session);
     const patchID = genPublicID(8);
-    const { build } = await this.build(data, {
+    const build = await this.build(data, {
       refId: patchID,
       isRequest: false,
-      animeId: id,
+      personId: id,
     });
     const { original, changes } = await build.getDBDiff();
 
@@ -280,6 +219,7 @@ class AnimeController extends UtilControllers.withUser {
 
     const newPatch = new Patch(
       {
+        ...(params.refId && { ref: { id: params.refId } }),
         id: patchID,
         type: 'UPDATE',
         author: { id: this.user.id },
@@ -296,8 +236,8 @@ class AnimeController extends UtilControllers.withUser {
 
     await newPatch.save({ nullThrowErr: true });
 
-    this.log?.add("Modification d'un anime", [
-      { name: 'Nom', content: build.title.default },
+    this.log?.add("Modification d'un person", [
+      { name: 'Nom', content: build.name.default },
       { name: 'ID', content: build.id },
       { name: 'MajID', content: patchID },
       { name: 'Description', content: params.description },
@@ -310,21 +250,21 @@ class AnimeController extends UtilControllers.withUser {
     const updated = await build.update({ nullThrowErr: true });
 
     DevLog(
-      `Anime mis à jour, ID Anime: ${build.id}, ID Maj: ${patchID}`,
+      `Person mis à jour, ID Person: ${build.id}, ID Maj: ${patchID}`,
       'debug'
     );
 
     return {
-      data: updated,
       patch: newPatch.toJSON(),
+      data: updated,
     };
   }
 
   public async delete(id: string, params: IMediaDeleteBody) {
-    DevLog("Suppression de l'anime...", 'debug');
+    DevLog("Suppression de l'person...", 'debug');
     this.needUser(this.user);
     this.needSession(this.session);
-    const media = await Anime.get(id, {
+    const media = await Person.get(id, {
       json: false,
       nullThrowErr: true,
       session: this.session,
@@ -333,7 +273,7 @@ class AnimeController extends UtilControllers.withUser {
     const patchID = genPublicID(8);
 
     if (media.isVerified) {
-      // Créez un patch que si l'anime était un anime vérifié;
+      // Créez un patch que si l'person était un person vérifié;
       const newPatch = new Patch(
         {
           id: patchID,
@@ -351,8 +291,8 @@ class AnimeController extends UtilControllers.withUser {
 
       await newPatch.save({ nullThrowErr: true });
 
-      this.log?.add("Suppresion d'un anime", [
-        { name: 'Nom', content: media.title.default },
+      this.log?.add("Suppresion d'un person", [
+        { name: 'Nom', content: media.name.default },
         { name: 'ID', content: media.id },
         { name: 'Raison', content: params.reason },
         {
@@ -362,61 +302,64 @@ class AnimeController extends UtilControllers.withUser {
       ]);
 
       DevLog(
-        `Anime supprimé, ID Anime: ${media.id}, ID Maj: ${patchID}`,
+        `Person supprimé, ID Person: ${media.id}, ID Maj: ${patchID}`,
         'debug'
       );
+
       return {
-        data: deleted,
         patch: newPatch.toJSON(),
+        data: deleted,
       };
     }
 
     DevLog(
-      `Anime non supprimé ou inexistant ou bug ???, ID Anime: ${media.id}`,
+      `Person non supprimé ou inexistant ou bug ???, ID Person: ${media.id}`,
       'debug'
     );
+
     return {
       data: deleted,
     };
   }
 
   public async verify(id: string) {
-    DevLog("Verification de l'anime...", 'debug');
-    const media = await Anime.get(id, {
+    DevLog("Verification de l'person...", 'debug');
+    const media = await Person.get(id, {
       json: false,
       nullThrowErr: true,
       session: this.session,
     });
     await media.setVerified(true);
-    DevLog(`Anime verifié, ID Anime: ${media.id}`, 'debug');
+    DevLog(`Person verifié, ID Person: ${media.id}`, 'debug');
     return media.toJSON();
   }
 
   public async unverify(id: string) {
-    DevLog("Verification de l'anime...", 'debug');
-    const media = await Anime.get(id, {
+    DevLog("Verification de l'person...", 'debug');
+    const media = await Person.get(id, {
       json: false,
       nullThrowErr: true,
       session: this.session,
     });
     await media.setUnverified(true);
-    DevLog(`Anime non verifié, ID Anime: ${media.id}`, 'debug');
+    DevLog(`Person non verifié, ID Person: ${media.id}`, 'debug');
     return media.toJSON();
   }
 
   public async create_request(
-    data: IAnimeCreateBody['data'],
-    params: Omit<IAnimeCreateBody, 'data'>
+    data: IPersonCreateBody['data'],
+    params: Omit<IPersonCreateBody, 'data'> & { refId?: string }
   ) {
-    DevLog("Demande de création d'un anime...", 'debug');
+    DevLog("Demande de création d'un person...", 'debug');
     this.needUser(this.user);
-    const refId = genPublicID(8);
-    const { build } = await this.build(data, { refId, isRequest: true });
+    const patchID = genPublicID(8);
+    const build = await this.build(data, { refId: patchID, isRequest: true });
     build.setUnverified();
 
     const newPatch = new Patch(
       {
-        id: refId,
+        ...(params.refId && { ref: { id: params.refId } }),
+        id: patchID,
         type: 'CREATE',
         author: { id: this.user.id },
         target: build.asRelation(),
@@ -431,10 +374,10 @@ class AnimeController extends UtilControllers.withUser {
     await newPatch.save({ nullThrowErr: true });
     await build.save({ nullThrowErr: true });
 
-    this.log?.add("Demande de création d'un anime", [
-      { name: 'Nom', content: build.title.default },
+    this.log?.add("Demande de création d'un person", [
+      { name: 'Nom', content: build.name.default },
       { name: 'ID', content: build.id },
-      { name: 'MajID', content: refId },
+      { name: 'MajID', content: patchID },
       { name: 'Description', content: params.description },
       {
         name: 'Modérateur',
@@ -443,27 +386,28 @@ class AnimeController extends UtilControllers.withUser {
     ]);
 
     DevLog(
-      `Anime créé, Demande crée... ID Anime: ${build.id}, ID Demande: ${refId}`,
+      `Person créé, Demande crée... ID Person: ${build.id}, ID Demande: ${patchID}`,
       'debug'
     );
+
     return {
-      data: build.toJSON(),
       patch: newPatch.toJSON(),
+      data: build.toJSON(),
     };
   }
 
   public async update_request(
     id: string,
-    data: IAnimeCreateBody['data'],
-    params: Omit<IAnimeCreateBody, 'data'>
+    data: IPersonCreateBody['data'],
+    params: Omit<IPersonCreateBody, 'data'> & { refId?: string }
   ) {
-    DevLog("Demande de modification d'un anime...", 'debug');
+    DevLog("Demande de modification d'un person...", 'debug');
     this.needUser(this.user);
-    const refId = genPublicID(8);
-    const { build } = await this.build(data, {
-      refId,
+    const patchID = genPublicID(8);
+    const build = await this.build(data, {
+      refId: patchID,
       isRequest: true,
-      animeId: id,
+      personId: id,
     });
     const { changes } = await build.getDBDiff();
     console.log('changements', changes);
@@ -473,7 +417,8 @@ class AnimeController extends UtilControllers.withUser {
 
     const newPatch = new Patch(
       {
-        id: refId,
+        ...(params.refId && { ref: { id: params.refId } }),
+        id: patchID,
         type: 'UPDATE',
         author: { id: this.user.id },
         target: build.asRelation(),
@@ -487,10 +432,10 @@ class AnimeController extends UtilControllers.withUser {
 
     await newPatch.save({ nullThrowErr: true });
 
-    this.log?.add("Demande de modification d'un anime", [
-      { name: 'Nom', content: build.title.default },
+    this.log?.add("Demande de modification d'un person", [
+      { name: 'Nom', content: build.name.default },
       { name: 'ID', content: build.id },
-      { name: 'MajID', content: refId },
+      { name: 'MajID', content: patchID },
       { name: 'Description', content: params.description },
       {
         name: 'Modérateur',
@@ -499,22 +444,26 @@ class AnimeController extends UtilControllers.withUser {
     ]);
 
     DevLog(
-      `Demande crée, ID Anime: ${build.id}, ID Demande: ${refId}`,
+      `Demande crée, ID Person: ${build.id}, ID Demande: ${patchID}`,
       'debug'
     );
+
     return {
-      data: build.toJSON(),
       patch: newPatch.toJSON(),
+      data: build.toJSON(),
     };
   }
 
   public async update_patch(
-    animeID: string,
+    personID: string,
     patchID: string,
-    data: IAnimeCreateBody['data'],
-    params: Omit<IAnimeCreateBody, 'data'>
+    data: IPersonCreateBody['data'],
+    params: Omit<IPersonCreateBody, 'data'>
   ) {
-    DevLog("Modification d'une demande de modification d'un anime...", 'debug');
+    DevLog(
+      "Modification d'une demande de modification d'un person...",
+      'debug'
+    );
     this.needUser(this.user);
     const request = await Patch.get(patchID, {
       nullThrowErr: true,
@@ -527,19 +476,19 @@ class AnimeController extends UtilControllers.withUser {
         'BAD_REQUEST'
       );
 
-    if (!request.targetIdIs(animeID))
+    if (!request.targetIdIs(personID))
       throw new APIError(
-        "L'identifiant de l'anime n'est pas celui qui est lié a la requête",
+        "L'identifiant de l'person n'est pas celui qui est lié a la requête",
         'BAD_REQUEST'
       );
 
-    const { build } = await this.build(data, {
+    const newPatchData = await this.build(data, {
       refId: request.id,
       isRequest: true,
-      animeId: animeID,
+      personId: personID,
     });
 
-    const { changes } = await build.getDBDiff();
+    const { changes } = await newPatchData.getDBDiff();
     if (!changes)
       throw new APIError("Aucun changement n'a été détecté !", 'EMPTY_CHANGES');
 
@@ -561,29 +510,28 @@ class AnimeController extends UtilControllers.withUser {
 
     await newPatch.save({ nullThrowErr: true });
 
-    console.log('... SAUVEGARDE');
     const newRequest = await request.update({
-      set: { changes: changes, isChangesUpdated: true },
+      set: { changes, isChangesUpdated: true },
       nullThrowErr: true,
     });
 
     DevLog(
-      `Demande modifiée, ID Anime: ${animeID}, ID Demande: ${newRequest.id}`,
+      `Demande modifiée, ID Person: ${personID}, ID Demande: ${newRequest.id}`,
       'debug'
     );
 
     return {
-      data: build.toJSON(),
       patch: newPatch.toJSON(),
+      data: newPatchData.toJSON(),
     };
   }
 
   public async delete_patch(
-    animeID: string,
+    personID: string,
     patchID: string
     // params: IMediaDeleteBody
   ) {
-    DevLog("Suppression d'une demande de modification d'un anime...", 'debug');
+    DevLog("Suppression d'une demande de modification d'un person...", 'debug');
     this.needUser(this.user);
     const request = await Patch.get(patchID, {
       nullThrowErr: true,
@@ -591,15 +539,9 @@ class AnimeController extends UtilControllers.withUser {
       session: this.session,
     });
 
-    if (!request.targetIdIs(animeID))
+    if (!request.targetIdIs(personID))
       throw new APIError(
-        "L'identifiant de l'anime n'est pas celui qui est lié a la requête",
-        'BAD_REQUEST'
-      );
-
-    if (request.isPending())
-      throw new APIError(
-        'Vous ne pouvez pas supprimer une demande en attente, refusez-la dabord',
+        "L'identifiant de l'person n'est pas celui qui est lié a la requête",
         'BAD_REQUEST'
       );
 
@@ -607,34 +549,33 @@ class AnimeController extends UtilControllers.withUser {
 
     // Gérer le reccursive
     // if (params.deleteTarget)
-    //     await this.delete(request.target.id, params, ["ANIME_REQUEST_DELETE"]);
+    //     await this.delete(request.target.id, params, ["PERSON_REQUEST_DELETE"]);
 
     DevLog(
-      `Demande supprimée (${deleted}), ID Anime: ${request.target.id}, ID Demande: ${request.id}`,
+      `Demande supprimée (${deleted}), ID Person: ${request.target.id}, ID Demande: ${request.id}`,
       'debug'
     );
 
     return {
-      patch: request.toJSON(),
+      patch: deleted,
     };
   }
 
   public async accept_patch(
-    animeID: string,
+    personID: string,
     patchID: string
     // params: IMediaVerifyBody
   ) {
-    DevLog("Acceptation d'une demande de modification d'un anime...", 'debug');
+    DevLog("Acceptation d'une demande de modification d'un person...", 'debug');
     this.needUser(this.user);
     const patch = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
-      session: this.session,
     });
 
-    if (!patch.targetIdIs(animeID))
+    if (!patch.targetIdIs(personID))
       throw new APIError(
-        "L'identifiant de l'anime n'est pas celui qui est lié a la requête",
+        "L'identifiant de l'person n'est pas celui qui est lié a la requête",
         'BAD_REQUEST'
       );
 
@@ -650,13 +591,13 @@ class AnimeController extends UtilControllers.withUser {
         'FORBIDDEN'
       );
 
-    const target = await Anime.get(patch.target.id, {
+    const target = await Person.get(patch.target.id, {
       nullThrowErr: true,
       json: false,
       session: this.session,
     });
 
-    let newData: IAnime;
+    let newData: IPerson;
     if (patch.isCreate()) {
       if (patch.changes) {
         DevLog(
@@ -684,9 +625,6 @@ class AnimeController extends UtilControllers.withUser {
         );
       }
     }
-    console.log(newData);
-    // if (params.reccursive)
-    //   await this.patchController.acceptPatchReferences(patch.id, params);
 
     const newPatch = await patch.update({
       set: { status: 'ACCEPTED' },
@@ -694,32 +632,32 @@ class AnimeController extends UtilControllers.withUser {
     });
 
     DevLog(
-      `Demande acceptée, ID Anime: ${newPatch.target.id}, ID Demande: ${newPatch.id}`,
+      `Demande acceptée, ID Person: ${newPatch.target.id}, ID Demande: ${newPatch.id}`,
       'debug'
     );
+
     return {
-      data: newData,
       patch: newPatch,
+      data: newData,
     };
   }
 
   public async reject_patch(
-    animeID: string,
+    personID: string,
     patchID: string
     // params: IMediaVerifyBody
   ) {
-    DevLog("Refus d'une demande de modification d'un anime...", 'debug');
+    DevLog("Refus d'une demande de modification d'un person...", 'debug');
     this.needUser(this.user);
     this.needSession(this.session);
     const patch = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
-      session: this.session,
     });
 
-    if (!patch.targetIdIs(animeID))
+    if (!patch.targetIdIs(personID))
       throw new APIError(
-        "L'identifiant de l'anime n'est pas celui qui est lié a la requête",
+        "L'identifiant de l'person n'est pas celui qui est lié a la requête",
         'BAD_REQUEST'
       );
 
@@ -735,15 +673,14 @@ class AnimeController extends UtilControllers.withUser {
         'FORBIDDEN'
       );
 
-    const target = await Anime.get(patch.target.id, {
+    const target = await Person.get(patch.target.id, {
       nullThrowErr: true,
       json: false,
-      session: this.session,
     });
 
     if (patch.type === 'CREATE') {
-      // Suppression de l'anime qui a été crée automatiquement dans le cadre de la demande;
-      await target.delete({ nullThrowErr: true });
+      // Suppression de l'person qui a été crée automatiquement dans le cadre de la demande;
+      await target.delete({ nullThrowErr: true, session: this.session });
       // gérer le reccursive
     }
 
@@ -757,13 +694,15 @@ class AnimeController extends UtilControllers.withUser {
     });
 
     DevLog(
-      `Demande refusée, ID Anime: ${newPatch.target.id}, ID Demande: ${newPatch.id}`,
+      `Demande refusée, ID Person: ${newPatch.target.id}, ID Demande: ${newPatch.id}`,
       'debug'
     );
+
     return {
       patch: newPatch,
+      data: target.toJSON(),
     };
   }
 }
 
-export { AnimeController };
+export { PersonController };

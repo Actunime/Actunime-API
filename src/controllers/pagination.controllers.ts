@@ -1,16 +1,10 @@
-import {
-  ClientSession,
-  Document,
-  FilterQuery,
-  Model,
-  PipelineStage,
-  Schema,
-} from 'mongoose';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ClientSession, FilterQuery, Model, PipelineStage } from 'mongoose';
 import { IPaginationResponse } from '@actunime/types';
 import { PaginationBody } from '@actunime/validations';
 import { z } from 'zod';
 import { flatten } from 'flat';
-import { APIError } from '../_lib/Error';
+import { APIError } from '../_lib/error';
 import { ModelDoc } from '../_lib/models';
 
 type IPaginationModelDoc<T> = Model<ModelDoc<T>>;
@@ -127,11 +121,11 @@ class Pagination<T> {
     return project;
   }
 
-  private regexInclude(value: string | object) {
+  private regexInclude(value: any) {
     if (this.strict) return value;
 
     if (typeof value === 'object') {
-      const toRegex = {};
+      const toRegex: any = {};
       for (const key of Object.keys(value)) {
         if (typeof value[key] === 'string') {
           toRegex[key] = new RegExp(value[key], 'i');
@@ -145,12 +139,12 @@ class Pagination<T> {
 
   // Passe les string[] en { $in: string[] };
   // Passe les obj en "key.key: value"
-  private parseObj(obj: object, forSort: boolean = false) {
-    const parsedObj: object = {};
-    const objB: object = {};
+  private parseObj(obj: any, forSort: boolean = false) {
+    const parsedObj: any = {};
+    const objB: any = {};
 
     for (const key of Object.keys(obj)) {
-      const value = obj[key];
+      const value = obj[key as keyof typeof obj];
       if (Array.isArray(value)) {
         if (forSort)
           throw new APIError(
