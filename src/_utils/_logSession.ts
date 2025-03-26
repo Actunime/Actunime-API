@@ -53,7 +53,7 @@ export default class LogSession {
 }
 
 
-export function AddLogSession(req: FastifyRequest, res: FastifyReply, next: () => void) {
+export function AddLogSession(req: FastifyRequest, _res: FastifyReply, next: () => void) {
     req.logSession = new LogSession(req.me);
     next();
 }

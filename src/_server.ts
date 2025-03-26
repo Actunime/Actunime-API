@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import fastify, { FastifyInstance, FastifyRequest } from 'fastify';
 import { ClientSession } from 'mongoose';
 
@@ -13,7 +14,7 @@ import {
   serializerCompiler,
   validatorCompiler,
 } from 'fastify-type-provider-zod';
-import { APIError } from './_lib/Error';
+import { APIError } from './_lib/error';
 import { DevLog } from './_lib/logger';
 import { APIResponse } from './_utils/_response';
 import { ZodError } from 'zod';
@@ -28,7 +29,8 @@ import { IUser, IUserRoles } from '@actunime/types';
 import { removeSessionHandler } from './_utils';
 import LogSession, { EndLogSession } from './_utils/_logSession';
 import { CheckRealmRoles, IRealmRole } from './_utils/_realmRoles';
-import { UserController } from './controllers/user.controller';
+import PersonRoutes from './routes/person.routes';
+import { User } from './_lib/media/_user';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -70,6 +72,7 @@ export class Server {
     ? parseInt(process.env.PORT as string)
     : 3000;
   private jwksClient: jwksRsa.JwksClient;
+  public routes: string[] = [];
   constructor(isTesting: boolean = false) {
     this.isTesting = isTesting;
     this.app = fastify({
@@ -89,7 +92,7 @@ export class Server {
     this.app.addContentTypeParser(
       'application/json',
       { parseAs: 'string' },
-      function (req, body: string, done) {
+      function (_req, body: string, done) {
         try {
           const json = JSON.parse(body);
           done(null, json);
@@ -103,6 +106,13 @@ export class Server {
 
     this.app.decorate('isTesting', this.isTesting);
     this.app.decorateRequest('isTesting', this.isTesting);
+
+    this.app.addHook('onRoute', (route) => {
+      const path = route.path.split('/v1')[1]
+        ? route.path.split('/v1')[1]
+        : route.path;
+      if (!this.routes.includes(path)) this.routes.push(path);
+    });
   }
 
   public async start() {
@@ -155,6 +165,7 @@ export class Server {
     await this.app.register(AuthRoutes, { prefix: '/auth' });
     await this.app.register(UserRoutes, { prefix: '/v1/users' });
     await this.app.register(AnimeRoutes, { prefix: '/v1/animes' });
+    await this.app.register(PersonRoutes, { prefix: '/v1/persons' });
     await this.app.register(PatchRoutes, { prefix: '/v1/patchs' });
     this.app.log.debug(this.app.printRoutes());
     console.debug('Routes chargé !');
@@ -176,8 +187,10 @@ export class Server {
     });
 
     try {
-      const raw = await this.jwksClient.getKeys();
-      const key = await this.jwksClient.getSigningKey(raw?.[1].kid);
+      const raw: any = await this.jwksClient.getKeys();
+      if (!raw)
+        throw new Error('Unable to fetch public keys from JWK endpoint');
+      const key = await this.jwksClient.getSigningKey(raw[1].kid);
       const myCustomMessages = {
         badRequestErrorMessage: 'tok: Format Authorization: Bearer [token]',
         badCookieRequestErrorMessage:
@@ -190,7 +203,7 @@ export class Server {
         authorizationTokenUntrusted: 'tok: Untrusted authorization token',
         authorizationTokenUnsigned: 'tok: Unsigned authorization token',
         // for the below message you can pass a sync function that must return a string as shown or a string
-        authorizationTokenInvalid: (err) => {
+        authorizationTokenInvalid: (err: { message: unknown }) => {
           return `tok: Authorization token is invalid: ${err.message}`;
         },
       };
@@ -218,7 +231,7 @@ export class Server {
         },
       });
     } catch (err) {
-      if (err instanceof AggregateError) {
+      if (err instanceof Error) {
         if (err?.stack?.includes('[ECONNREFUSED]')) {
           DevLog(`${'Impossible de joindre le serveur keycloak'}`, 'error');
         } else console.error(err);
@@ -232,9 +245,9 @@ export class Server {
         req.me = this.testingUser as any;
       } else {
         if (req.account) {
-          const getUser = await new UserController().getByAccountId(
-            req.account.id
-          );
+          const getUser = await User.getByAccount(req.account.id, {
+            nullThrowErr: true,
+          });
           req.me = getUser;
           // Fussionner les roles
           if (req.me)
@@ -244,42 +257,24 @@ export class Server {
     };
 
     const checkJWT = async (req: FastifyRequest) => {
-      if (this.isTesting) return;
-      if (req.jwtVerify) {
+      if (this.isTesting) {
+        if (!this.testingUser)
+          throw new APIError('Vous devez vous identifier', 'UNAUTHORIZED', 401);
+      } else if (req.jwtVerify) {
         await req.jwtVerify();
       } else
         throw new APIError('Vous devez vous identifier', 'UNAUTHORIZED', 401);
     };
 
-    this.app.decorate('authenticate', async (req, reply) => {
+    this.app.decorate('authenticate', async (req) => {
       await checkJWT(req);
       await setUser(req);
     });
 
     this.app.decorate(
-      'authenticateRoles',
-      (roles: IUserRoles[], strict: boolean = false) =>
-        async (req, res) => {
-          await checkJWT(req);
-          await setUser(req);
-          if (strict)
-            if (!roles.every((role) => req.me?.roles.includes(role)))
-              throw new APIError(
-                "Vous n'avez pas les permissions pour effectuer cette action",
-                'UNAUTHORIZED'
-              );
-            else if (!roles.some((role) => req.me?.roles.includes(role)))
-              throw new APIError(
-                "Vous n'avez pas les permissions pour effectuer cette action",
-                'UNAUTHORIZED'
-              );
-        }
-    );
-
-    this.app.decorate(
       'keycloakRoles',
       (roles, strict) =>
-        async function (req, res) {
+        async function (req) {
           await checkJWT(req);
           await setUser(req);
           if (!CheckRealmRoles(roles, req.me?.roles || [], strict))

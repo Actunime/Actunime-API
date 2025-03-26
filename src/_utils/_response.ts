@@ -1,4 +1,5 @@
-import { APICode, codeObj } from "../_lib/Error";
+import { IPatch } from '@actunime/types';
+import { APICode, codeObj } from '../_lib/error';
 
 export class APIResponse<T> {
   success: boolean;
@@ -6,6 +7,7 @@ export class APIResponse<T> {
   code: APICode;
   error: any;
   data: T | null;
+  patch: IPatch | undefined;
   status: number;
   constructor(props?: {
     success?: boolean;
@@ -13,6 +15,7 @@ export class APIResponse<T> {
     error?: any;
     message?: string;
     data?: T | null;
+    patch?: IPatch;
     status?: number;
   }) {
     this.code = props?.code || 'OK';
@@ -25,5 +28,6 @@ export class APIResponse<T> {
     } else {
       this.status = props?.status || 200;
     }
+    this.patch = props?.patch;
   }
 }

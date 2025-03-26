@@ -10,13 +10,12 @@ import {
 import { AnimeHandlers } from '../handlers/anime.handlers';
 import { addSessionHandler } from '../_utils';
 import { AddLogSession } from '../_utils/_logSession';
-import { APIError } from '../_lib/Error';
-import { AnimeHandlersTest } from '../handlers/tests/anime.handlers.test';
+import { APIError } from '../_lib/error';
 
 async function AnimeRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>();
   const tags = ['Anime'];
-  const handler = fastify.isTesting ? AnimeHandlersTest : AnimeHandlers;
+  const handler = fastify.isTesting ? AnimeHandlers : AnimeHandlers;
   /** GET */
 
   app.route({
@@ -25,6 +24,7 @@ async function AnimeRoutes(fastify: FastifyInstance) {
     schema: {
       description: "Récupération d'un anime",
       tags,
+      params: Utilchema.IdParam,
       response: {
         200: Utilchema.ResponseBody(),
       },
@@ -149,21 +149,6 @@ async function AnimeRoutes(fastify: FastifyInstance) {
 
   app.route({
     method: 'POST',
-    url: '/requests',
-    schema: {
-      description: "Filtrer les demandes d'animes",
-      tags,
-      response: {
-        200: Utilchema.ResponseBody(),
-      },
-    },
-    preValidation: [fastify.keycloakRoles(["ANIME_VERIFY", "ANIME_REQUEST_VERIFY"], false)],
-    preHandler: () => {},
-    handler: handler.filterAnimeRequest,
-  });
-
-  app.route({
-    method: 'POST',
     url: '/requests/create',
     schema: {
       description: "Créer une [demande] [création] d'un anime",
@@ -188,7 +173,8 @@ async function AnimeRoutes(fastify: FastifyInstance) {
         200: Utilchema.ResponseBody(),
       },
     },
-    preHandler: () => {},
+    preValidation: [fastify.keycloakRoles([])],
+    preHandler: [AddLogSession],
     handler: handler.filterAnimeRequestByAnimeID,
   });
 
@@ -231,7 +217,7 @@ async function AnimeRoutes(fastify: FastifyInstance) {
     schema: {
       description: "Accepter la demande d'un anime",
       tags,
-      body: MediaVerifyBody,
+      body: MediaVerifyBody.strict().partial(),
       response: {
         200: Utilchema.ResponseBody(),
       },
@@ -243,11 +229,11 @@ async function AnimeRoutes(fastify: FastifyInstance) {
 
   app.route({
     method: 'POST',
-    url: '/:animeID/requests/:patchID/refuse',
+    url: '/:animeID/requests/:patchID/reject',
     schema: {
       description: "Refuser la demande d'un anime",
       tags,
-      body: MediaVerifyBody,
+      body: MediaVerifyBody.strict().partial({ reccursive: true }),
       response: {
         200: Utilchema.ResponseBody(),
       },
@@ -263,13 +249,13 @@ async function AnimeRoutes(fastify: FastifyInstance) {
     schema: {
       description: "Supprimer la demande d'un anime",
       tags,
-      body: MediaVerifyBody,
+      body: MediaVerifyBody.strict().partial({ reccursive: true }),
       response: {
         200: Utilchema.ResponseBody(),
       },
     },
     preValidation: [
-      fastify.keycloakRoles(['ANIME_DELETE', 'ANIME_REQUEST_DELETE']),
+      fastify.keycloakRoles(['ANIME_REQUEST_DELETE']),
     ],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.deleteAnimePatch,

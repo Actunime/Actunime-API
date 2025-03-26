@@ -5,8 +5,8 @@ dotenv.config({ path: [`.env.${process.env.NODE_ENV || 'development'}`.trim()] }
 
 import { activesSessions } from './_utils/_mongooseSession';
 
-import Server from './_server';
-import { connectDB } from './_utils';
+// import Server from './_server';
+// import { connectDB } from './_utils';
 
 process.on('SIGINT', async function () {
   try {
@@ -22,4 +22,4 @@ process.on('SIGINT', async function () {
   }
 });
 
-connectDB().then(() => Server.start());
+// connectDB().then(() => Server.start());

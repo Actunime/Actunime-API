@@ -1,8 +1,7 @@
 import mongoose, { ConnectOptions } from 'mongoose';
 import cache from 'ts-cache-mongoose';
-import { APIError } from './Error';
+import { APIError } from './error';
 import { DevLog } from './logger';
-
 
 export const mongooseCache = cache.init(mongoose, {
   defaultTTL: '60 seconds',
@@ -34,14 +33,13 @@ export const connectDB = async () => {
     appName: 'Actunime-Cluster0',
   };
 
-  
   if (mongoose.connection.readyState === 1) return;
   await mongoose.connect(uri, opts);
 };
 
 mongoose.connection.on('connected', () => {
   DevLog('DB: Base de données connectée', 'debug');
-})
+});
 
 mongoose.connection.on('disconnected', () => {
   DevLog('DB: Base de données déconnectée', 'warn');

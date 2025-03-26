@@ -1,9 +1,8 @@
-import { IUser, IUserRoles } from '@actunime/types';
-import { APIError } from '../_lib/Error';
+import { IUser } from '@actunime/types';
+import { APIError } from '../_lib/error';
 import { CheckRealmRoles, IRealmRole } from './_realmRoles';
 import { ClientSession } from 'mongoose';
 import LogSession from './_logSession';
-import { DevLog } from '../_lib/logger';
 
 type Out<Type, ClassType, J extends boolean, E extends boolean> = E extends true
   ? J extends true
@@ -17,7 +16,9 @@ export type Output<
   E extends boolean = false,
   A extends boolean = false
 > = A extends true
-  ? Out<Type, ClassType, J, E>[] | null
+  ? E extends true
+    ? Out<Type, ClassType, J, E>[]
+    : Out<Type, ClassType, J, E>[] | null
   : Out<Type, ClassType, J, E>;
 
 export class withBasic {
@@ -60,7 +61,7 @@ export class withUser extends withBasic {
   }
 
   public needUser(user?: IUser | null): asserts user is IUser {
-    if (!this.user)
+    if (!user)
       throw new APIError(
         "Aucun n'utilisateur n'a été défini pour cette action",
         'UNAUTHORIZED'

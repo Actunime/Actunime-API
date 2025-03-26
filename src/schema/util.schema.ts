@@ -24,8 +24,11 @@ const JsonHeader = z.object({
     "Content-Type": z.string().default("application/json")
 })
 
+const IdParam = z.object({ id: z.string() }).strict();
+
 export const Utilchema = {
     ResponseBody,
+    IdParam,
     UnauthorizedResponseBody,
     JsonHeader
 }
