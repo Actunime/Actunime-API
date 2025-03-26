@@ -1,37 +1,39 @@
 import { FastifyRequest } from 'fastify';
-import { AnimeController } from '../controllers/anime.controller';
+import { CompanyController } from '../controllers/company.controller';
 import { APIResponse } from '../_utils/_response';
 import {
-  IAnimeCreateBody,
-  IAnimePaginationBody,
+  ICompanyCreateBody,
+  ICompanyPaginationBody,
   IMediaDeleteBody,
   IMediaVerifyBody,
   IPatchPaginationBody,
 } from '@actunime/validations';
 import { PatchController } from '../controllers/patch.controllers';
-import { Anime } from '../_lib/media/_anime';
+import { Company } from '../_lib/media/_company';
 
-const controller = new AnimeController();
+const controller = new CompanyController();
 
-/** Récupérer un anime a partir de son identifiant */
-const getAnime = async (req: FastifyRequest<{ Params: { id: string } }>) => {
+/** Récupérer un company a partir de son identifiant */
+const getCompany = async (req: FastifyRequest<{ Params: { id: string } }>) => {
   const { id } = req.params;
-  const res = await Anime.get(id, { nullThrowErr: true });
+  const res = await Company.get(id, { nullThrowErr: true });
   return new APIResponse({ success: true, data: res });
 };
 
-/** Filtrer les animes avec pagination */
-const filterAnime = async (
-  req: FastifyRequest<{ Body: Partial<IAnimePaginationBody> }>
+/** Filtrer les companys avec pagination */
+const filterCompany = async (
+  req: FastifyRequest<{ Body: Partial<ICompanyPaginationBody> }>
 ) => {
-  const animes = await controller.pagination(req.body);
-  return new APIResponse({ success: true, data: animes });
+  const companys = await controller.pagination(req.body);
+  return new APIResponse({ success: true, data: companys });
 };
 
-/** Créer un nouvel anime */
-const createAnime = async (req: FastifyRequest<{ Body: IAnimeCreateBody }>) => {
+/** Créer un nouvel company */
+const createCompany = async (
+  req: FastifyRequest<{ Body: ICompanyCreateBody }>
+) => {
   const user = req.me!;
-  const controller = new AnimeController(req.mongooseSession, {
+  const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
     user,
   });
@@ -44,12 +46,12 @@ const createAnime = async (req: FastifyRequest<{ Body: IAnimeCreateBody }>) => {
   return new APIResponse({ success: true, ...res });
 };
 
-/** Modifier un anime */
-const updateAnime = async (
-  req: FastifyRequest<{ Body: IAnimeCreateBody; Params: { id: string } }>
+/** Modifier un company */
+const updateCompany = async (
+  req: FastifyRequest<{ Body: ICompanyCreateBody; Params: { id: string } }>
 ) => {
   const user = req.me!;
-  const controller = new AnimeController(req.mongooseSession, {
+  const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
     user,
   });
@@ -62,12 +64,13 @@ const updateAnime = async (
   return new APIResponse({ success: true, ...res });
 };
 
-/** Supprimer un anime */
-const deleteAnime = async (
+/** Supprimer un company */
+const deleteCompany = async (
   req: FastifyRequest<{ Body: IMediaDeleteBody; Params: { id: string } }>
 ) => {
   const user = req.me!;
-  const controller = new AnimeController(req.mongooseSession, {
+
+  const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
     user,
   });
@@ -77,12 +80,12 @@ const deleteAnime = async (
   return new APIResponse({ success: true, ...res });
 };
 
-/** Vérifier un anime */
-const verifyAnime = async (
+/** Vérifier un company */
+const verifyCompany = async (
   req: FastifyRequest<{ Body: IMediaDeleteBody; Params: { id: string } }>
 ) => {
   const user = req.me!;
-  const controller = new AnimeController(req.mongooseSession, {
+  const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
     user,
   });
@@ -92,12 +95,12 @@ const verifyAnime = async (
   return new APIResponse({ success: true, data });
 };
 
-/** Vérifier un anime */
-const unverifyAnime = async (
+/** Vérifier un company */
+const unverifyCompany = async (
   req: FastifyRequest<{ Body: IMediaDeleteBody; Params: { id: string } }>
 ) => {
   const user = req.me!;
-  const controller = new AnimeController(req.mongooseSession, {
+  const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
     user,
   });
@@ -107,29 +110,29 @@ const unverifyAnime = async (
   return new APIResponse({ success: true, data });
 };
 
-/** Filtrer les demandes de création/modification d'un anime */
-const filterAnimeRequestByAnimeID = async (
+/** Filtrer les demandes de création/modification d'un company */
+const filterCompanyRequestByCompanyID = async (
   req: FastifyRequest<{ Body: IPatchPaginationBody; Params: { id: string } }>
 ) => {
   if (req.body?.query?.target) delete req.body.query.target;
   if (req.body?.query?.targetPath) delete req.body.query.targetPath;
-  const animesPatchs = await new PatchController().pagination({
+  const companysPatchs = await new PatchController().pagination({
     ...req.body,
     query: {
       ...req.body.query,
       target: { id: req.params.id },
-      targetPath: 'Anime',
+      targetPath: 'Company',
     },
   });
-  return new APIResponse({ success: true, data: animesPatchs });
+  return new APIResponse({ success: true, data: companysPatchs });
 };
 
-/** Faire une demande de création d'un anime */
-const createAnimeRequest = async (
-  req: FastifyRequest<{ Body: IAnimeCreateBody }>
+/** Faire une demande de création d'un company */
+const createCompanyRequest = async (
+  req: FastifyRequest<{ Body: ICompanyCreateBody }>
 ) => {
   const user = req.me!;
-  const controller = new AnimeController(req.mongooseSession, {
+  const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
     user,
   });
@@ -142,12 +145,12 @@ const createAnimeRequest = async (
   return new APIResponse({ success: true, ...res });
 };
 
-/** Faire une demande de modification d'un anime */
-const updateAnimeRequest = async (
-  req: FastifyRequest<{ Body: IAnimeCreateBody; Params: { id: string } }>
+/** Faire une demande de modification d'un company */
+const updateCompanyRequest = async (
+  req: FastifyRequest<{ Body: ICompanyCreateBody; Params: { id: string } }>
 ) => {
   const user = req.me!;
-  const controller = new AnimeController(req.mongooseSession, {
+  const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
     user,
   });
@@ -163,19 +166,19 @@ const updateAnimeRequest = async (
 };
 
 /**
- * Modifier la demande de modification d'un anime;
+ * Modifier la demande de modification d'un company;
  * @explication
- * Modifier les changements qu'apporte la demande de modification a l'anime;
+ * Modifier les changements qu'apporte la demande de modification a l'company;
  * */
-const updateAnimePatch = async (
+const updateCompanyPatch = async (
   req: FastifyRequest<{
-    Body: IAnimeCreateBody;
-    Params: { animeID: string; patchID: string };
+    Body: ICompanyCreateBody;
+    Params: { companyID: string; patchID: string };
   }>
 ) => {
   const user = req.me!;
 
-  const controller = new AnimeController(req.mongooseSession, {
+  const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
     user,
   });
@@ -183,7 +186,7 @@ const updateAnimePatch = async (
   const input = req.body.data;
 
   const res = await controller.update_patch(
-    req.params.animeID,
+    req.params.companyID,
     req.params.patchID,
     input,
     { description }
@@ -191,44 +194,66 @@ const updateAnimePatch = async (
   return new APIResponse({ success: true, ...res });
 };
 
-/** Accepter la demande de modification d'un anime */
-const acceptAnimePatch = async (
+/** Accepter la demande de modification d'un company */
+const acceptCompanyPatch = async (
   req: FastifyRequest<{
     Body: IMediaVerifyBody;
-    Params: { animeID: string; patchID: string };
+    Params: { companyID: string; patchID: string };
   }>
 ) => {
   const user = req.me!;
 
-  const controller = new AnimeController(req.mongooseSession, {
+  const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
     user,
   });
 
   const res = await controller.accept_patch(
-    req.params.animeID,
+    req.params.companyID,
     req.params.patchID,
     // req.body
   );
   return new APIResponse({ success: true, ...res });
 };
 
-/** Refuser la demande de modification d'un anime */
-const rejectAnimePatch = async (
+/** Refuser la demande de modification d'un company */
+const rejectCompanyPatch = async (
   req: FastifyRequest<{
     Body: IMediaVerifyBody;
-    Params: { animeID: string; patchID: string };
+    Params: { companyID: string; patchID: string };
   }>
 ) => {
   const user = req.me!;
 
-  const controller = new AnimeController(req.mongooseSession, {
+  const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
     user,
   });
 
   const res = await controller.reject_patch(
-    req.params.animeID,
+    req.params.companyID,
+    req.params.patchID,
+    // req.body
+  );
+  return new APIResponse({ success: true, ...res });
+};
+
+/** Supprimer la demande de modification d'un company */
+const deleteCompanyPatch = async (
+  req: FastifyRequest<{
+    Body: IMediaVerifyBody;
+    Params: { companyID: string; patchID: string };
+  }>
+) => {
+  const user = req.me!;
+
+  const controller = new CompanyController(req.mongooseSession, {
+    log: req.logSession,
+    user,
+  });
+
+  const res = await controller.delete_patch(
+    req.params.companyID,
     req.params.patchID,
     // req.body
   );
@@ -236,48 +261,26 @@ const rejectAnimePatch = async (
   return new APIResponse({ success: true, ...res });
 };
 
-/** Supprimer la demande de modification d'un anime */
-const deleteAnimePatch = async (
-  req: FastifyRequest<{
-    Body: IMediaVerifyBody;
-    Params: { animeID: string; patchID: string };
-  }>
-) => {
-  const user = req.me!;
-
-  const controller = new AnimeController(req.mongooseSession, {
-    log: req.logSession,
-    user,
-  });
-
-  const res = await controller.delete_patch(
-    req.params.animeID,
-    req.params.patchID,
-    // req.body
-  );
-  return new APIResponse({ success: true, ...res });
-};
-
-export const AnimeHandlers = {
+export const CompanyHandlers = {
   // Obtenir
-  getAnime,
-  filterAnime,
+  getCompany,
+  filterCompany,
 
   // Gestion directe
-  createAnime,
-  updateAnime,
-  deleteAnime,
-  verifyAnime,
-  unverifyAnime,
+  createCompany,
+  updateCompany,
+  deleteCompany,
+  verifyCompany,
+  unverifyCompany,
 
   // Demandes
-  filterAnimeRequestByAnimeID,
-  createAnimeRequest,
-  updateAnimeRequest,
+  filterCompanyRequestByCompanyID,
+  createCompanyRequest,
+  updateCompanyRequest,
 
   // Gestion des demandes
-  updateAnimePatch,
-  acceptAnimePatch,
-  rejectAnimePatch,
-  deleteAnimePatch,
+  updateCompanyPatch,
+  acceptCompanyPatch,
+  rejectCompanyPatch,
+  deleteCompanyPatch,
 };
