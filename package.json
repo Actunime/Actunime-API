@@ -15,9 +15,9 @@
     "dev-test": "tsx --inspect=9230 ./test.ts",
     "clean": "rimraf build",
     "gentestdata": "tsx --inspect=9230 ./mokes/generate.ts",
-    "watch": "tsc -p tsconfig.build.json --watch",
+    "watch": "tsc --watch",
     "dev": "tsx --inspect=9230 ./src/index.ts",
-    "build": "pnpm run clean && tsc -p tsconfig.build.json"
+    "build": "pnpm run clean && tsc"
   },
   "author": "",
   "license": "ISC",
