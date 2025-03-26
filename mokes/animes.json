@@ -126,5 +126,33 @@
     "createdAt": "2025-03-19T16:48:31.541Z",
     "updatedAt": "2025-03-19T16:48:31.541Z",
     "__v": 0
+  },
+  {
+    "_id": "67debc7254dd174a26f7a9a0",
+    "id": "boswd24r",
+    "groupe": {
+      "id": "z5ukk"
+    },
+    "source": "LIGHT_NOVEL",
+    "title": {
+      "default": "A Tale of the Secret Saint",
+      "alias": [
+        "The Reincarnated Great Saint Conceals That She Is a Saint"
+      ]
+    },
+    "synopsis": "Depuis son plus jeune âge, Fia rêve de devenir chevaleresse. Un rêve initialement à sa portée, puisqu'elle est issue d'une prestigieuse famille de chevaliers. Malheureusement, elle manque cruellement de talent... et de chance. En effet, lors de sa première mission, alors qu'elle est censée occire un démon mineur, elle se trouve nez à nez avec un dragon.",
+    "status": "SOON",
+    "format": "SERIE",
+    "vf": false,
+    "adult": false,
+    "explicit": true,
+    "genres": [
+      "FANTAISIE"
+    ],
+    "links": [],
+    "isVerified": false,
+    "createdAt": "2025-03-22T13:34:42.114Z",
+    "updatedAt": "2025-03-22T13:34:42.114Z",
+    "__v": 0
   }
 ]

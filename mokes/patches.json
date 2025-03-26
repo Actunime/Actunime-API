@@ -1,36 +1,5 @@
 [
   {
-    "_id": "67daf55e2648d2b5d7a34359",
-    "id": "uwxearhi",
-    "ref": {
-      "id": "m89fw6ab"
-    },
-    "type": "CREATE",
-    "status": "ACCEPTED",
-    "target": {
-      "id": "2snsj"
-    },
-    "targetPath": "Groupe",
-    "original": {
-      "name": {
-        "default": "Izure Saikyou no Renkinjutsushi?"
-      },
-      "isVerified": true,
-      "_id": "67daf55e2648d2b5d7a34358",
-      "id": "2snsj"
-    },
-    "isChangesUpdated": false,
-    "author": {
-      "id": "test"
-    },
-    "moderator": {
-      "id": "test"
-    },
-    "createdAt": "2025-03-19T16:48:30.724Z",
-    "updatedAt": "2025-03-19T16:48:30.724Z",
-    "__v": 0
-  },
-  {
     "_id": "67daf55f2648d2b5d7a3436b",
     "id": "fs46987q",
     "ref": {
@@ -71,40 +40,6 @@
     "__v": 0
   },
   {
-    "_id": "67daf55f2648d2b5d7a34376",
-    "id": "0vtaxx17",
-    "ref": {
-      "id": "m89fw6ab"
-    },
-    "type": "CREATE",
-    "status": "ACCEPTED",
-    "target": {
-      "id": "qmoxskhb"
-    },
-    "targetPath": "Person",
-    "original": {
-      "id": "qmoxskhb",
-      "name": {
-        "default": "Kogitsune Maru",
-        "alias": []
-      },
-      "links": [],
-      "isGroupe": false,
-      "isVerified": true,
-      "_id": "67daf55f2648d2b5d7a34371"
-    },
-    "isChangesUpdated": false,
-    "author": {
-      "id": "test"
-    },
-    "moderator": {
-      "id": "test"
-    },
-    "createdAt": "2025-03-19T16:48:31.121Z",
-    "updatedAt": "2025-03-19T16:48:31.121Z",
-    "__v": 0
-  },
-  {
     "_id": "67daf55f2648d2b5d7a34378",
     "id": "wcnl286r",
     "ref": {
@@ -136,275 +71,6 @@
     },
     "createdAt": "2025-03-19T16:48:31.121Z",
     "updatedAt": "2025-03-19T16:48:31.121Z",
-    "__v": 0
-  },
-  {
-    "_id": "67daf55f2648d2b5d7a34377",
-    "id": "0xnbzo5k",
-    "ref": {
-      "id": "m89fw6ab"
-    },
-    "type": "CREATE",
-    "status": "ACCEPTED",
-    "target": {
-      "id": "uw5c9xce"
-    },
-    "targetPath": "Person",
-    "original": {
-      "id": "uw5c9xce",
-      "name": {
-        "default": "Sasakama Taro",
-        "alias": []
-      },
-      "links": [],
-      "isGroupe": false,
-      "isVerified": true,
-      "_id": "67daf55f2648d2b5d7a34372"
-    },
-    "isChangesUpdated": false,
-    "author": {
-      "id": "test"
-    },
-    "moderator": {
-      "id": "test"
-    },
-    "createdAt": "2025-03-19T16:48:31.121Z",
-    "updatedAt": "2025-03-19T16:48:31.121Z",
-    "__v": 0
-  },
-  {
-    "_id": "67daf55f2648d2b5d7a34379",
-    "id": "ct9uvhyo",
-    "ref": {
-      "id": "m89fw6ab"
-    },
-    "type": "CREATE",
-    "status": "ACCEPTED",
-    "target": {
-      "id": "zixsb2oo"
-    },
-    "targetPath": "Person",
-    "original": {
-      "id": "zixsb2oo",
-      "name": {
-        "default": "Anesaki Sayaka",
-        "alias": []
-      },
-      "links": [],
-      "isGroupe": false,
-      "isVerified": true,
-      "_id": "67daf55f2648d2b5d7a34374"
-    },
-    "isChangesUpdated": false,
-    "author": {
-      "id": "test"
-    },
-    "moderator": {
-      "id": "test"
-    },
-    "createdAt": "2025-03-19T16:48:31.121Z",
-    "updatedAt": "2025-03-19T16:48:31.121Z",
-    "__v": 0
-  },
-  {
-    "_id": "67daf55f2648d2b5d7a3437a",
-    "id": "vuforff3",
-    "ref": {
-      "id": "m89fw6ab"
-    },
-    "type": "CREATE",
-    "status": "ACCEPTED",
-    "target": {
-      "id": "k4n9zhre"
-    },
-    "targetPath": "Person",
-    "original": {
-      "id": "k4n9zhre",
-      "name": {
-        "default": "Nakamura Hiroshi",
-        "alias": []
-      },
-      "links": [],
-      "isGroupe": false,
-      "isVerified": true,
-      "_id": "67daf55f2648d2b5d7a34375"
-    },
-    "isChangesUpdated": false,
-    "author": {
-      "id": "test"
-    },
-    "moderator": {
-      "id": "test"
-    },
-    "createdAt": "2025-03-19T16:48:31.121Z",
-    "updatedAt": "2025-03-19T16:48:31.121Z",
-    "__v": 0
-  },
-  {
-    "_id": "67daf55f2648d2b5d7a3438b",
-    "id": "qvbu2d07",
-    "ref": {
-      "id": "m89fw6ab"
-    },
-    "type": "CREATE",
-    "status": "ACCEPTED",
-    "target": {
-      "id": "xuof1j3c"
-    },
-    "targetPath": "Character",
-    "original": {
-      "id": "xuof1j3c",
-      "name": {
-        "default": "Takumi Iruma",
-        "alias": []
-      },
-      "gender": "MASCULIN",
-      "species": "HUMAIN",
-      "isVerified": true,
-      "_id": "67daf55f2648d2b5d7a34385"
-    },
-    "isChangesUpdated": false,
-    "author": {
-      "id": "test"
-    },
-    "moderator": {
-      "id": "test"
-    },
-    "createdAt": "2025-03-19T16:48:31.189Z",
-    "updatedAt": "2025-03-19T16:48:31.189Z",
-    "__v": 0
-  },
-  {
-    "_id": "67daf55f2648d2b5d7a3438e",
-    "id": "rd8gfq4v",
-    "ref": {
-      "id": "hrrc650w"
-    },
-    "type": "CREATE",
-    "status": "ACCEPTED",
-    "target": {
-      "id": "8gbuso47"
-    },
-    "targetPath": "Person",
-    "original": {
-      "id": "8gbuso47",
-      "name": {
-        "default": "Afumi Hashi",
-        "alias": []
-      },
-      "links": [
-        {
-          "name": "Profil",
-          "value": "https://www.81produce.co.jp/dcms_plusdb/index.php/item?cell003=%E3%81%AF%E8%A1%8C&cell029=%E5%A5%B3%E6%80%A7&keyword=%E5%9C%9F%E5%B8%AB+%E4%BA%9C%E6%96%87&cell028=&cell004=&name=%E5%9C%9F%E5%B8%AB%E3%80%80%E4%BA%9C%E6%96%87&id=270&label=1"
-        }
-      ],
-      "isGroupe": false,
-      "isVerified": true,
-      "_id": "67daf55f2648d2b5d7a34388"
-    },
-    "isChangesUpdated": false,
-    "author": {
-      "id": "test"
-    },
-    "moderator": {
-      "id": "test"
-    },
-    "createdAt": "2025-03-19T16:48:31.189Z",
-    "updatedAt": "2025-03-19T16:48:31.189Z",
-    "__v": 0
-  },
-  {
-    "_id": "67daf55f2648d2b5d7a3438d",
-    "id": "r1chf4o5",
-    "ref": {
-      "id": "xc1ervl1"
-    },
-    "type": "CREATE",
-    "status": "ACCEPTED",
-    "target": {
-      "id": "5xaa6c26"
-    },
-    "targetPath": "Person",
-    "original": {
-      "id": "5xaa6c26",
-      "name": {
-        "default": "Nao Touyama",
-        "alias": []
-      },
-      "birthDate": {
-        "year": 1992,
-        "month": 3,
-        "day": 11,
-        "hours": 1,
-        "minutes": 0,
-        "seconds": 0
-      },
-      "links": [
-        {
-          "name": "Profil",
-          "value": "https://www.jvcmusic.co.jp/flyingdog/-/Profile/A023615.html"
-        }
-      ],
-      "isGroupe": false,
-      "isVerified": true,
-      "_id": "67daf55f2648d2b5d7a34387"
-    },
-    "isChangesUpdated": false,
-    "author": {
-      "id": "test"
-    },
-    "moderator": {
-      "id": "test"
-    },
-    "createdAt": "2025-03-19T16:48:31.189Z",
-    "updatedAt": "2025-03-19T16:48:31.189Z",
-    "__v": 0
-  },
-  {
-    "_id": "67daf55f2648d2b5d7a3438f",
-    "id": "vkfst54c",
-    "ref": {
-      "id": "v1x88hmx"
-    },
-    "type": "CREATE",
-    "status": "ACCEPTED",
-    "target": {
-      "id": "evy6a89p"
-    },
-    "targetPath": "Person",
-    "original": {
-      "id": "evy6a89p",
-      "name": {
-        "default": "Sora Amamiya",
-        "alias": []
-      },
-      "birthDate": {
-        "year": 1993,
-        "month": 8,
-        "day": 28,
-        "hours": 2,
-        "minutes": 0,
-        "seconds": 0
-      },
-      "links": [
-        {
-          "name": "Profil",
-          "value": "https://musicrayn.com/amamiya_sora"
-        }
-      ],
-      "isGroupe": false,
-      "isVerified": true,
-      "_id": "67daf55f2648d2b5d7a34389"
-    },
-    "isChangesUpdated": false,
-    "author": {
-      "id": "test"
-    },
-    "moderator": {
-      "id": "test"
-    },
-    "createdAt": "2025-03-19T16:48:31.189Z",
-    "updatedAt": "2025-03-19T16:48:31.189Z",
     "__v": 0
   },
   {
@@ -455,32 +121,32 @@
     "__v": 0
   },
   {
-    "_id": "67daf55f2648d2b5d7a3439d",
-    "id": "hrrc650w",
+    "_id": "67daf55f2648d2b5d7a343a3",
+    "id": "5076dua5",
     "ref": {
       "id": "m89fw6ab"
     },
     "type": "CREATE",
     "status": "ACCEPTED",
     "target": {
-      "id": "44fwhd1h"
+      "id": "198o9bp6"
     },
     "targetPath": "Character",
     "original": {
-      "id": "44fwhd1h",
+      "id": "198o9bp6",
       "name": {
-        "default": "Maple",
+        "default": "Sofia Sylphid",
         "alias": []
       },
       "gender": "FEMININ",
-      "species": "AUTRE",
+      "species": "ELFE",
       "actors": [
         {
-          "id": "8gbuso47"
+          "id": "91vvr29t"
         }
       ],
       "isVerified": true,
-      "_id": "67daf55f2648d2b5d7a3439c"
+      "_id": "67daf55f2648d2b5d7a343a2"
     },
     "isChangesUpdated": false,
     "author": {
@@ -489,8 +155,192 @@
     "moderator": {
       "id": "test"
     },
-    "createdAt": "2025-03-19T16:48:31.237Z",
-    "updatedAt": "2025-03-19T16:48:31.237Z",
+    "createdAt": "2025-03-19T16:48:31.254Z",
+    "updatedAt": "2025-03-19T16:48:31.254Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a343ba",
+    "id": "cgpl8vbj",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "31b88djt"
+    },
+    "targetPath": "Track",
+    "original": {
+      "id": "31b88djt",
+      "type": "OPENING",
+      "name": {
+        "default": "TREASURE!"
+      },
+      "releaseDate": {
+        "year": 2025,
+        "month": 1,
+        "day": 29,
+        "hours": 1,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "artists": [
+        {
+          "id": "0r84haok"
+        }
+      ],
+      "links": [
+        {
+          "name": "TREASURE!",
+          "value": "https://www.youtube.com/watch?v=8-6DJ3sOQO8"
+        }
+      ],
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a343b9"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.466Z",
+    "updatedAt": "2025-03-19T16:48:31.466Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55e2648d2b5d7a34359",
+    "id": "uwxearhi",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "2snsj"
+    },
+    "targetPath": "Groupe",
+    "original": {
+      "name": {
+        "default": "Izure Saikyou no Renkinjutsushi?"
+      },
+      "isVerified": true,
+      "_id": "67daf55e2648d2b5d7a34358",
+      "id": "2snsj"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:30.724Z",
+    "updatedAt": "2025-03-19T16:48:30.724Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a34376",
+    "id": "0vtaxx17",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "qmoxskhb"
+    },
+    "targetPath": "Person",
+    "original": {
+      "id": "qmoxskhb",
+      "name": {
+        "default": "Kogitsune Maru",
+        "alias": []
+      },
+      "links": [],
+      "isGroupe": false,
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a34371"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.121Z",
+    "updatedAt": "2025-03-19T16:48:31.121Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a34377",
+    "id": "0xnbzo5k",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "uw5c9xce"
+    },
+    "targetPath": "Person",
+    "original": {
+      "id": "uw5c9xce",
+      "name": {
+        "default": "Sasakama Taro",
+        "alias": []
+      },
+      "links": [],
+      "isGroupe": false,
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a34372"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.121Z",
+    "updatedAt": "2025-03-19T16:48:31.121Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a3437a",
+    "id": "vuforff3",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "k4n9zhre"
+    },
+    "targetPath": "Person",
+    "original": {
+      "id": "k4n9zhre",
+      "name": {
+        "default": "Nakamura Hiroshi",
+        "alias": []
+      },
+      "links": [],
+      "isGroupe": false,
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a34375"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.121Z",
+    "updatedAt": "2025-03-19T16:48:31.121Z",
     "__v": 0
   },
   {
@@ -532,131 +382,6 @@
     },
     "createdAt": "2025-03-19T16:48:31.239Z",
     "updatedAt": "2025-03-19T16:48:31.239Z",
-    "__v": 0
-  },
-  {
-    "_id": "67daf55f2648d2b5d7a343a3",
-    "id": "5076dua5",
-    "ref": {
-      "id": "m89fw6ab"
-    },
-    "type": "CREATE",
-    "status": "ACCEPTED",
-    "target": {
-      "id": "198o9bp6"
-    },
-    "targetPath": "Character",
-    "original": {
-      "id": "198o9bp6",
-      "name": {
-        "default": "Sofia Sylphid",
-        "alias": []
-      },
-      "gender": "FEMININ",
-      "species": "ELFE",
-      "actors": [
-        {
-          "id": "91vvr29t"
-        }
-      ],
-      "isVerified": true,
-      "_id": "67daf55f2648d2b5d7a343a2"
-    },
-    "isChangesUpdated": false,
-    "author": {
-      "id": "test"
-    },
-    "moderator": {
-      "id": "test"
-    },
-    "createdAt": "2025-03-19T16:48:31.254Z",
-    "updatedAt": "2025-03-19T16:48:31.254Z",
-    "__v": 0
-  },
-  {
-    "_id": "67daf55f2648d2b5d7a343a6",
-    "id": "xc1ervl1",
-    "ref": {
-      "id": "m89fw6ab"
-    },
-    "type": "CREATE",
-    "status": "ACCEPTED",
-    "target": {
-      "id": "nupqnhr2"
-    },
-    "targetPath": "Character",
-    "original": {
-      "id": "nupqnhr2",
-      "name": {
-        "default": "Maria",
-        "alias": []
-      },
-      "gender": "FEMININ",
-      "species": "HUMAIN",
-      "actors": [
-        {
-          "id": "5xaa6c26"
-        }
-      ],
-      "isVerified": true,
-      "_id": "67daf55f2648d2b5d7a343a5"
-    },
-    "isChangesUpdated": false,
-    "author": {
-      "id": "test"
-    },
-    "moderator": {
-      "id": "test"
-    },
-    "createdAt": "2025-03-19T16:48:31.257Z",
-    "updatedAt": "2025-03-19T16:48:31.257Z",
-    "__v": 0
-  },
-  {
-    "_id": "67daf55f2648d2b5d7a34390",
-    "id": "t4940c86",
-    "ref": {
-      "id": "qya6mn6v"
-    },
-    "type": "CREATE",
-    "status": "ACCEPTED",
-    "target": {
-      "id": "rhypbgi8"
-    },
-    "targetPath": "Person",
-    "original": {
-      "id": "rhypbgi8",
-      "name": {
-        "default": "Nene Hieda",
-        "alias": []
-      },
-      "birthDate": {
-        "year": 1997,
-        "month": 1,
-        "day": 15,
-        "hours": 1,
-        "minutes": 0,
-        "seconds": 0
-      },
-      "links": [
-        {
-          "name": "Profil",
-          "value": "https://www.81produce.co.jp/actor_search/index.php/item?id=279"
-        }
-      ],
-      "isGroupe": false,
-      "isVerified": true,
-      "_id": "67daf55f2648d2b5d7a3438a"
-    },
-    "isChangesUpdated": false,
-    "author": {
-      "id": "test"
-    },
-    "moderator": {
-      "id": "test"
-    },
-    "createdAt": "2025-03-19T16:48:31.189Z",
-    "updatedAt": "2025-03-19T16:48:31.189Z",
     "__v": 0
   },
   {
@@ -787,44 +512,27 @@
     "__v": 0
   },
   {
-    "_id": "67daf55f2648d2b5d7a343ba",
-    "id": "cgpl8vbj",
+    "_id": "67daf55f2648d2b5d7a34379",
+    "id": "ct9uvhyo",
     "ref": {
       "id": "m89fw6ab"
     },
     "type": "CREATE",
     "status": "ACCEPTED",
     "target": {
-      "id": "31b88djt"
+      "id": "zixsb2oo"
     },
-    "targetPath": "Track",
+    "targetPath": "Person",
     "original": {
-      "id": "31b88djt",
-      "type": "OPENING",
+      "id": "zixsb2oo",
       "name": {
-        "default": "TREASURE!"
+        "default": "Anesaki Sayaka",
+        "alias": []
       },
-      "releaseDate": {
-        "year": 2025,
-        "month": 1,
-        "day": 29,
-        "hours": 1,
-        "minutes": 0,
-        "seconds": 0
-      },
-      "artists": [
-        {
-          "id": "0r84haok"
-        }
-      ],
-      "links": [
-        {
-          "name": "TREASURE!",
-          "value": "https://www.youtube.com/watch?v=8-6DJ3sOQO8"
-        }
-      ],
+      "links": [],
+      "isGroupe": false,
       "isVerified": true,
-      "_id": "67daf55f2648d2b5d7a343b9"
+      "_id": "67daf55f2648d2b5d7a34374"
     },
     "isChangesUpdated": false,
     "author": {
@@ -833,8 +541,300 @@
     "moderator": {
       "id": "test"
     },
-    "createdAt": "2025-03-19T16:48:31.466Z",
-    "updatedAt": "2025-03-19T16:48:31.466Z",
+    "createdAt": "2025-03-19T16:48:31.121Z",
+    "updatedAt": "2025-03-19T16:48:31.121Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a3438d",
+    "id": "r1chf4o5",
+    "ref": {
+      "id": "xc1ervl1"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "5xaa6c26"
+    },
+    "targetPath": "Person",
+    "original": {
+      "id": "5xaa6c26",
+      "name": {
+        "default": "Nao Touyama",
+        "alias": []
+      },
+      "birthDate": {
+        "year": 1992,
+        "month": 3,
+        "day": 11,
+        "hours": 1,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "links": [
+        {
+          "name": "Profil",
+          "value": "https://www.jvcmusic.co.jp/flyingdog/-/Profile/A023615.html"
+        }
+      ],
+      "isGroupe": false,
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a34387"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.189Z",
+    "updatedAt": "2025-03-19T16:48:31.189Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a3438f",
+    "id": "vkfst54c",
+    "ref": {
+      "id": "v1x88hmx"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "evy6a89p"
+    },
+    "targetPath": "Person",
+    "original": {
+      "id": "evy6a89p",
+      "name": {
+        "default": "Sora Amamiya",
+        "alias": []
+      },
+      "birthDate": {
+        "year": 1993,
+        "month": 8,
+        "day": 28,
+        "hours": 2,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "links": [
+        {
+          "name": "Profil",
+          "value": "https://musicrayn.com/amamiya_sora"
+        }
+      ],
+      "isGroupe": false,
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a34389"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.189Z",
+    "updatedAt": "2025-03-19T16:48:31.189Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a3439d",
+    "id": "hrrc650w",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "44fwhd1h"
+    },
+    "targetPath": "Character",
+    "original": {
+      "id": "44fwhd1h",
+      "name": {
+        "default": "Maple",
+        "alias": []
+      },
+      "gender": "FEMININ",
+      "species": "AUTRE",
+      "actors": [
+        {
+          "id": "8gbuso47"
+        }
+      ],
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a3439c"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.237Z",
+    "updatedAt": "2025-03-19T16:48:31.237Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a3438b",
+    "id": "qvbu2d07",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "xuof1j3c"
+    },
+    "targetPath": "Character",
+    "original": {
+      "id": "xuof1j3c",
+      "name": {
+        "default": "Takumi Iruma",
+        "alias": []
+      },
+      "gender": "MASCULIN",
+      "species": "HUMAIN",
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a34385"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.189Z",
+    "updatedAt": "2025-03-19T16:48:31.189Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a3438e",
+    "id": "rd8gfq4v",
+    "ref": {
+      "id": "hrrc650w"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "8gbuso47"
+    },
+    "targetPath": "Person",
+    "original": {
+      "id": "8gbuso47",
+      "name": {
+        "default": "Afumi Hashi",
+        "alias": []
+      },
+      "links": [
+        {
+          "name": "Profil",
+          "value": "https://www.81produce.co.jp/dcms_plusdb/index.php/item?cell003=%E3%81%AF%E8%A1%8C&cell029=%E5%A5%B3%E6%80%A7&keyword=%E5%9C%9F%E5%B8%AB+%E4%BA%9C%E6%96%87&cell028=&cell004=&name=%E5%9C%9F%E5%B8%AB%E3%80%80%E4%BA%9C%E6%96%87&id=270&label=1"
+        }
+      ],
+      "isGroupe": false,
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a34388"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.189Z",
+    "updatedAt": "2025-03-19T16:48:31.189Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a343a6",
+    "id": "xc1ervl1",
+    "ref": {
+      "id": "m89fw6ab"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "nupqnhr2"
+    },
+    "targetPath": "Character",
+    "original": {
+      "id": "nupqnhr2",
+      "name": {
+        "default": "Maria",
+        "alias": []
+      },
+      "gender": "FEMININ",
+      "species": "HUMAIN",
+      "actors": [
+        {
+          "id": "5xaa6c26"
+        }
+      ],
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a343a5"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.257Z",
+    "updatedAt": "2025-03-19T16:48:31.257Z",
+    "__v": 0
+  },
+  {
+    "_id": "67daf55f2648d2b5d7a34390",
+    "id": "t4940c86",
+    "ref": {
+      "id": "qya6mn6v"
+    },
+    "type": "CREATE",
+    "status": "ACCEPTED",
+    "target": {
+      "id": "rhypbgi8"
+    },
+    "targetPath": "Person",
+    "original": {
+      "id": "rhypbgi8",
+      "name": {
+        "default": "Nene Hieda",
+        "alias": []
+      },
+      "birthDate": {
+        "year": 1997,
+        "month": 1,
+        "day": 15,
+        "hours": 1,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "links": [
+        {
+          "name": "Profil",
+          "value": "https://www.81produce.co.jp/actor_search/index.php/item?id=279"
+        }
+      ],
+      "isGroupe": false,
+      "isVerified": true,
+      "_id": "67daf55f2648d2b5d7a3438a"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "moderator": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-19T16:48:31.189Z",
+    "updatedAt": "2025-03-19T16:48:31.189Z",
     "__v": 0
   },
   {
@@ -1026,6 +1026,155 @@
     },
     "createdAt": "2025-03-19T16:48:31.513Z",
     "updatedAt": "2025-03-19T16:48:31.513Z",
+    "__v": 0
+  },
+  {
+    "_id": "67debc7154dd174a26f7a98c",
+    "id": "gt6xv6p3",
+    "type": "CREATE",
+    "status": "PENDING",
+    "target": {
+      "id": "z5ukk"
+    },
+    "targetPath": "Groupe",
+    "original": {
+      "name": {
+        "default": "A Tale of the Secret Saint"
+      },
+      "isVerified": false,
+      "_id": "67debc7154dd174a26f7a98b",
+      "id": "z5ukk"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-22T13:34:41.837Z",
+    "updatedAt": "2025-03-22T13:34:41.837Z",
+    "__v": 0
+  },
+  {
+    "_id": "67debc7254dd174a26f7a99d",
+    "id": "we9cszha",
+    "type": "CREATE",
+    "status": "PENDING",
+    "target": {
+      "id": "boswd24r"
+    },
+    "targetPath": "Anime",
+    "description": "TEST",
+    "original": {
+      "groupe": {
+        "id": "z5ukk"
+      },
+      "source": "LIGHT_NOVEL",
+      "title": {
+        "default": "A Tale of the Secret Saint",
+        "alias": [
+          "The Reincarnated Great Saint Conceals That She Is a Saint"
+        ]
+      },
+      "synopsis": "Depuis son plus jeune âge, Fia rêve de devenir chevaleresse. Un rêve initialement à sa portée, puisqu'elle est issue d'une prestigieuse famille de chevaliers. Malheureusement, elle manque cruellement de talent... et de chance. En effet, lors de sa première mission, alors qu'elle est censée occire un démon mineur, elle se trouve nez à nez avec un dragon.",
+      "status": "SOON",
+      "format": "SERIE",
+      "vf": false,
+      "adult": false,
+      "explicit": true,
+      "genres": [
+        "FANTAISIE"
+      ],
+      "links": [],
+      "id": "boswd24r",
+      "isVerified": false
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-22T13:34:42.050Z",
+    "updatedAt": "2025-03-22T13:34:42.050Z",
+    "__v": 0
+  },
+  {
+    "_id": "67decff560cc2ccd076cb1d1",
+    "id": "m7l5z9i6",
+    "type": "CREATE",
+    "status": "PENDING",
+    "target": {
+      "id": "4ry66k99"
+    },
+    "targetPath": "Character",
+    "original": {
+      "id": "4ry66k99",
+      "name": {
+        "default": "test"
+      },
+      "gender": "FEMININ",
+      "species": "DRAGON",
+      "isVerified": false,
+      "_id": "67decff560cc2ccd076cb1d0"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-22T14:57:57.115Z",
+    "updatedAt": "2025-03-22T14:57:57.115Z",
+    "__v": 0
+  },
+  {
+    "_id": "67decff560cc2ccd076cb1dd",
+    "id": "0g7w83h0",
+    "type": "UPDATE",
+    "status": "PENDING",
+    "target": {
+      "id": "sbw8ze2t"
+    },
+    "targetPath": "Anime",
+    "changes": [
+      {
+        "kind": "E",
+        "path": [
+          "adult"
+        ],
+        "lhs": false,
+        "rhs": true
+      },
+      {
+        "kind": "A",
+        "path": [
+          "staffs"
+        ],
+        "index": 5,
+        "item": {
+          "kind": "N",
+          "rhs": {
+            "id": "1lzgpgjb",
+            "role": "ANIMATEUR_INTERMEDIAIRE"
+          }
+        }
+      },
+      {
+        "kind": "A",
+        "path": [
+          "characters"
+        ],
+        "index": 6,
+        "item": {
+          "kind": "N",
+          "rhs": {
+            "id": "4ry66k99",
+            "role": "PRINCIPAL"
+          }
+        }
+      }
+    ],
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-22T14:57:57.336Z",
+    "updatedAt": "2025-03-22T14:57:57.336Z",
     "__v": 0
   }
 ]
