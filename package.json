@@ -9,7 +9,6 @@
   ],
   "scripts": {
     "test": "jest",
-    "test:watch": "tsx watch --inspect=9230 ./tests/index.ts --test",
     "prepare": "husky",
     "start": "NODE_ENV=production node build",
     "dev-test": "tsx --inspect=9230 ./test.ts",

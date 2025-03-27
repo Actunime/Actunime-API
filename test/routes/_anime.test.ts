@@ -67,12 +67,7 @@ const routesToSecureNoAuth: IRequestTest[] = [
     method: 'POST',
     path: `/${animeID}/requests/xyz/reject`,
     status: 401,
-  },
-  {
-    method: 'POST',
-    path: `/${animeID}/requests/xyz/delete`,
-    status: 401,
-  },
+  }
 ];
 const fakeID = 'dqzdzq';
 const routesToSecureBadData: IRequestTest[] = [
@@ -157,13 +152,7 @@ const routesToSecureBadData: IRequestTest[] = [
     path: `/${fakeID}/requests/xyz/reject`,
     status: 400,
     data: { set: { target: 'true' } },
-  },
-  {
-    method: 'POST',
-    path: `/${fakeID}/requests/xyz/delete`,
-    status: 400,
-    data: { set: { target: 'true' } },
-  },
+  }
 ];
 let animesRoutes: string[];
 
@@ -698,74 +687,6 @@ describe(`${filter} | Créer un anime de A-Z et vérifier sa disponibilité`, ()
     }
     if (!originalPatch) return;
   });
-
-  // it(`${filter} | Supprimer la demande de modification d'un anime (qui n'est pas refusé)`, async () => {
-  //   server.testingUser = {
-  //     id: `test`,
-  //     username: `devlerito`,
-  //     displayName: `DevLeriTo`,
-  //     permissions: ['ANIME_REQUEST_DELETE'],
-  //   };
-
-  //   const response = await server.app
-  //     .inject()
-  //     .post(
-  //       `/v1/animes/${animeUpdatedShared.data?.id}/requests/${patchShared?.id}/delete`
-  //     )
-  //     .headers({ 'Content-Type': `application/json` })
-  //     .body(JSON.stringify(MediaVerifyBody.partial().parse({ reason: 'test' })))
-  //     .end();
-
-  //   expect(response.statusCode).toBe(400);
-  // });
-
-  // it(`${filter} | Supprimer la demande de modification d'un anime`, async () => {
-  //   server.testingUser = {
-  //     id: `test`,
-  //     username: `devlerito`,
-  //     displayName: `DevLeriTo`,
-  //     permissions: ['ANIME_REQUEST_DELETE'],
-  //   };
-
-  //   const response = await server.app
-  //     .inject()
-  //     .post(
-  //       `/v1/animes/${req.data?.id}/requests/${refusedPatch?.id}/delete`
-  //     )
-  //     .headers({ 'Content-Type': `application/json` })
-  //     .body(JSON.stringify(MediaVerifyBody.partial().parse({ reason: 'test' })))
-  //     .end();
-
-  //   expect(response.statusCode).toBe(200);
-
-  //   const animeDeleted: APIResponse<IAnime> = await response.json();
-  //   await AnimeEqualTEST(animeDeleted.data, parseData.data);
-
-  //   expect(animeDeleted).toBeTruthy();
-  //   expect(animeDeleted.patch).toBeTruthy();
-
-  //   if (!animeDeleted.patch) return;
-  //   expect(req.patch?.id).toBeTruthy();
-  //   if (!req.patch?.id) return;
-
-  //   const originalPatch = await Patch.get(req.patch?.id, {
-  //     nullThrowErr: false,
-  //     json: false,
-  //     cache: false,
-  //   });
-
-  //   expect(originalPatch).toBeNull();
-
-  //   if (animeDeleted.patch?.type === 'CREATE') {
-  //     if (!req.data?.id) return;
-  //     // Vérifier que l'anime a bien été supprimé si il a été pré-crée;
-  //     const findAnime = await Anime.get(req.data?.id, {
-  //       nullThrowErr: false,
-  //       cache: false,
-  //     });
-  //     expect(findAnime).toBeNull();
-  //   }
-  // });
 });
 
 /** END animes/create */
