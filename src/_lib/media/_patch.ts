@@ -234,10 +234,14 @@ export class Patch extends ClassUtilSession implements IPatch {
   }
 
   static async get<J extends boolean = true, E extends boolean = false>(
-    id: string,
+    filter: string | Partial<IPatchDB>,
     options?: MethodOption<J, E>
   ): Promise<Out<J, E>> {
-    DevLog(`Récupération de l'Patch ID: ${id}`, 'debug');
+    const id = typeof filter === 'string' ? filter : filter.id;
+    DevLog(
+      `Récupération de l'Patch ID: ${id}`,
+      'debug'
+    );
     const {
       json = true,
       cache = true,
@@ -245,7 +249,11 @@ export class Patch extends ClassUtilSession implements IPatch {
       session,
     } = options || {};
     const res = await Patch.cache(
-      PatchModel.findOne({ id }, null, { session }),
+      PatchModel.findOne(
+        typeof filter === 'string' ? { id: filter } : filter,
+        null,
+        { session }
+      ),
       id,
       session ? false : cache
     );
