@@ -2,13 +2,10 @@
 import { ClientSession } from 'mongoose';
 import {
   IPatch,
-  IPatchPaginationResponse,
   IPatchStatus,
   ITargetPath,
   IUser,
 } from '@actunime/types';
-import { PaginationControllers } from './pagination.controllers';
-import { IPatchPaginationBody } from '@actunime/validations';
 import LogSession from '../_utils/_logSession';
 import DeepDiff from 'deep-diff';
 import { UtilControllers } from '../_utils/_controllers';
@@ -16,27 +13,15 @@ import { DevLog } from '../_lib/logger';
 import { PatchModel } from '../_lib/models';
 import { Patch } from '../_lib/media';
 
-class PatchController extends UtilControllers.withUser {
+class PatchController extends UtilControllers.withBasic {
+  private targetPath: ITargetPath = 'Patch';
+  private user: IUser;
   constructor(
-    session: ClientSession | null = null,
-    options?: { log?: LogSession; user?: IUser }
+    session: ClientSession,
+    options: { log?: LogSession; user: IUser }
   ) {
-    super({ session, ...options });
-  }
-
-  async pagination(
-    pageFilter?: Partial<IPatchPaginationBody>
-  ): Promise<IPatchPaginationResponse> {
-    DevLog(`Pagination des patchs...`, 'debug');
-    const pagination = new PaginationControllers(PatchModel);
-
-    pagination.useFilter(pageFilter);
-
-    const res = await pagination.getResults();
-    res.results = res.results.map((result) => new Patch(result).toJSON());
-
-    DevLog(`Patchs trouvées: ${res.resultsCount}`, 'debug');
-    return res;
+    super(session, options);
+    this.user = options.user;
   }
 
   async getPatchFrom(

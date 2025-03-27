@@ -1,7 +1,6 @@
 import { ClientSession } from 'mongoose';
 import {
   ICompany,
-  ICompanyPaginationResponse,
   IMediaRelation,
   IPatch,
   ITargetPath,
@@ -11,7 +10,6 @@ import {
   ICompanyAddBody,
   ICompanyBody,
   ICompanyCreateBody,
-  ICompanyPaginationBody,
   IMediaDeleteBody,
 } from '@actunime/validations';
 import { UtilControllers } from '../_utils/_controllers';
@@ -19,35 +17,19 @@ import { DevLog } from '../_lib/logger';
 import { genPublicID } from '@actunime/utils';
 import { ImageController } from './image.controller';
 import LogSession from '../_utils/_logSession';
-import { CompanyModel } from '../_lib/models';
 import { APIError } from '../_lib/error';
 import { Patch } from '../_lib/media';
 import { Company } from '../_lib/media/_company';
-import { PaginationControllers } from './pagination.controllers';
 
-class CompanyController extends UtilControllers.withUser {
+class CompanyController extends UtilControllers.withBasic {
   private targetPath: ITargetPath = 'Company';
-
+  private user: IUser;
   constructor(
-    session?: ClientSession | null,
-    options?: { log?: LogSession; user?: IUser }
+    session: ClientSession,
+    options: { log?: LogSession; user: IUser }
   ) {
-    super({ session, ...options });
-  }
-
-  async pagination(
-    pageFilter?: Partial<ICompanyPaginationBody>
-  ): Promise<ICompanyPaginationResponse> {
-    DevLog(`Pagination des companys...`, 'debug');
-    const pagination = new PaginationControllers(CompanyModel);
-
-    pagination.useFilter(pageFilter);
-
-    const res = await pagination.getResults();
-    res.results = res.results.map((result) => new Company(result).toJSON());
-
-    DevLog(`Companys trouvées: ${res.resultsCount}`, 'debug');
-    return res;
+    super(session, options);
+    this.user = options.user;
   }
 
   async build(
@@ -73,7 +55,6 @@ class CompanyController extends UtilControllers.withUser {
       company.isVerified = get.isVerified;
     }
     const user = this.user;
-    this.needUser(user);
 
     const { refId, isRequest } = params;
 
@@ -153,7 +134,6 @@ class CompanyController extends UtilControllers.withUser {
     params: Omit<ICompanyCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Création de l'company...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
 
     const patchID = genPublicID(8);
@@ -207,7 +187,6 @@ class CompanyController extends UtilControllers.withUser {
     params: Omit<ICompanyCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Mise à jour de l'company...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patchID = genPublicID(8);
     const build = await this.build(data, {
@@ -267,7 +246,6 @@ class CompanyController extends UtilControllers.withUser {
 
   public async delete(id: string, params: IMediaDeleteBody) {
     DevLog("Suppression de l'company...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const media = await Company.get(id, {
       json: false,
@@ -356,7 +334,6 @@ class CompanyController extends UtilControllers.withUser {
     params: Omit<ICompanyCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Demande de création d'un company...", 'debug');
-    this.needUser(this.user);
     const patchID = genPublicID(8);
     const build = await this.build(data, { refId: patchID, isRequest: true });
     build.setUnverified();
@@ -407,7 +384,6 @@ class CompanyController extends UtilControllers.withUser {
     params: Omit<ICompanyCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Demande de modification d'un company...", 'debug');
-    this.needUser(this.user);
     const patchID = genPublicID(8);
     const build = await this.build(data, {
       refId: patchID,
@@ -469,7 +445,6 @@ class CompanyController extends UtilControllers.withUser {
       "Modification d'une demande de modification d'un company...",
       'debug'
     );
-    this.needUser(this.user);
     const request = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -540,7 +515,6 @@ class CompanyController extends UtilControllers.withUser {
       "Suppression d'une demande de modification d'un company...",
       'debug'
     );
-    this.needUser(this.user);
     const request = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -578,7 +552,6 @@ class CompanyController extends UtilControllers.withUser {
       "Acceptation d'une demande de modification d'un company...",
       'debug'
     );
-    this.needUser(this.user);
     const patch = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -662,7 +635,6 @@ class CompanyController extends UtilControllers.withUser {
     // params: IMediaVerifyBody
   ) {
     DevLog("Refus d'une demande de modification d'un company...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patch = await Patch.get(patchID, {
       nullThrowErr: true,

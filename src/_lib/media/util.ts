@@ -27,5 +27,7 @@ export type MethodOption<J extends boolean, E extends boolean> = {
   json?: J;
   cache?: CacheTTL | boolean;
   nullThrowErr?: E;
+  /** Message d'erreur */
+  message?: string;
   session?: ClientSession | null;
 };

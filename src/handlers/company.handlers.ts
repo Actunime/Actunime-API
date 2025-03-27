@@ -8,10 +8,10 @@ import {
   IMediaVerifyBody,
   IPatchPaginationBody,
 } from '@actunime/validations';
-import { PatchController } from '../controllers/patch.controllers';
 import { Company } from '../_lib/media/_company';
+import { Patch } from '../_lib/media';
+import { Checker } from '../_utils/_checker';
 
-const controller = new CompanyController();
 
 /** Récupérer un company a partir de son identifiant */
 const getCompany = async (req: FastifyRequest<{ Params: { id: string } }>) => {
@@ -24,7 +24,7 @@ const getCompany = async (req: FastifyRequest<{ Params: { id: string } }>) => {
 const filterCompany = async (
   req: FastifyRequest<{ Body: Partial<ICompanyPaginationBody> }>
 ) => {
-  const companys = await controller.pagination(req.body);
+  const companys = await Company.pagination(req.body);
   return new APIResponse({ success: true, data: companys });
 };
 
@@ -32,10 +32,10 @@ const filterCompany = async (
 const createCompany = async (
   req: FastifyRequest<{ Body: ICompanyCreateBody }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
   const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const description = req.body.description;
@@ -50,10 +50,10 @@ const createCompany = async (
 const updateCompany = async (
   req: FastifyRequest<{ Body: ICompanyCreateBody; Params: { id: string } }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
   const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const description = req.body.description;
@@ -68,11 +68,11 @@ const updateCompany = async (
 const deleteCompany = async (
   req: FastifyRequest<{ Body: IMediaDeleteBody; Params: { id: string } }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
 
   const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const res = await controller.delete(req.params.id, req.body);
@@ -84,10 +84,10 @@ const deleteCompany = async (
 const verifyCompany = async (
   req: FastifyRequest<{ Body: IMediaDeleteBody; Params: { id: string } }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
   const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const data = await controller.verify(req.params.id);
@@ -99,10 +99,10 @@ const verifyCompany = async (
 const unverifyCompany = async (
   req: FastifyRequest<{ Body: IMediaDeleteBody; Params: { id: string } }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
   const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const data = await controller.unverify(req.params.id);
@@ -116,7 +116,7 @@ const filterCompanyRequestByCompanyID = async (
 ) => {
   if (req.body?.query?.target) delete req.body.query.target;
   if (req.body?.query?.targetPath) delete req.body.query.targetPath;
-  const companysPatchs = await new PatchController().pagination({
+  const companysPatchs = await Patch.pagination({
     ...req.body,
     query: {
       ...req.body.query,
@@ -131,10 +131,10 @@ const filterCompanyRequestByCompanyID = async (
 const createCompanyRequest = async (
   req: FastifyRequest<{ Body: ICompanyCreateBody }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
   const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const description = req.body.description;
@@ -149,10 +149,10 @@ const createCompanyRequest = async (
 const updateCompanyRequest = async (
   req: FastifyRequest<{ Body: ICompanyCreateBody; Params: { id: string } }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
   const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const description = req.body.description;
@@ -176,11 +176,11 @@ const updateCompanyPatch = async (
     Params: { companyID: string; patchID: string };
   }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
 
   const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
   const description = req.body.description;
   const input = req.body.data;
@@ -201,16 +201,16 @@ const acceptCompanyPatch = async (
     Params: { companyID: string; patchID: string };
   }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
 
   const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const res = await controller.accept_patch(
     req.params.companyID,
-    req.params.patchID,
+    req.params.patchID
     // req.body
   );
   return new APIResponse({ success: true, ...res });
@@ -223,16 +223,16 @@ const rejectCompanyPatch = async (
     Params: { companyID: string; patchID: string };
   }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
 
   const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const res = await controller.reject_patch(
     req.params.companyID,
-    req.params.patchID,
+    req.params.patchID
     // req.body
   );
   return new APIResponse({ success: true, ...res });
@@ -245,19 +245,19 @@ const deleteCompanyPatch = async (
     Params: { companyID: string; patchID: string };
   }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
 
   const controller = new CompanyController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const res = await controller.delete_patch(
     req.params.companyID,
-    req.params.patchID,
+    req.params.patchID
     // req.body
   );
-  
+
   return new APIResponse({ success: true, ...res });
 };
 

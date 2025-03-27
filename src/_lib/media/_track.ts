@@ -7,6 +7,7 @@ import {
   ITrackType,
   IMediaTitle,
   IPersonRelation,
+  ITrackPaginationResponse,
 } from '@actunime/types';
 import { ClientSession } from 'mongoose';
 import { TrackModel, ModelDoc } from '../models';
@@ -16,6 +17,8 @@ import { Output } from '../../_utils/_controllers';
 import { mongooseCache } from '../database';
 import DeepDiff from 'deep-diff';
 import { ClassUtilSession, MethodOption } from './util';
+import { ITrackPaginationBody } from '@actunime/validations';
+import { PaginationControllers } from '../../controllers/pagination.controllers';
 
 type Out<
   J extends boolean,
@@ -260,5 +263,20 @@ export class Track extends ClassUtilSession implements ITrack {
       );
 
     return null as Out<J, E, true>;
+  }
+
+  static async pagination(
+    pageFilter?: Partial<ITrackPaginationBody>
+  ): Promise<ITrackPaginationResponse> {
+    DevLog(`Pagination des tracks...`, 'debug');
+    const pagination = new PaginationControllers(TrackModel);
+
+    pagination.useFilter(pageFilter);
+
+    const res = await pagination.getResults();
+    res.results = res.results.map((result) => new Track(result).toJSON());
+
+    DevLog(`Tracks trouvées: ${res.resultsCount}`, 'debug');
+    return res;
   }
 }

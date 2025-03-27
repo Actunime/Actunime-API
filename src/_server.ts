@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import fastify, { FastifyInstance, FastifyRequest } from 'fastify';
-import { ClientSession } from 'mongoose';
 
 import * as plugins from './plugins';
 import * as hooks from './hooks';
@@ -25,48 +24,17 @@ import PatchRoutes from './routes/patch.routes';
 import { swaggerOptions, SwaggerUiOptions } from './_utils/_swagger';
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUi from '@fastify/swagger-ui';
-import { IUser, IUserRoles } from '@actunime/types';
+import { CheckPermissions, IPermissions, IUser } from '@actunime/types';
 import { removeSessionHandler } from './_utils';
-import LogSession, { EndLogSession } from './_utils/_logSession';
-import { CheckRealmRoles, IRealmRole } from './_utils/_realmRoles';
+import { EndLogSession } from './_utils/_logSession';
 import PersonRoutes from './routes/person.routes';
 import { User } from './_lib/media/_user';
-
-declare module 'fastify' {
-  interface FastifyRequest {
-    isTesting: boolean;
-    logSession?: LogSession;
-    mongooseSession: ClientSession;
-    me: IUser | null;
-    account?: {
-      id: string;
-      email: string;
-      username: string;
-      roles: IRealmRole[];
-    };
-  }
-
-  interface FastifyInstance {
-    isTesting: boolean;
-    authenticate: (
-      request: FastifyRequest,
-      reply: FastifyReply
-    ) => Promise<void>;
-    authenticateRoles: (
-      roles: IUserRoles[]
-    ) => (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
-    keycloakRoles: (
-      roles: IRealmRole[],
-      strict?: boolean
-    ) => (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
-  }
-}
 
 export class Server {
   public app: FastifyInstance;
   public isTesting = false;
   public testingUser:
-    | (Partial<Omit<IUser, 'roles'>> & { roles: IRealmRole[] })
+    | (Partial<Omit<IUser, 'permissions'>> & { permissions: IPermissions[] })
     | null = null;
   private port: number = process.env.PORT
     ? parseInt(process.env.PORT as string)
@@ -122,9 +90,7 @@ export class Server {
     await this.app.register(fastifySwaggerUi, SwaggerUiOptions);
     await this.loadHooks();
     await this.loadPlugin();
-
     await this.authHandler();
-
     await this.loadRoutes();
 
     if (!this.isTesting) await this.app.listen({ port: this.port });
@@ -217,17 +183,15 @@ export class Server {
         },
         messages: myCustomMessages,
         decoratorName: 'account',
-        formatUser: (payload: any) => {
-          // this.app.decorateRequest('user', payload)
-          console.log(payload);
+        formatUser: (payload) => {
           return {
-            id: payload.sub,
+            accountId: payload.sub,
             email: payload.email,
             username: payload.preferred_username,
-            roles: payload.roles,
+            permissions: payload.roles,
             discordID: payload.discordID,
             groups: payload.groups,
-          };
+          } as unknown as User;
         },
       });
     } catch (err) {
@@ -242,16 +206,20 @@ export class Server {
 
     const setUser = async (req: FastifyRequest) => {
       if (this.isTesting && this.testingUser) {
-        req.me = this.testingUser as any;
+        req.user = this.testingUser as any;
       } else {
-        if (req.account) {
-          const getUser = await User.getByAccount(req.account.id, {
+        if (req.user?.accountId) {
+          const user = await User.getByAccount(req.user.accountId, {
             nullThrowErr: true,
+            message:
+              "Votre compte utilisateur n'existe pas, veuillez vous reconnecter ou bien si le problème persiste rentrer en contact avec le support.",
           });
-          req.me = getUser;
-          // Fussionner les roles
-          if (req.me)
-            req.me.roles = req.me.roles.concat(req.account.roles as any);
+          req.user = new User({
+            ...user,
+            ...req.user,
+          });
+        } else {
+          req.user = null;
         }
       }
     };
@@ -266,18 +234,15 @@ export class Server {
         throw new APIError('Vous devez vous identifier', 'UNAUTHORIZED', 401);
     };
 
-    this.app.decorate('authenticate', async (req) => {
-      await checkJWT(req);
-      await setUser(req);
-    });
-
     this.app.decorate(
-      'keycloakRoles',
-      (roles, strict) =>
+      'authorize',
+      (permissions, strict) =>
         async function (req) {
           await checkJWT(req);
           await setUser(req);
-          if (!CheckRealmRoles(roles, req.me?.roles || [], strict))
+          if (
+            !CheckPermissions(permissions, req.user?.permissions || [], strict)
+          )
             throw new APIError(
               "Vous n'avez pas les permissions pour effectuer cette action",
               'UNAUTHORIZED'

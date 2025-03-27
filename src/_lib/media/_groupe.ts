@@ -1,8 +1,4 @@
-import {
-  IGroupe,
-  IGroupeDB,
-  IMediaName,
-} from '@actunime/types';
+import { IGroupe, IGroupeDB, IGroupePaginationResponse, IMediaName } from '@actunime/types';
 import { ClientSession } from 'mongoose';
 import { GroupeModel, ModelDoc } from '../models';
 import { APIError } from '../error';
@@ -11,6 +7,8 @@ import { Output } from '../../_utils/_controllers';
 import { mongooseCache } from '../database';
 import DeepDiff from 'deep-diff';
 import { ClassUtilSession, MethodOption } from './util';
+import { IGroupePaginationBody } from '@actunime/validations';
+import { PaginationControllers } from '../../controllers/pagination.controllers';
 
 type Out<
   J extends boolean,
@@ -235,5 +233,20 @@ export class Groupe extends ClassUtilSession implements IGroupe {
       );
 
     return null as Out<J, E, true>;
+  }
+
+  static async pagination(
+    pageFilter?: Partial<IGroupePaginationBody>
+  ): Promise<IGroupePaginationResponse> {
+    DevLog(`Pagination des groupes...`, 'debug');
+    const pagination = new PaginationControllers(GroupeModel);
+
+    pagination.useFilter(pageFilter);
+
+    const res = await pagination.getResults();
+    res.results = res.results.map((result) => new Groupe(result).toJSON());
+
+    DevLog(`Groupes trouvées: ${res.resultsCount}`, 'debug');
+    return res;
   }
 }

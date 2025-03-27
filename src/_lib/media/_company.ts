@@ -5,6 +5,7 @@ import {
   IMediaRelation,
   IDate,
   IMediaTitle,
+  ICompanyPaginationResponse,
 } from '@actunime/types';
 import { ClientSession } from 'mongoose';
 import { CompanyModel, ModelDoc } from '../models';
@@ -14,6 +15,8 @@ import { Output } from '../../_utils/_controllers';
 import { mongooseCache } from '../database';
 import DeepDiff from 'deep-diff';
 import { ClassUtilSession, MethodOption } from './util';
+import { ICompanyPaginationBody } from '@actunime/validations';
+import { PaginationControllers } from '../../controllers/pagination.controllers';
 
 type Out<
   J extends boolean,
@@ -255,5 +258,20 @@ export class Company extends ClassUtilSession implements ICompany {
       );
 
     return null as Out<J, E, true>;
+  }
+
+  static async pagination(
+    pageFilter?: Partial<ICompanyPaginationBody>
+  ): Promise<ICompanyPaginationResponse> {
+    DevLog(`Pagination des companys...`, 'debug');
+    const pagination = new PaginationControllers(CompanyModel);
+
+    pagination.useFilter(pageFilter);
+
+    const res = await pagination.getResults();
+    res.results = res.results.map((result) => new Company(result).toJSON());
+
+    DevLog(`Companys trouvées: ${res.resultsCount}`, 'debug');
+    return res;
   }
 }

@@ -1,4 +1,4 @@
-import { IImageLabel, ITargetPath } from '@actunime/types';
+import { IImageLabel, IImagePaginationResponse, ITargetPath } from '@actunime/types';
 
 import { IImage, IImageDB, IMediaRelation } from '@actunime/types';
 import { ClientSession } from 'mongoose';
@@ -9,6 +9,8 @@ import { Output } from '../../_utils/_controllers';
 import { mongooseCache } from '../database';
 import DeepDiff from 'deep-diff';
 import { ClassUtilSession, MethodOption } from './util';
+import { IImagePaginationBody } from '@actunime/validations';
+import { PaginationControllers } from '../../controllers/pagination.controllers';
 
 type Out<
   J extends boolean,
@@ -289,5 +291,20 @@ export class Image extends ClassUtilSession implements IImage {
     );
 
     if (req.status !== 200) throw new Error("Impossible de supprimer l'image");
+  }
+
+  static async pagination(
+    pageFilter?: Partial<IImagePaginationBody>
+  ): Promise<IImagePaginationResponse> {
+    DevLog(`Pagination des images...`, 'debug');
+    const pagination = new PaginationControllers(ImageModel);
+
+    pagination.useFilter(pageFilter);
+
+    const res = await pagination.getResults();
+    res.results = res.results.map((result) => new Image(result).toJSON());
+
+    DevLog(`Images trouvées: ${res.resultsCount}`, 'debug');
+    return res;
   }
 }

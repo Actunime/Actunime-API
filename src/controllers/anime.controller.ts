@@ -2,16 +2,13 @@ import { ClientSession } from 'mongoose';
 import { APIError } from '../_lib/error';
 import {
   IAnime,
-  IAnimePaginationResponse,
   IPatch,
   ITargetPath,
   IUser,
 } from '@actunime/types';
-import { PaginationControllers } from './pagination.controllers';
 import {
   IAnimeAddBody,
   IAnimeCreateBody,
-  IAnimePaginationBody,
   IMediaDeleteBody,
 } from '@actunime/validations';
 import { UtilControllers } from '../_utils/_controllers';
@@ -26,12 +23,9 @@ import LogSession from '../_utils/_logSession';
 import { DevLog } from '../_lib/logger';
 import { genPublicID } from '@actunime/utils';
 import { Anime } from '../_lib/media/_anime';
-import { AnimeModel } from '../_lib/models';
 import { Patch } from '../_lib/media';
 
-class AnimeController extends UtilControllers.withUser {
-  // private patchController: PatchController;
-  private targetPath: ITargetPath = 'Anime';
+class AnimeController extends UtilControllers.withBasic {
   private groupeController: GroupeController;
   private imageController: ImageController;
   private mangaController: MangaController;
@@ -40,11 +34,14 @@ class AnimeController extends UtilControllers.withUser {
   private characterController: CharacterController;
   private trackController: TrackController;
 
+  private targetPath: ITargetPath = 'Anime';
+  private user: IUser;
   constructor(
-    session: ClientSession | null = null,
-    options?: { log?: LogSession; user?: IUser }
+    session: ClientSession,
+    options: { log?: LogSession; user: IUser }
   ) {
-    super({ session, ...options });
+    super(session, options);
+    this.user = options.user;
     // this.patchController = new PatchController(session, options);
     this.groupeController = new GroupeController(session, options);
     this.imageController = new ImageController(session, options);
@@ -53,21 +50,6 @@ class AnimeController extends UtilControllers.withUser {
     this.personController = new PersonController(session, options);
     this.characterController = new CharacterController(session, options);
     this.trackController = new TrackController(session, options);
-  }
-
-  async pagination(
-    pageFilter?: Partial<IAnimePaginationBody>
-  ): Promise<IAnimePaginationResponse<IAnime>> {
-    DevLog(`Pagination des animes...`, 'debug');
-    const pagination = new PaginationControllers(AnimeModel);
-
-    pagination.useFilter(pageFilter);
-
-    const res = await pagination.getResults();
-    res.results = res.results.map((result) => new Anime(result).toJSON());
-
-    DevLog(`Animes trouvées: ${res.resultsCount}`, 'debug');
-    return res;
   }
 
   async build(
@@ -214,7 +196,6 @@ class AnimeController extends UtilControllers.withUser {
     params: Omit<IAnimeCreateBody, 'data'>
   ) {
     DevLog("Création de l'anime...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const refId = genPublicID(8);
     const { build } = await this.build(data, { refId, isRequest: false });
@@ -263,7 +244,6 @@ class AnimeController extends UtilControllers.withUser {
     params: Omit<IAnimeCreateBody, 'data'>
   ) {
     DevLog("Mise à jour de l'anime...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patchID = genPublicID(8);
     const { build } = await this.build(data, {
@@ -322,7 +302,6 @@ class AnimeController extends UtilControllers.withUser {
 
   public async delete(id: string, params: IMediaDeleteBody) {
     DevLog("Suppression de l'anime...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const media = await Anime.get(id, {
       json: false,
@@ -409,7 +388,6 @@ class AnimeController extends UtilControllers.withUser {
     params: Omit<IAnimeCreateBody, 'data'>
   ) {
     DevLog("Demande de création d'un anime...", 'debug');
-    this.needUser(this.user);
     const refId = genPublicID(8);
     const { build } = await this.build(data, { refId, isRequest: true });
     build.setUnverified();
@@ -458,7 +436,6 @@ class AnimeController extends UtilControllers.withUser {
     params: Omit<IAnimeCreateBody, 'data'>
   ) {
     DevLog("Demande de modification d'un anime...", 'debug');
-    this.needUser(this.user);
     const refId = genPublicID(8);
     const { build } = await this.build(data, {
       refId,
@@ -515,7 +492,6 @@ class AnimeController extends UtilControllers.withUser {
     params: Omit<IAnimeCreateBody, 'data'>
   ) {
     DevLog("Modification d'une demande de modification d'un anime...", 'debug');
-    this.needUser(this.user);
     const request = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -584,7 +560,6 @@ class AnimeController extends UtilControllers.withUser {
     // params: IMediaDeleteBody
   ) {
     DevLog("Suppression d'une demande de modification d'un anime...", 'debug');
-    this.needUser(this.user);
     const request = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -625,7 +600,6 @@ class AnimeController extends UtilControllers.withUser {
     // params: IMediaVerifyBody
   ) {
     DevLog("Acceptation d'une demande de modification d'un anime...", 'debug');
-    this.needUser(this.user);
     const patch = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -709,7 +683,6 @@ class AnimeController extends UtilControllers.withUser {
     // params: IMediaVerifyBody
   ) {
     DevLog("Refus d'une demande de modification d'un anime...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patch = await Patch.get(patchID, {
       nullThrowErr: true,

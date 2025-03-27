@@ -2,7 +2,6 @@ import { ClientSession } from 'mongoose';
 import { APIError } from '../_lib/error';
 import {
   ICharacter,
-  ICharacterPaginationResponse,
   ITargetPath,
   IUser,
 } from '@actunime/types';
@@ -10,7 +9,6 @@ import {
   ICharacterAddBody,
   ICharacterBody,
   ICharacterCreateBody,
-  ICharacterPaginationBody,
   IMediaDeleteBody,
 } from '@actunime/validations';
 import { UtilControllers } from '../_utils/_controllers';
@@ -21,32 +19,16 @@ import { ImageController } from './image.controller';
 import LogSession from '../_utils/_logSession';
 import { Character } from '../_lib/media/_character';
 import { Patch } from '../_lib/media';
-import { CharacterModel } from '../_lib/models';
-import { PaginationControllers } from './pagination.controllers';
 
-class CharacterController extends UtilControllers.withUser {
+class CharacterController extends UtilControllers.withBasic {
   private targetPath: ITargetPath = 'Character';
-
+  private user: IUser;
   constructor(
-    session?: ClientSession | null,
-    options?: { log?: LogSession; user?: IUser }
+    session: ClientSession,
+    options: { log?: LogSession; user: IUser }
   ) {
-    super({ session, ...options });
-  }
-
-  async pagination(
-    pageFilter?: Partial<ICharacterPaginationBody>
-  ): Promise<ICharacterPaginationResponse> {
-    DevLog(`Pagination des characters...`, 'debug');
-    const pagination = new PaginationControllers(CharacterModel);
-
-    pagination.useFilter(pageFilter);
-
-    const res = await pagination.getResults();
-    res.results = res.results.map((result) => new Character(result).toJSON());
-
-    DevLog(`Characters trouvées: ${res.resultsCount}`, 'debug');
-    return res;
+    super(session, options);
+    this.user = options.user;
   }
 
   async build(
@@ -75,7 +57,6 @@ class CharacterController extends UtilControllers.withUser {
     }
 
     const user = this.user;
-    this.needUser(user);
 
     DevLog(`Build character... ID: ${character.id}`, 'debug');
 
@@ -161,7 +142,6 @@ class CharacterController extends UtilControllers.withUser {
     params: Omit<ICharacterCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Création de l'character...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patchID = genPublicID(8);
     const build = await this.build(data, { refId: patchID, isRequest: false });
@@ -214,7 +194,6 @@ class CharacterController extends UtilControllers.withUser {
     params: Omit<ICharacterCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Mise à jour de l'character...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patchID = genPublicID(8);
     const build = await this.build(data, {
@@ -274,7 +253,6 @@ class CharacterController extends UtilControllers.withUser {
 
   public async delete(id: string, params: IMediaDeleteBody) {
     DevLog("Suppression de l'character...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const media = await Character.get(id, {
       json: false,
@@ -363,7 +341,6 @@ class CharacterController extends UtilControllers.withUser {
     params: Omit<ICharacterCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Demande de création d'un character...", 'debug');
-    this.needUser(this.user);
     const patchID = genPublicID(8);
     const build = await this.build(data, { refId: patchID, isRequest: true });
     build.setUnverified();
@@ -414,7 +391,6 @@ class CharacterController extends UtilControllers.withUser {
     params: Omit<ICharacterCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Demande de modification d'un character...", 'debug');
-    this.needUser(this.user);
     const patchID = genPublicID(8);
     const build = await this.build(data, {
       refId: patchID,
@@ -476,7 +452,6 @@ class CharacterController extends UtilControllers.withUser {
       "Modification d'une demande de modification d'un character...",
       'debug'
     );
-    this.needUser(this.user);
     const request = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -547,7 +522,6 @@ class CharacterController extends UtilControllers.withUser {
       "Suppression d'une demande de modification d'un character...",
       'debug'
     );
-    this.needUser(this.user);
     const request = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -585,7 +559,6 @@ class CharacterController extends UtilControllers.withUser {
       "Acceptation d'une demande de modification d'un character...",
       'debug'
     );
-    this.needUser(this.user);
     const patch = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -666,7 +639,6 @@ class CharacterController extends UtilControllers.withUser {
     // params: IMediaVerifyBody
   ) {
     DevLog("Refus d'une demande de modification d'un character...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patch = await Patch.get(patchID, {
       nullThrowErr: true,

@@ -8,10 +8,9 @@ import {
   IMediaVerifyBody,
   IPatchPaginationBody,
 } from '@actunime/validations';
-import { PatchController } from '../controllers/patch.controllers';
 import { Anime } from '../_lib/media/_anime';
-
-const controller = new AnimeController();
+import { Checker } from '../_utils/_checker';
+import { Patch } from '../_lib/media';
 
 /** Récupérer un anime a partir de son identifiant */
 const getAnime = async (req: FastifyRequest<{ Params: { id: string } }>) => {
@@ -24,16 +23,16 @@ const getAnime = async (req: FastifyRequest<{ Params: { id: string } }>) => {
 const filterAnime = async (
   req: FastifyRequest<{ Body: Partial<IAnimePaginationBody> }>
 ) => {
-  const animes = await controller.pagination(req.body);
+  const animes = await Anime.pagination(req.body);
   return new APIResponse({ success: true, data: animes });
 };
 
 /** Créer un nouvel anime */
 const createAnime = async (req: FastifyRequest<{ Body: IAnimeCreateBody }>) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user)
   const controller = new AnimeController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const description = req.body.description;
@@ -48,10 +47,10 @@ const createAnime = async (req: FastifyRequest<{ Body: IAnimeCreateBody }>) => {
 const updateAnime = async (
   req: FastifyRequest<{ Body: IAnimeCreateBody; Params: { id: string } }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user)
   const controller = new AnimeController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const description = req.body.description;
@@ -66,10 +65,10 @@ const updateAnime = async (
 const deleteAnime = async (
   req: FastifyRequest<{ Body: IMediaDeleteBody; Params: { id: string } }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user)
   const controller = new AnimeController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const res = await controller.delete(req.params.id, req.body);
@@ -81,10 +80,10 @@ const deleteAnime = async (
 const verifyAnime = async (
   req: FastifyRequest<{ Body: IMediaDeleteBody; Params: { id: string } }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user)
   const controller = new AnimeController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const data = await controller.verify(req.params.id);
@@ -96,10 +95,10 @@ const verifyAnime = async (
 const unverifyAnime = async (
   req: FastifyRequest<{ Body: IMediaDeleteBody; Params: { id: string } }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user)
   const controller = new AnimeController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const data = await controller.unverify(req.params.id);
@@ -113,7 +112,7 @@ const filterAnimeRequestByAnimeID = async (
 ) => {
   if (req.body?.query?.target) delete req.body.query.target;
   if (req.body?.query?.targetPath) delete req.body.query.targetPath;
-  const animesPatchs = await new PatchController().pagination({
+  const animesPatchs = await Patch.pagination({
     ...req.body,
     query: {
       ...req.body.query,
@@ -128,10 +127,10 @@ const filterAnimeRequestByAnimeID = async (
 const createAnimeRequest = async (
   req: FastifyRequest<{ Body: IAnimeCreateBody }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user)
   const controller = new AnimeController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const description = req.body.description;
@@ -146,10 +145,10 @@ const createAnimeRequest = async (
 const updateAnimeRequest = async (
   req: FastifyRequest<{ Body: IAnimeCreateBody; Params: { id: string } }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user)
   const controller = new AnimeController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const description = req.body.description;
@@ -173,11 +172,11 @@ const updateAnimePatch = async (
     Params: { animeID: string; patchID: string };
   }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user)
 
   const controller = new AnimeController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
   const description = req.body.description;
   const input = req.body.data;
@@ -198,16 +197,16 @@ const acceptAnimePatch = async (
     Params: { animeID: string; patchID: string };
   }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user)
 
   const controller = new AnimeController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const res = await controller.accept_patch(
     req.params.animeID,
-    req.params.patchID,
+    req.params.patchID
     // req.body
   );
   return new APIResponse({ success: true, ...res });
@@ -220,19 +219,19 @@ const rejectAnimePatch = async (
     Params: { animeID: string; patchID: string };
   }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user)
 
   const controller = new AnimeController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const res = await controller.reject_patch(
     req.params.animeID,
-    req.params.patchID,
+    req.params.patchID
     // req.body
   );
-  
+
   return new APIResponse({ success: true, ...res });
 };
 
@@ -243,16 +242,16 @@ const deleteAnimePatch = async (
     Params: { animeID: string; patchID: string };
   }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user)
 
   const controller = new AnimeController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const res = await controller.delete_patch(
     req.params.animeID,
-    req.params.patchID,
+    req.params.patchID
     // req.body
   );
   return new APIResponse({ success: true, ...res });

@@ -4,13 +4,11 @@ import {
   IPerson,
   IUser,
   ITargetPath,
-  IPersonPaginationResponse,
 } from '@actunime/types';
 import {
   IPersonBody,
   IMediaDeleteBody,
   IPersonCreateBody,
-  IPersonPaginationBody,
   IPersonAddBody,
 } from '@actunime/validations';
 import { UtilControllers } from '../_utils/_controllers';
@@ -20,32 +18,16 @@ import { ImageController } from './image.controller';
 import LogSession from '../_utils/_logSession';
 import { Person } from '../_lib/media/_person';
 import { Patch } from '../_lib/media';
-import { PersonModel } from '../_lib/models';
-import { PaginationControllers } from './pagination.controllers';
 
-class PersonController extends UtilControllers.withUser {
+class PersonController extends UtilControllers.withBasic {
   private targetPath: ITargetPath = 'Person';
-
+  private user: IUser;
   constructor(
-    session?: ClientSession | null,
-    options?: { log?: LogSession; user?: IUser }
+    session: ClientSession,
+    options: { log?: LogSession; user: IUser }
   ) {
-    super({ session, ...options });
-  }
-
-  async pagination(
-    pageFilter?: Partial<IPersonPaginationBody>
-  ): Promise<IPersonPaginationResponse> {
-    DevLog(`Pagination des persons...`, 'debug');
-    const pagination = new PaginationControllers(PersonModel);
-
-    pagination.useFilter(pageFilter);
-
-    const res = await pagination.getResults();
-    res.results = res.results.map((result) => new Person(result).toJSON());
-
-    DevLog(`Persons trouvées: ${res.resultsCount}`, 'debug');
-    return res;
+    super(session, options);
+    this.user = options.user;
   }
 
   async build(
@@ -73,7 +55,6 @@ class PersonController extends UtilControllers.withUser {
     }
 
     const user = this.user;
-    this.needUser(user);
     const { refId, isRequest } = params;
     DevLog(`Build de la personne...`, 'debug');
 
@@ -148,7 +129,6 @@ class PersonController extends UtilControllers.withUser {
     params: Omit<IPersonCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Création de l'person...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patchID = genPublicID(8);
     const build = await this.build(data, { refId: patchID, isRequest: false });
@@ -202,7 +182,6 @@ class PersonController extends UtilControllers.withUser {
     params: Omit<IPersonCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Mise à jour de l'person...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patchID = genPublicID(8);
     const build = await this.build(data, {
@@ -262,7 +241,6 @@ class PersonController extends UtilControllers.withUser {
 
   public async delete(id: string, params: IMediaDeleteBody) {
     DevLog("Suppression de l'person...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const media = await Person.get(id, {
       json: false,
@@ -351,7 +329,6 @@ class PersonController extends UtilControllers.withUser {
     params: Omit<IPersonCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Demande de création d'un person...", 'debug');
-    this.needUser(this.user);
     const patchID = genPublicID(8);
     const build = await this.build(data, { refId: patchID, isRequest: true });
     build.setUnverified();
@@ -402,7 +379,6 @@ class PersonController extends UtilControllers.withUser {
     params: Omit<IPersonCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Demande de modification d'un person...", 'debug');
-    this.needUser(this.user);
     const patchID = genPublicID(8);
     const build = await this.build(data, {
       refId: patchID,
@@ -464,7 +440,6 @@ class PersonController extends UtilControllers.withUser {
       "Modification d'une demande de modification d'un person...",
       'debug'
     );
-    this.needUser(this.user);
     const request = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -532,7 +507,6 @@ class PersonController extends UtilControllers.withUser {
     // params: IMediaDeleteBody
   ) {
     DevLog("Suppression d'une demande de modification d'un person...", 'debug');
-    this.needUser(this.user);
     const request = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -567,7 +541,6 @@ class PersonController extends UtilControllers.withUser {
     // params: IMediaVerifyBody
   ) {
     DevLog("Acceptation d'une demande de modification d'un person...", 'debug');
-    this.needUser(this.user);
     const patch = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -648,7 +621,6 @@ class PersonController extends UtilControllers.withUser {
     // params: IMediaVerifyBody
   ) {
     DevLog("Refus d'une demande de modification d'un person...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patch = await Patch.get(patchID, {
       nullThrowErr: true,

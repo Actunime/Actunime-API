@@ -1,6 +1,5 @@
 import { FastifyRequest, RouteHandler } from 'fastify';
 import { z } from 'zod';
-import { PatchController } from '../controllers/patch.controllers';
 import { APIResponse } from '../_utils/_response';
 import { PatchPaginationBody } from '@actunime/validations';
 import { Patch } from '../_lib/media';
@@ -14,9 +13,7 @@ const getPatchById: RouteHandler = async (req) => {
 const filterPatch = async (
   req: FastifyRequest<{ Body: z.infer<typeof PatchPaginationBody> }>
 ) => {
-  const Patchs = await new PatchController(req.mongooseSession, {
-    log: req.logSession,
-  }).pagination(req.body);
+  const Patchs = await Patch.pagination(req.body);
   return new APIResponse({ success: true, data: Patchs });
 };
 

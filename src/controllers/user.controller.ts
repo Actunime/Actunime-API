@@ -1,5 +1,5 @@
 import { ClientSession } from 'mongoose';
-import { ITargetPath, IUser, IUserPaginationResponse } from '@actunime/types';
+import { ITargetPath, IUser } from '@actunime/types';
 import { UtilControllers } from '../_utils/_controllers';
 import LogSession from '../_utils/_logSession';
 import { DevLog, genPublicID } from '@actunime/utils';
@@ -8,38 +8,21 @@ import {
   IUserAddBody,
   IUserBody,
   IUserCreateBody,
-  IUserPaginationBody,
 } from '@actunime/validations';
 import { User } from '../_lib/media/_user';
-import { UserModel } from '../_lib/models';
-import { PaginationControllers } from './pagination.controllers';
+import { Patch } from '../_lib/media';
 import { ImageController } from './image.controller';
 import { APIError } from '../_lib/error';
-import { Patch } from '../_lib/media';
 
-class UserController extends UtilControllers.withUser {
+class UserController extends UtilControllers.withBasic {
   private targetPath: ITargetPath = 'User';
-
+  private user: IUser;
   constructor(
-    session?: ClientSession | null,
-    options?: { log?: LogSession; user?: IUser }
+    session: ClientSession,
+    options: { log?: LogSession; user: IUser }
   ) {
-    super({ session, ...options });
-  }
-
-  async pagination(
-    pageFilter?: Partial<IUserPaginationBody>
-  ): Promise<IUserPaginationResponse> {
-    DevLog(`Pagination des users...`, 'debug');
-    const pagination = new PaginationControllers(UserModel);
-
-    pagination.useFilter(pageFilter);
-
-    const res = await pagination.getResults();
-    res.results = res.results.map((result) => new User(result).toJSON());
-
-    DevLog(`Users trouvées: ${res.resultsCount}`, 'debug');
-    return res;
+    super(session, options);
+    this.user = options.user;
   }
 
   async build(
@@ -63,11 +46,11 @@ class UserController extends UtilControllers.withUser {
         session,
       });
       // Valeur a synchroniser;
-      user.roles = get.roles;
+      user.permissions = get.permissions;
       user.accountId = get.accountId;
       user.username = get.username;
     }
-    this.needUser(this.user);
+    
     const { refId, isRequest } = params;
     DevLog(`Build de la userne...`, 'debug');
 
@@ -131,7 +114,6 @@ class UserController extends UtilControllers.withUser {
     params: Omit<IUserCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Création de l'user...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patchID = genPublicID(8);
     const build = await this.build(data, { refId: patchID, isRequest: false });
@@ -181,7 +163,6 @@ class UserController extends UtilControllers.withUser {
     params: Omit<IUserCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Mise à jour de l'user...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patchID = genPublicID(8);
     const build = await this.build(data, {
@@ -240,7 +221,6 @@ class UserController extends UtilControllers.withUser {
 
   public async delete(id: string, params: IMediaDeleteBody) {
     DevLog("Suppression de l'user...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const media = await User.get(id, {
       json: false,
@@ -292,7 +272,6 @@ class UserController extends UtilControllers.withUser {
     // params: IMediaDeleteBody
   ) {
     DevLog("Suppression d'une demande de modification d'un person...", 'debug');
-    this.needUser(this.user);
     const request = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,

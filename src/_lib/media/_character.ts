@@ -7,6 +7,7 @@ import {
   IPersonRelation,
   ICharacterGender,
   ICharacterSpecies,
+  ICharacterPaginationResponse,
 } from '@actunime/types';
 import { ClientSession } from 'mongoose';
 import { CharacterModel, ModelDoc } from '../models';
@@ -16,6 +17,8 @@ import { Output } from '../../_utils/_controllers';
 import { mongooseCache } from '../database';
 import DeepDiff from 'deep-diff';
 import { ClassUtilSession, MethodOption } from './util';
+import { ICharacterPaginationBody } from '@actunime/validations';
+import { PaginationControllers } from '../../controllers/pagination.controllers';
 
 type Out<
   J extends boolean,
@@ -264,5 +267,20 @@ export class Character extends ClassUtilSession implements ICharacter {
       );
 
     return null as Out<J, E, true>;
+  }
+
+  static async pagination(
+    pageFilter?: Partial<ICharacterPaginationBody>
+  ): Promise<ICharacterPaginationResponse> {
+    DevLog(`Pagination des characters...`, 'debug');
+    const pagination = new PaginationControllers(CharacterModel);
+
+    pagination.useFilter(pageFilter);
+
+    const res = await pagination.getResults();
+    res.results = res.results.map((result) => new Character(result).toJSON());
+
+    DevLog(`Characters trouvées: ${res.resultsCount}`, 'debug');
+    return res;
   }
 }

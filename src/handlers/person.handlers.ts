@@ -8,10 +8,9 @@ import {
   IMediaVerifyBody,
   IPatchPaginationBody,
 } from '@actunime/validations';
-import { PatchController } from '../controllers/patch.controllers';
 import { Person } from '../_lib/media/_person';
-
-const controller = new PersonController();
+import { Checker } from '../_utils/_checker';
+import { Patch } from '../_lib/media';
 
 /** Récupérer un person a partir de son identifiant */
 const getPerson = async (req: FastifyRequest<{ Params: { id: string } }>) => {
@@ -24,7 +23,7 @@ const getPerson = async (req: FastifyRequest<{ Params: { id: string } }>) => {
 const filterPerson = async (
   req: FastifyRequest<{ Body: Partial<IPersonPaginationBody> }>
 ) => {
-  const persons = await controller.pagination(req.body);
+  const persons = await Person.pagination(req.body);
   return new APIResponse({ success: true, data: persons });
 };
 
@@ -32,10 +31,10 @@ const filterPerson = async (
 const createPerson = async (
   req: FastifyRequest<{ Body: IPersonCreateBody }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
   const controller = new PersonController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const description = req.body.description;
@@ -50,10 +49,10 @@ const createPerson = async (
 const updatePerson = async (
   req: FastifyRequest<{ Body: IPersonCreateBody; Params: { id: string } }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
   const controller = new PersonController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const description = req.body.description;
@@ -68,11 +67,11 @@ const updatePerson = async (
 const deletePerson = async (
   req: FastifyRequest<{ Body: IMediaDeleteBody; Params: { id: string } }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
 
   const controller = new PersonController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const res = await controller.delete(req.params.id, req.body);
@@ -84,10 +83,10 @@ const deletePerson = async (
 const verifyPerson = async (
   req: FastifyRequest<{ Body: IMediaDeleteBody; Params: { id: string } }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
   const controller = new PersonController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const data = await controller.verify(req.params.id);
@@ -99,10 +98,10 @@ const verifyPerson = async (
 const unverifyPerson = async (
   req: FastifyRequest<{ Body: IMediaDeleteBody; Params: { id: string } }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
   const controller = new PersonController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const data = await controller.unverify(req.params.id);
@@ -116,7 +115,7 @@ const filterPersonRequestByPersonID = async (
 ) => {
   if (req.body?.query?.target) delete req.body.query.target;
   if (req.body?.query?.targetPath) delete req.body.query.targetPath;
-  const personsPatchs = await new PatchController().pagination({
+  const personsPatchs = await Patch.pagination({
     ...req.body,
     query: {
       ...req.body.query,
@@ -131,10 +130,10 @@ const filterPersonRequestByPersonID = async (
 const createPersonRequest = async (
   req: FastifyRequest<{ Body: IPersonCreateBody }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
   const controller = new PersonController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const description = req.body.description;
@@ -149,10 +148,10 @@ const createPersonRequest = async (
 const updatePersonRequest = async (
   req: FastifyRequest<{ Body: IPersonCreateBody; Params: { id: string } }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
   const controller = new PersonController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const description = req.body.description;
@@ -176,11 +175,11 @@ const updatePersonPatch = async (
     Params: { personID: string; patchID: string };
   }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
 
   const controller = new PersonController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
   const description = req.body.description;
   const input = req.body.data;
@@ -201,16 +200,16 @@ const acceptPersonPatch = async (
     Params: { personID: string; patchID: string };
   }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
 
   const controller = new PersonController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const res = await controller.accept_patch(
     req.params.personID,
-    req.params.patchID,
+    req.params.patchID
     // req.body
   );
   return new APIResponse({ success: true, ...res });
@@ -223,16 +222,16 @@ const rejectPersonPatch = async (
     Params: { personID: string; patchID: string };
   }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
 
   const controller = new PersonController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const res = await controller.reject_patch(
     req.params.personID,
-    req.params.patchID,
+    req.params.patchID
     // req.body
   );
   return new APIResponse({ success: true, ...res });
@@ -245,19 +244,19 @@ const deletePersonPatch = async (
     Params: { personID: string; patchID: string };
   }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
 
   const controller = new PersonController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const res = await controller.delete_patch(
     req.params.personID,
-    req.params.patchID,
+    req.params.patchID
     // req.body
   );
-  
+
   return new APIResponse({ success: true, ...res });
 };
 

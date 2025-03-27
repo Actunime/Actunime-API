@@ -13,6 +13,7 @@ import {
   IMediaStatus,
   IMediaTitle,
   IPersonRelation,
+  IMangaPaginationResponse,
 } from '@actunime/types';
 import { ClientSession } from 'mongoose';
 import { MangaModel, ModelDoc } from '../models';
@@ -22,6 +23,8 @@ import { Output } from '../../_utils/_controllers';
 import { mongooseCache } from '../database';
 import DeepDiff from 'deep-diff';
 import { ClassUtilSession, MethodOption } from './util';
+import { IMangaPaginationBody } from '@actunime/validations';
+import { PaginationControllers } from '../../controllers/pagination.controllers';
 
 type Out<
   J extends boolean,
@@ -312,5 +315,20 @@ export class Manga extends ClassUtilSession implements IManga {
       );
 
     return null as Out<J, E, true>;
+  }
+
+  static async pagination(
+    pageFilter?: Partial<IMangaPaginationBody>
+  ): Promise<IMangaPaginationResponse> {
+    DevLog(`Pagination des mangas...`, 'debug');
+    const pagination = new PaginationControllers(MangaModel);
+
+    pagination.useFilter(pageFilter);
+
+    const res = await pagination.getResults();
+    res.results = res.results.map((result) => new Manga(result).toJSON());
+
+    DevLog(`Mangas trouvées: ${res.resultsCount}`, 'debug');
+    return res;
   }
 }

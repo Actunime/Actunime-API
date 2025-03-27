@@ -37,7 +37,7 @@ function UserRoutes(fastify: FastifyInstance) {
       description: '',
       tags: ['User'],
     },
-    preHandler: [fastify.authenticate],
+    preValidation: [fastify.authorize([])],
     handler: UserHandlers.getUserByAccountId,
   });
 
@@ -49,7 +49,8 @@ function UserRoutes(fastify: FastifyInstance) {
       tags: ['User'],
       body: UserCreateBody,
     },
-    preHandler: [fastify.authenticate, addSessionHandler, AddLogSession],
+    preValidation: [fastify.authorize([])],
+    preHandler: [addSessionHandler, AddLogSession],
     handler: UserHandlers.updateCurrentUser,
   });
 
@@ -61,8 +62,8 @@ function UserRoutes(fastify: FastifyInstance) {
       tags: ['User'],
       body: UserClientCreateBody,
     },
-    preValidation: [fastify.keycloakRoles(['USER_CREATE'])],
-    preHandler: [fastify.authenticate, addSessionHandler, AddLogSession],
+    preValidation: [fastify.authorize(['USER_CREATE'])],
+    preHandler: [addSessionHandler, AddLogSession],
     handler: UserHandlers.clientCreateUser,
   });
 
@@ -74,8 +75,8 @@ function UserRoutes(fastify: FastifyInstance) {
       tags: ['User'],
       body: UserCreateBody,
     },
-    preValidation: [fastify.keycloakRoles(['USER_PATCH'])],
-    preHandler: [fastify.authenticate, addSessionHandler, AddLogSession],
+    preValidation: [fastify.authorize(['USER_PATCH'])],
+    preHandler: [addSessionHandler, AddLogSession],
     handler: UserHandlers.updateUser,
   });
 }

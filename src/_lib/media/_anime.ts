@@ -3,6 +3,7 @@ import {
   IAnimeDB,
   IAnimeEpisode,
   IAnimeFormat,
+  IAnimePaginationResponse,
   IAnimeRelation,
   ICharacterRelation,
   IMangaRelation,
@@ -23,6 +24,8 @@ import { Output } from '../../_utils/_controllers';
 import { mongooseCache } from '../database';
 import DeepDiff from 'deep-diff';
 import { ClassUtilSession, MethodOption } from './util';
+import { IAnimePaginationBody } from '@actunime/validations';
+import { PaginationControllers } from '../../controllers/pagination.controllers';
 
 type Out<
   J extends boolean,
@@ -318,5 +321,20 @@ export class Anime extends ClassUtilSession implements IAnime {
       );
 
     return null as Out<J, E, true>;
+  }
+
+  static async pagination(
+    pageFilter?: Partial<IAnimePaginationBody>
+  ): Promise<IAnimePaginationResponse<IAnime>> {
+    DevLog(`Pagination des animes...`, 'debug');
+    const pagination = new PaginationControllers(AnimeModel);
+
+    pagination.useFilter(pageFilter);
+
+    const res = await pagination.getResults();
+    res.results = res.results.map((result) => new Anime(result).toJSON());
+
+    DevLog(`Animes trouvées: ${res.resultsCount}`, 'debug');
+    return res;
   }
 }

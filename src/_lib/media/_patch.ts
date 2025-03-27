@@ -6,6 +6,7 @@ import {
   ITargetPath,
   IPatchStatus,
   IPatchType,
+  IPatchPaginationResponse,
 } from '@actunime/types';
 import { ClientSession } from 'mongoose';
 import { PatchModel, ModelDoc } from '../models';
@@ -15,6 +16,8 @@ import { mongooseCache } from '../database';
 import DeepDiff from 'deep-diff';
 import { Output } from '../../_utils/_controllers';
 import { ClassUtilSession, MethodOption } from './util';
+import { IPatchPaginationBody } from '@actunime/validations';
+import { PaginationControllers } from '../../controllers/pagination.controllers';
 
 interface PatchDiff<LHS, RHS = LHS> {
   kind: 'N' | 'D' | 'E' | 'A';
@@ -296,5 +299,20 @@ export class Patch extends ClassUtilSession implements IPatch {
       );
 
     return null as Out<J, E, true>;
+  }
+
+  static async pagination(
+    pageFilter?: Partial<IPatchPaginationBody>
+  ): Promise<IPatchPaginationResponse> {
+    DevLog(`Pagination des patchs...`, 'debug');
+    const pagination = new PaginationControllers(PatchModel);
+
+    pagination.useFilter(pageFilter);
+
+    const res = await pagination.getResults();
+    res.results = res.results.map((result) => new Patch(result).toJSON());
+
+    DevLog(`Patchs trouvées: ${res.resultsCount}`, 'debug');
+    return res;
   }
 }

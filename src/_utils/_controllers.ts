@@ -1,6 +1,4 @@
-import { IUser } from '@actunime/types';
 import { APIError } from '../_lib/error';
-import { CheckRealmRoles, IRealmRole } from './_realmRoles';
 import { ClientSession } from 'mongoose';
 import LogSession from './_logSession';
 
@@ -22,15 +20,14 @@ export type Output<
   : Out<Type, ClassType, J, E>;
 
 export class withBasic {
-  public session: ClientSession | null = null;
+  public session: ClientSession;
   public log?: LogSession;
-  constructor(session: ClientSession | null = null, log?: LogSession) {
+  constructor(
+    session: ClientSession,
+    options?: { log?: LogSession }
+  ) {
     this.session = session;
-    this.log = log;
-  }
-  public setSession(session: ClientSession | null) {
-    this.session = session;
-    return this;
+    this.log = options?.log;
   }
   public needSession(
     session?: ClientSession | null
@@ -44,38 +41,4 @@ export class withBasic {
   }
 }
 
-export class withUser extends withBasic {
-  public user?: IUser;
-  constructor(options?: {
-    user?: IUser;
-    log?: LogSession;
-    session?: ClientSession | null;
-  }) {
-    super(options?.session, options?.log);
-    this.user = options?.user;
-  }
-
-  public useUser(user: IUser) {
-    this.user = user;
-    return this;
-  }
-
-  public needUser(user?: IUser | null): asserts user is IUser {
-    if (!user)
-      throw new APIError(
-        "Aucun n'utilisateur n'a été défini pour cette action",
-        'UNAUTHORIZED'
-      );
-  }
-
-  public needRoles(roles: IRealmRole[], strict?: boolean) {
-    const hasRoles = CheckRealmRoles(roles, this.user!.roles, strict);
-    if (!hasRoles)
-      throw new APIError(
-        "Vous n'avez pas les droits suffisant pour cette action",
-        'UNAUTHORIZED'
-      );
-  }
-}
-
-export const UtilControllers = { withUser };
+export const UtilControllers = { withBasic };

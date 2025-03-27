@@ -2,15 +2,12 @@ import { ClientSession } from 'mongoose';
 import { APIError } from '../_lib/error';
 import {
   IManga,
-  IMangaPaginationResponse,
   ITargetPath,
   IUser,
 } from '@actunime/types';
-import { PaginationControllers } from './pagination.controllers';
 import {
   IMangaAddBody,
   IMangaCreateBody,
-  IMangaPaginationBody,
   IMediaDeleteBody,
 } from '@actunime/validations';
 import { UtilControllers } from '../_utils/_controllers';
@@ -23,44 +20,29 @@ import LogSession from '../_utils/_logSession';
 import { DevLog } from '../_lib/logger';
 import { genPublicID } from '@actunime/utils';
 import { Manga } from '../_lib/media/_manga';
-import { MangaModel } from '../_lib/models';
 import { Patch } from '../_lib/media';
 
-class MangaController extends UtilControllers.withUser {
+class MangaController extends UtilControllers.withBasic {
   // private patchController: PatchController;
-  private targetPath: ITargetPath = 'Manga';
   private groupeController: GroupeController;
   private imageController: ImageController;
   private companyController: CompanyController;
   private personController: PersonController;
   private characterController: CharacterController;
-
+  private targetPath: ITargetPath = 'Manga';
+  private user: IUser;
   constructor(
-    session: ClientSession | null = null,
-    options?: { log?: LogSession; user?: IUser }
+    session: ClientSession,
+    options: { log?: LogSession; user: IUser }
   ) {
-    super({ session, ...options });
+    super(session, options);
+    this.user = options.user;
     // this.patchController = new PatchController(session, options);
     this.groupeController = new GroupeController(session, options);
     this.imageController = new ImageController(session, options);
     this.companyController = new CompanyController(session, options);
     this.personController = new PersonController(session, options);
     this.characterController = new CharacterController(session, options);
-  }
-
-  async pagination(
-    pageFilter?: Partial<IMangaPaginationBody>
-  ): Promise<IMangaPaginationResponse> {
-    DevLog(`Pagination des mangas...`, 'debug');
-    const pagination = new PaginationControllers(MangaModel);
-
-    pagination.useFilter(pageFilter);
-
-    const res = await pagination.getResults();
-    res.results = res.results.map((result) => new Manga(result).toJSON());
-
-    DevLog(`Mangas trouvées: ${res.resultsCount}`, 'debug');
-    return res;
   }
 
   async build(
@@ -185,7 +167,6 @@ class MangaController extends UtilControllers.withUser {
     params: Omit<IMangaCreateBody, 'data'>
   ) {
     DevLog("Création de l'manga...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const refId = genPublicID(8);
     const build = await this.build(data, { refId, isRequest: false });
@@ -231,7 +212,6 @@ class MangaController extends UtilControllers.withUser {
     params: Omit<IMangaCreateBody, 'data'>
   ) {
     DevLog("Mise à jour de l'manga...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patchID = genPublicID(8);
     const build = await this.build(data, {
@@ -287,7 +267,6 @@ class MangaController extends UtilControllers.withUser {
 
   public async delete(id: string, params: IMediaDeleteBody) {
     DevLog("Suppression de l'manga...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const media = await Manga.get(id, {
       json: false,
@@ -368,7 +347,6 @@ class MangaController extends UtilControllers.withUser {
     params: Omit<IMangaCreateBody, 'data'>
   ) {
     DevLog("Demande de création d'un manga...", 'debug');
-    this.needUser(this.user);
     const refId = genPublicID(8);
     const build = await this.build(data, { refId, isRequest: true });
     build.setUnverified();
@@ -414,7 +392,6 @@ class MangaController extends UtilControllers.withUser {
     params: Omit<IMangaCreateBody, 'data'>
   ) {
     DevLog("Demande de modification d'un manga...", 'debug');
-    this.needUser(this.user);
     const refId = genPublicID(8);
     const build = await this.build(data, {
       refId,
@@ -468,7 +445,6 @@ class MangaController extends UtilControllers.withUser {
     params: Omit<IMangaCreateBody, 'data'>
   ) {
     DevLog("Modification d'une demande de modification d'un manga...", 'debug');
-    this.needUser(this.user);
     const request = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -533,7 +509,6 @@ class MangaController extends UtilControllers.withUser {
     // params: IMediaDeleteBody
   ) {
     DevLog("Suppression d'une demande de modification d'un manga...", 'debug');
-    this.needUser(this.user);
     const request = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -566,7 +541,6 @@ class MangaController extends UtilControllers.withUser {
     // params: IMediaVerifyBody
   ) {
     DevLog("Acceptation d'une demande de modification d'un manga...", 'debug');
-    this.needUser(this.user);
     const patch = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -647,7 +621,6 @@ class MangaController extends UtilControllers.withUser {
     // params: IMediaVerifyBody
   ) {
     DevLog("Refus d'une demande de modification d'un manga...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patch = await Patch.get(patchID, {
       nullThrowErr: true,

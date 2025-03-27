@@ -3,12 +3,10 @@ import { APIError } from '../_lib/error';
 import {
   IImageAddBody,
   IImageBody,
-  IImagePaginationBody,
   IMediaDeleteBody,
 } from '@actunime/validations';
 import {
   IImage,
-  IImagePaginationResponse,
   ITargetPath,
   IUser,
 } from '@actunime/types';
@@ -19,8 +17,6 @@ import { Checker } from '../_utils/_checker';
 import LogSession from '../_utils/_logSession';
 import { Image } from '../_lib/media/_image';
 import { Patch } from '../_lib/media';
-import { ImageModel } from '../_lib/models';
-import { PaginationControllers } from './pagination.controllers';
 
 interface ImageParams {
   refId?: string;
@@ -36,7 +32,7 @@ interface ImageFile {
   valueIsUrl: boolean;
 }
 
-class ImageController extends UtilControllers.withUser {
+class ImageController extends UtilControllers.withBasic {
   static saveImages: {
     data: ImageFile;
     session_id: ClientSession['id'];
@@ -49,27 +45,13 @@ class ImageController extends UtilControllers.withUser {
     session_id: ClientSession['id'];
   }[] = [];
   private targetPath: ITargetPath = 'Image';
-
+  private user: IUser;
   constructor(
-    session: ClientSession | null,
-    options?: { log?: LogSession; user?: IUser }
+    session: ClientSession,
+    options: { log?: LogSession; user: IUser }
   ) {
-    super({ session, ...options });
-  }
-
-  async pagination(
-    pageFilter?: Partial<IImagePaginationBody>
-  ): Promise<IImagePaginationResponse> {
-    DevLog(`Pagination des images...`, 'debug');
-    const pagination = new PaginationControllers(ImageModel);
-
-    pagination.useFilter(pageFilter);
-
-    const res = await pagination.getResults();
-    res.results = res.results.map((result) => new Image(result).toJSON());
-
-    DevLog(`Images trouvées: ${res.resultsCount}`, 'debug');
-    return res;
+    super(session, options);
+    this.user = options.user;
   }
 
   async build(input: IImageBody, params: ImageParams & { imageID?: string }) {
@@ -165,7 +147,6 @@ class ImageController extends UtilControllers.withUser {
 
   public async create(data: IImageBody, params: ImageParams) {
     DevLog("Création d'une image...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patchID = genPublicID(8);
     const build = await this.build(data, params);
@@ -213,7 +194,6 @@ class ImageController extends UtilControllers.withUser {
 
   public async update(id: string, data: IImageBody, params: ImageParams) {
     DevLog("Modification d'une image...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patchID = genPublicID(8);
     const build = await this.build(data, { ...params, imageID: id });
@@ -266,7 +246,6 @@ class ImageController extends UtilControllers.withUser {
 
   public async delete(id: string, params: IMediaDeleteBody) {
     DevLog("Suppression d'une image...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const media = await Image.get(id, {
       json: false,
@@ -350,7 +329,6 @@ class ImageController extends UtilControllers.withUser {
 
   public async create_request(data: IImageBody, params: ImageParams) {
     DevLog("Creation de la demande de l'image...", 'debug');
-    this.needUser(this.user);
     const refId = genPublicID(8);
     const build = await this.build(data, params);
     build.setUnverified();
@@ -403,7 +381,6 @@ class ImageController extends UtilControllers.withUser {
     // params: IMediaDeleteBody
   ) {
     DevLog("Suppression d'une demande de modification d'un image...", 'debug');
-    this.needUser(this.user);
     const request = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -438,7 +415,6 @@ class ImageController extends UtilControllers.withUser {
     // params: IMediaVerifyBody
   ) {
     DevLog("Acceptation d'une demande de modification d'un image...", 'debug');
-    this.needUser(this.user);
     const patch = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -519,7 +495,6 @@ class ImageController extends UtilControllers.withUser {
     // params: IMediaVerifyBody
   ) {
     DevLog("Refus d'une demande de modification d'un image...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patch = await Patch.get(patchID, {
       nullThrowErr: true,

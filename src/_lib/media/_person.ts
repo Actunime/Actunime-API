@@ -5,6 +5,7 @@ import {
   IMediaRelation,
   IMediaName,
   IDate,
+  IPersonPaginationResponse,
 } from '@actunime/types';
 import { ClientSession } from 'mongoose';
 import { PersonModel, ModelDoc } from '../models';
@@ -14,6 +15,8 @@ import { Output } from '../../_utils/_controllers';
 import { mongooseCache } from '../database';
 import DeepDiff from 'deep-diff';
 import { ClassUtilSession, MethodOption } from './util';
+import { IPersonPaginationBody } from '@actunime/validations';
+import { PaginationControllers } from '../../controllers/pagination.controllers';
 
 type Out<
   J extends boolean,
@@ -256,5 +259,20 @@ export class Person extends ClassUtilSession implements IPerson {
       );
 
     return null as Out<J, E, true>;
+  }
+
+  static async pagination(
+    pageFilter?: Partial<IPersonPaginationBody>
+  ): Promise<IPersonPaginationResponse> {
+    DevLog(`Pagination des persons...`, 'debug');
+    const pagination = new PaginationControllers(PersonModel);
+
+    pagination.useFilter(pageFilter);
+
+    const res = await pagination.getResults();
+    res.results = res.results.map((result) => new Person(result).toJSON());
+
+    DevLog(`Persons trouvées: ${res.resultsCount}`, 'debug');
+    return res;
   }
 }

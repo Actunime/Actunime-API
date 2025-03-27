@@ -6,6 +6,7 @@ import {
   AnimePaginationBody,
   MediaDeleteBody,
   MediaVerifyBody,
+  PatchPaginationBody,
 } from '@actunime/validations';
 import { AnimeHandlers } from '../handlers/anime.handlers';
 import { addSessionHandler } from '../_utils';
@@ -78,7 +79,7 @@ async function AnimeRoutes(fastify: FastifyInstance) {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles(['ANIME_CREATE'])],
+    preValidation: [fastify.authorize(['ANIME_CREATE'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.createAnime,
   });
@@ -94,7 +95,7 @@ async function AnimeRoutes(fastify: FastifyInstance) {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles(['ANIME_PATCH'])],
+    preValidation: [fastify.authorize(['ANIME_PATCH'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.updateAnime,
   });
@@ -110,7 +111,7 @@ async function AnimeRoutes(fastify: FastifyInstance) {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles(['ANIME_DELETE'])],
+    preValidation: [fastify.authorize(['ANIME_DELETE'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.deleteAnime,
   });
@@ -126,7 +127,7 @@ async function AnimeRoutes(fastify: FastifyInstance) {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles(['ANIME_VERIFY'])],
+    preValidation: [fastify.authorize(['ANIME_VERIFY'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.verifyAnime,
   });
@@ -137,12 +138,12 @@ async function AnimeRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Dévérifier un anime',
       tags,
-      body: MediaVerifyBody,
+      body: MediaVerifyBody.strict().partial(),
       response: {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles(['ANIME_VERIFY'])],
+    preValidation: [fastify.authorize(['ANIME_VERIFY'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.unverifyAnime,
   });
@@ -153,12 +154,12 @@ async function AnimeRoutes(fastify: FastifyInstance) {
     schema: {
       description: "Créer une [demande] [création] d'un anime",
       tags,
-      body: AnimeCreateBody,
+      body: AnimeCreateBody.strict().partial(),
       response: {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles(['ANIME_CREATE_REQUEST'])],
+    preValidation: [fastify.authorize(['ANIME_CREATE_REQUEST'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.createAnimeRequest,
   });
@@ -169,11 +170,12 @@ async function AnimeRoutes(fastify: FastifyInstance) {
     schema: {
       description: "Filtrer les demandes d'un anime",
       tags,
+      body: PatchPaginationBody.strict().partial(),
       response: {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles([])],
+    preValidation: [fastify.authorize([])],
     preHandler: [AddLogSession],
     handler: handler.filterAnimeRequestByAnimeID,
   });
@@ -185,12 +187,12 @@ async function AnimeRoutes(fastify: FastifyInstance) {
     schema: {
       description: "Créer une [demande] de [modification] d'un anime",
       tags,
-      body: AnimeCreateBody,
+      body: AnimeCreateBody.strict().partial(),
       response: {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles(['ANIME_PATCH_REQUEST'])],
+    preValidation: [fastify.authorize(['ANIME_PATCH_REQUEST'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.updateAnimeRequest,
   });
@@ -201,12 +203,12 @@ async function AnimeRoutes(fastify: FastifyInstance) {
     schema: {
       description: "Mettre a jour la demande d'un anime",
       tags,
-      body: AnimeCreateBody,
+      body: AnimeCreateBody.strict().partial(),
       response: {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles(['ANIME_REQUEST_PATCH'])],
+    preValidation: [fastify.authorize(['ANIME_REQUEST_PATCH'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: AnimeHandlers.updateAnimePatch,
   });
@@ -222,7 +224,7 @@ async function AnimeRoutes(fastify: FastifyInstance) {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles(['ANIME_REQUEST_VERIFY'])],
+    preValidation: [fastify.authorize(['ANIME_REQUEST_VERIFY'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.acceptAnimePatch,
   });
@@ -238,7 +240,7 @@ async function AnimeRoutes(fastify: FastifyInstance) {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles(['ANIME_REQUEST_VERIFY'])],
+    preValidation: [fastify.authorize(['ANIME_REQUEST_VERIFY'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.rejectAnimePatch,
   });
@@ -254,9 +256,7 @@ async function AnimeRoutes(fastify: FastifyInstance) {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [
-      fastify.keycloakRoles(['ANIME_REQUEST_DELETE']),
-    ],
+    preValidation: [fastify.authorize(['ANIME_REQUEST_DELETE'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.deleteAnimePatch,
   });

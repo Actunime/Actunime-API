@@ -4,13 +4,11 @@ import {
   ITrack,
   ITargetPath,
   IUser,
-  ITrackPaginationResponse,
 } from '@actunime/types';
 import {
   ITrackBody,
   IMediaDeleteBody,
   ITrackCreateBody,
-  ITrackPaginationBody,
   ITrackAddBody,
 } from '@actunime/validations';
 import { UtilControllers } from '../_utils/_controllers';
@@ -20,33 +18,17 @@ import { ImageController } from './image.controller';
 import LogSession from '../_utils/_logSession';
 import { Track } from '../_lib/media/_track';
 import { Patch } from '../_lib/media';
-import { TrackModel } from '../_lib/models';
-import { PaginationControllers } from './pagination.controllers';
 import { PersonController } from './person.controller';
 
-class TrackController extends UtilControllers.withUser {
+class TrackController extends UtilControllers.withBasic {
   private targetPath: ITargetPath = 'Track';
-
+  private user: IUser;
   constructor(
-    session?: ClientSession | null,
-    options?: { log?: LogSession; user?: IUser }
+    session: ClientSession,
+    options: { log?: LogSession; user: IUser }
   ) {
-    super({ session, ...options });
-  }
-
-  async pagination(
-    pageFilter?: Partial<ITrackPaginationBody>
-  ): Promise<ITrackPaginationResponse> {
-    DevLog(`Pagination des tracks...`, 'debug');
-    const pagination = new PaginationControllers(TrackModel);
-
-    pagination.useFilter(pageFilter);
-
-    const res = await pagination.getResults();
-    res.results = res.results.map((result) => new Track(result).toJSON());
-
-    DevLog(`Tracks trouvées: ${res.resultsCount}`, 'debug');
-    return res;
+    super(session, options);
+    this.user = options.user;
   }
 
   async build(
@@ -72,7 +54,6 @@ class TrackController extends UtilControllers.withUser {
       track.isVerified = get.isVerified;
     }
     const user = this.user;
-    this.needUser(user);
 
     const { refId, isRequest } = params;
     DevLog('Build de musique...', 'debug');
@@ -157,7 +138,6 @@ class TrackController extends UtilControllers.withUser {
     params: Omit<ITrackCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Création de l'track...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patchID = genPublicID(8);
     const build = await this.build(data, { refId: patchID, isRequest: false });
@@ -207,7 +187,6 @@ class TrackController extends UtilControllers.withUser {
     params: Omit<ITrackCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Mise à jour de l'track...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patchID = genPublicID(8);
     const build = await this.build(data, {
@@ -267,7 +246,6 @@ class TrackController extends UtilControllers.withUser {
 
   public async delete(id: string, params: IMediaDeleteBody) {
     DevLog("Suppression de l'track...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const media = await Track.get(id, {
       json: false,
@@ -355,7 +333,6 @@ class TrackController extends UtilControllers.withUser {
     params: Omit<ITrackCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Demande de création d'un track...", 'debug');
-    this.needUser(this.user);
     const patchID = genPublicID(8);
     const build = await this.build(data, { refId: patchID, isRequest: true });
     build.setUnverified();
@@ -405,7 +382,6 @@ class TrackController extends UtilControllers.withUser {
     params: Omit<ITrackCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Demande de modification d'un track...", 'debug');
-    this.needUser(this.user);
     const patchID = genPublicID(8);
     const build = await this.build(data, {
       refId: patchID,
@@ -463,7 +439,6 @@ class TrackController extends UtilControllers.withUser {
     params: Omit<ITrackCreateBody, 'data'>
   ) {
     DevLog("Modification d'une demande de modification d'un track...", 'debug');
-    this.needUser(this.user);
     const request = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -531,7 +506,6 @@ class TrackController extends UtilControllers.withUser {
     // params: IMediaDeleteBody
   ) {
     DevLog("Suppression d'une demande de modification d'un track...", 'debug');
-    this.needUser(this.user);
     const request = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -566,7 +540,6 @@ class TrackController extends UtilControllers.withUser {
     // params: IMediaVerifyBody
   ) {
     DevLog("Acceptation d'une demande de modification d'un track...", 'debug');
-    this.needUser(this.user);
     const patch = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -647,7 +620,6 @@ class TrackController extends UtilControllers.withUser {
     // params: IMediaVerifyBody
   ) {
     DevLog("Refus d'une demande de modification d'un track...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patch = await Patch.get(patchID, {
       nullThrowErr: true,

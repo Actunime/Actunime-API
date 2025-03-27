@@ -66,9 +66,9 @@
   },
   "dependencies": {
     "@actunime/mongoose-models": "^1.0.34",
-    "@actunime/types": "^1.0.49",
+    "@actunime/types": "^1.0.52",
     "@actunime/utils": "^1.0.11",
-    "@actunime/validations": "^1.0.33",
+    "@actunime/validations": "^1.0.35",
     "@fastify/cors": "^10.1.0",
     "@fastify/express": "^4.0.2",
     "@fastify/formbody": "^8.0.2",

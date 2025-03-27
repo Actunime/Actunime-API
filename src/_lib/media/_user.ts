@@ -2,8 +2,9 @@ import {
   IUser,
   IUserDB,
   IMediaRelation,
-  IUserRoles,
   IUserOptions,
+  IPermissions,
+  IUserPaginationResponse,
 } from '@actunime/types';
 import { ClientSession } from 'mongoose';
 import { UserModel, ModelDoc } from '../models';
@@ -13,6 +14,8 @@ import { Output } from '../../_utils/_controllers';
 import { mongooseCache } from '../database';
 import DeepDiff from 'deep-diff';
 import { ClassUtilSession, MethodOption } from './util';
+import { IUserPaginationBody } from '@actunime/validations';
+import { PaginationControllers } from '../../controllers/pagination.controllers';
 
 type Out<
   J extends boolean,
@@ -25,7 +28,7 @@ export class User extends ClassUtilSession implements IUser {
   public username: string;
   public displayName: string;
   public description?: string;
-  public roles: IUserRoles[];
+  public permissions: IPermissions[];
   public avatar?: IMediaRelation;
   public banner?: IMediaRelation;
   public options?: IUserOptions;
@@ -51,9 +54,12 @@ export class User extends ClassUtilSession implements IUser {
       );
     this.displayName = data.displayName;
     this.description = data.description;
-    if (!data.roles)
-      throw new APIError('User constructor roles is empty', 'SERVER_ERROR');
-    this.roles = data.roles;
+    if (!data.permissions)
+      throw new APIError(
+        'User constructor permissions is empty',
+        'SERVER_ERROR'
+      );
+    this.permissions = data.permissions;
     this.avatar = data.avatar;
     this.banner = data.banner;
     this.options = data.options;
@@ -166,7 +172,7 @@ export class User extends ClassUtilSession implements IUser {
       username: this.username,
       displayName: this.displayName,
       description: this.description,
-      roles: this.roles,
+      permissions: this.permissions,
       avatar: this.avatar,
       banner: this.banner,
       options: this.options,
@@ -216,6 +222,7 @@ export class User extends ClassUtilSession implements IUser {
       cache = true,
       nullThrowErr = false,
       session,
+      message,
     } = options || {};
     const res = await User.cache(
       UserModel.findOne({ accountId: id }, null, { session }),
@@ -231,7 +238,7 @@ export class User extends ClassUtilSession implements IUser {
 
     if (nullThrowErr)
       throw new APIError(
-        `L'user avec l'identifiant ${id} n'a pas été trouvée`,
+        message || `L'user avec l'identifiant ${id} n'a pas été trouvée`,
         'NOT_FOUND'
       );
 
@@ -272,5 +279,20 @@ export class User extends ClassUtilSession implements IUser {
       );
 
     return null as Out<J, E, true>;
+  }
+
+  static async pagination(
+    pageFilter?: Partial<IUserPaginationBody>
+  ): Promise<IUserPaginationResponse> {
+    DevLog(`Pagination des users...`, 'debug');
+    const pagination = new PaginationControllers(UserModel);
+
+    pagination.useFilter(pageFilter);
+
+    const res = await pagination.getResults();
+    res.results = res.results.map((result) => new User(result).toJSON());
+
+    DevLog(`Users trouvées: ${res.resultsCount}`, 'debug');
+    return res;
   }
 }

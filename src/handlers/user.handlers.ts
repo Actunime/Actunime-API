@@ -5,6 +5,7 @@ import { APIResponse } from '../_utils/_response';
 import { IUserClientCreateBody, IUserCreateBody } from '@actunime/validations';
 import { APIError } from '../_lib/error';
 import { User } from '../_lib/media/_user';
+import { Checker } from '../_utils/_checker';
 
 const getUserById: RouteHandler = async (req) => {
   const { id } = z.object({ id: z.string() }).parse(req.params);
@@ -13,7 +14,7 @@ const getUserById: RouteHandler = async (req) => {
 };
 
 const getCurrentUser: RouteHandler = async (req) => {
-  return new APIResponse({ success: true, data: req.me });
+  return new APIResponse({ success: true, data: req.user });
 };
 
 const getUserByAccountId = async (
@@ -33,17 +34,14 @@ const updateCurrentUser = async (
   if (!Object.keys(body).length)
     throw new APIError("Aucun champ n'a été modifié !", 'EMPTY_CHANGES');
 
-  const controller = new UserController(req.mongooseSession);
+  Checker.userIsDefined(req.user);
+  const controller = new UserController(req.mongooseSession, {
+    user: req.user,
+  });
   const description = req.body.description;
   const input = req.body.data;
 
-  if (!req.me)
-    throw new APIError(
-      'Vous devez vous connecter pour modifier votre profil !',
-      'UNAUTHORIZED'
-    );
-
-  const res = await controller.update(req.me.id, input, { description });
+  const res = await controller.update(req.user.id, input, { description });
 
   return new APIResponse({ success: true, ...res });
 };
@@ -51,10 +49,10 @@ const updateCurrentUser = async (
 const updateUser = async (
   req: FastifyRequest<{ Body: IUserCreateBody; Params: { id: string } }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
   const controller = new UserController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const description = req.body.description;
@@ -68,10 +66,10 @@ const updateUser = async (
 const clientCreateUser = async (
   req: FastifyRequest<{ Body: IUserClientCreateBody; Params: { id: string } }>
 ) => {
-  const user = req.me!;
+  Checker.userIsDefined(req.user);
   const controller = new UserController(req.mongooseSession, {
     log: req.logSession,
-    user,
+    user: req.user,
   });
 
   const description = req.body.description;

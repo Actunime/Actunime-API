@@ -78,7 +78,7 @@ async function PersonRoutes(fastify: FastifyInstance) {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles(['PERSON_CREATE'])],
+    preValidation: [fastify.authorize(['PERSON_CREATE'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.createPerson,
   });
@@ -94,7 +94,7 @@ async function PersonRoutes(fastify: FastifyInstance) {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles(['PERSON_PATCH'])],
+    preValidation: [fastify.authorize(['PERSON_PATCH'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.updatePerson,
   });
@@ -110,7 +110,7 @@ async function PersonRoutes(fastify: FastifyInstance) {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles(['PERSON_DELETE'])],
+    preValidation: [fastify.authorize(['PERSON_DELETE'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.deletePerson,
   });
@@ -126,7 +126,7 @@ async function PersonRoutes(fastify: FastifyInstance) {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles(['PERSON_VERIFY'])],
+    preValidation: [fastify.authorize(['PERSON_VERIFY'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.verifyPerson,
   });
@@ -142,7 +142,7 @@ async function PersonRoutes(fastify: FastifyInstance) {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles(['PERSON_VERIFY'])],
+    preValidation: [fastify.authorize(['PERSON_VERIFY'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.unverifyPerson,
   });
@@ -158,7 +158,7 @@ async function PersonRoutes(fastify: FastifyInstance) {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles(['PERSON_CREATE_REQUEST'])],
+    preValidation: [fastify.authorize(['PERSON_CREATE_REQUEST'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.createPersonRequest,
   });
@@ -173,7 +173,7 @@ async function PersonRoutes(fastify: FastifyInstance) {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles([])],
+    preValidation: [fastify.authorize([])],
     preHandler: [AddLogSession],
     handler: handler.filterPersonRequestByPersonID,
   });
@@ -190,7 +190,7 @@ async function PersonRoutes(fastify: FastifyInstance) {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles(['PERSON_PATCH_REQUEST'])],
+    preValidation: [fastify.authorize(['PERSON_PATCH_REQUEST'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.updatePersonRequest,
   });
@@ -206,7 +206,7 @@ async function PersonRoutes(fastify: FastifyInstance) {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles(['PERSON_REQUEST_PATCH'])],
+    preValidation: [fastify.authorize(['PERSON_REQUEST_PATCH'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: PersonHandlers.updatePersonPatch,
   });
@@ -222,7 +222,7 @@ async function PersonRoutes(fastify: FastifyInstance) {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles(['PERSON_REQUEST_VERIFY'])],
+    preValidation: [fastify.authorize(['PERSON_REQUEST_VERIFY'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.acceptPersonPatch,
   });
@@ -238,7 +238,7 @@ async function PersonRoutes(fastify: FastifyInstance) {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [fastify.keycloakRoles(['PERSON_REQUEST_VERIFY'])],
+    preValidation: [fastify.authorize(['PERSON_REQUEST_VERIFY'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.rejectPersonPatch,
   });
@@ -254,9 +254,7 @@ async function PersonRoutes(fastify: FastifyInstance) {
         200: Utilchema.ResponseBody(),
       },
     },
-    preValidation: [
-      fastify.keycloakRoles(['PERSON_REQUEST_DELETE']),
-    ],
+    preValidation: [fastify.authorize(['PERSON_REQUEST_DELETE'])],
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.deletePersonPatch,
   });

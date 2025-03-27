@@ -2,7 +2,6 @@ import { ClientSession } from 'mongoose';
 import { APIError } from '../_lib/error';
 import {
   IGroupe,
-  IGroupePaginationResponse,
   ITargetPath,
   IUser,
 } from '@actunime/types';
@@ -10,7 +9,6 @@ import {
   IGroupeAddBody,
   IGroupeBody,
   IGroupeCreateBody,
-  IGroupePaginationBody,
   IMediaDeleteBody,
 } from '@actunime/validations';
 import { UtilControllers } from '../_utils/_controllers';
@@ -19,32 +17,16 @@ import { DevLog } from '../_lib/logger';
 import { genPublicID } from '@actunime/utils';
 import { Patch } from '../_lib/media';
 import { Groupe } from '../_lib/media/_groupe';
-import { GroupeModel } from '../_lib/models';
-import { PaginationControllers } from './pagination.controllers';
 
-class GroupeController extends UtilControllers.withUser {
+class GroupeController extends UtilControllers.withBasic {
   private targetPath: ITargetPath = 'Groupe';
-
+  private user: IUser;
   constructor(
-    session?: ClientSession | null,
-    options?: { log?: LogSession; user?: IUser }
+    session: ClientSession,
+    options: { log?: LogSession; user: IUser }
   ) {
-    super({ session, ...options });
-  }
-
-  async pagination(
-    pageFilter?: Partial<IGroupePaginationBody>
-  ): Promise<IGroupePaginationResponse> {
-    DevLog(`Pagination des groupes...`, 'debug');
-    const pagination = new PaginationControllers(GroupeModel);
-
-    pagination.useFilter(pageFilter);
-
-    const res = await pagination.getResults();
-    res.results = res.results.map((result) => new Groupe(result).toJSON());
-
-    DevLog(`Groupes trouvées: ${res.resultsCount}`, 'debug');
-    return res;
+    super(session, options);
+    this.user = options.user;
   }
 
   async build(
@@ -121,7 +103,6 @@ class GroupeController extends UtilControllers.withUser {
     params: Omit<IGroupeCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Création de l'groupe...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patchID = genPublicID(8);
     const build = await this.build(data, { refId: patchID, isRequest: false });
@@ -174,7 +155,6 @@ class GroupeController extends UtilControllers.withUser {
     params: Omit<IGroupeCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Mise à jour de l'groupe...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patchID = genPublicID(8);
     const build = await this.build(data, {
@@ -234,7 +214,6 @@ class GroupeController extends UtilControllers.withUser {
 
   public async delete(id: string, params: IMediaDeleteBody) {
     DevLog("Suppression de l'groupe...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const media = await Groupe.get(id, {
       json: false,
@@ -322,7 +301,6 @@ class GroupeController extends UtilControllers.withUser {
     params: Omit<IGroupeCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Demande de création d'un groupe...", 'debug');
-    this.needUser(this.user);
     const patchID = genPublicID(8);
     const build = await this.build(data, { refId: patchID, isRequest: true });
     build.setUnverified();
@@ -373,7 +351,6 @@ class GroupeController extends UtilControllers.withUser {
     params: Omit<IGroupeCreateBody, 'data'> & { refId?: string }
   ) {
     DevLog("Demande de modification d'un groupe...", 'debug');
-    this.needUser(this.user);
     const patchID = genPublicID(8);
     const build = await this.build(data, {
       refId: patchID,
@@ -435,7 +412,6 @@ class GroupeController extends UtilControllers.withUser {
       "Modification d'une demande de modification d'un groupe...",
       'debug'
     );
-    this.needUser(this.user);
     const request = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -499,7 +475,6 @@ class GroupeController extends UtilControllers.withUser {
     // params: IMediaDeleteBody
   ) {
     DevLog("Suppression d'une demande de modification d'un groupe...", 'debug');
-    this.needUser(this.user);
     const request = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -534,7 +509,6 @@ class GroupeController extends UtilControllers.withUser {
     // params: IMediaVerifyBody
   ) {
     DevLog("Acceptation d'une demande de modification d'un groupe...", 'debug');
-    this.needUser(this.user);
     const patch = await Patch.get(patchID, {
       nullThrowErr: true,
       json: false,
@@ -615,7 +589,6 @@ class GroupeController extends UtilControllers.withUser {
     // params: IMediaVerifyBody
   ) {
     DevLog("Refus d'une demande de modification d'un groupe...", 'debug');
-    this.needUser(this.user);
     this.needSession(this.session);
     const patch = await Patch.get(patchID, {
       nullThrowErr: true,
