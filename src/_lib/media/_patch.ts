@@ -183,7 +183,7 @@ export class Patch extends ClassUtilSession implements IPatch {
     return { original, changes };
   }
 
-  getChangedFromDiff<T>(originalObject: T, differences: PatchDiff<T>[]) {
+  static getChangedFromDiff<T>(originalObject: T, differences: PatchDiff<T>[]) {
     const result = JSON.parse(JSON.stringify(originalObject)); // Cloner l'objet original
     differences.forEach((diff) => {
       DeepDiff.applyChange(result, undefined, diff); // Appliquer chaque changement
