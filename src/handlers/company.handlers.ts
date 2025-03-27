@@ -238,29 +238,6 @@ const rejectCompanyPatch = async (
   return new APIResponse({ success: true, ...res });
 };
 
-/** Supprimer la demande de modification d'un company */
-const deleteCompanyPatch = async (
-  req: FastifyRequest<{
-    Body: IMediaVerifyBody;
-    Params: { companyID: string; patchID: string };
-  }>
-) => {
-  Checker.userIsDefined(req.user);
-
-  const controller = new CompanyController(req.mongooseSession, {
-    log: req.logSession,
-    user: req.user,
-  });
-
-  const res = await controller.delete_patch(
-    req.params.companyID,
-    req.params.patchID
-    // req.body
-  );
-
-  return new APIResponse({ success: true, ...res });
-};
-
 export const CompanyHandlers = {
   // Obtenir
   getCompany,
@@ -281,6 +258,5 @@ export const CompanyHandlers = {
   // Gestion des demandes
   updateCompanyPatch,
   acceptCompanyPatch,
-  rejectCompanyPatch,
-  deleteCompanyPatch,
+  rejectCompanyPatch
 };

@@ -497,40 +497,6 @@ class TrackController extends UtilControllers.withBasic {
     };
   }
 
-  public async delete_patch(
-    trackID: string,
-    patchID: string
-    // params: IMediaDeleteBody
-  ) {
-    DevLog("Suppression d'une demande de modification d'un track...", 'debug');
-    const request = await Patch.get(patchID, {
-      nullThrowErr: true,
-      json: false,
-      session: this.session,
-    });
-
-    if (!request.targetIdIs(trackID))
-      throw new APIError(
-        "L'identifiant de l'track n'est pas celui qui est lié a la requête",
-        'BAD_REQUEST'
-      );
-
-    const deleted = await request.delete({ nullThrowErr: true });
-
-    // Gérer le reccursive
-    // if (params.deleteTarget)
-    //     await this.delete(request.target.id, params, ["TRACK_REQUEST_DELETE"]);
-
-    DevLog(
-      `Demande supprimée (${deleted}), ID Track: ${request.target.id}, ID Demande: ${request.id}`,
-      'debug'
-    );
-
-    return {
-      patch: request.toJSON(),
-    };
-  }
-
   public async accept_patch(
     trackID: string,
     patchID: string

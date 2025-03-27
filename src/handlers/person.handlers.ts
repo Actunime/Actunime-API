@@ -237,29 +237,6 @@ const rejectPersonPatch = async (
   return new APIResponse({ success: true, ...res });
 };
 
-/** Supprimer la demande de modification d'un person */
-const deletePersonPatch = async (
-  req: FastifyRequest<{
-    Body: IMediaVerifyBody;
-    Params: { personID: string; patchID: string };
-  }>
-) => {
-  Checker.userIsDefined(req.user);
-
-  const controller = new PersonController(req.mongooseSession, {
-    log: req.logSession,
-    user: req.user,
-  });
-
-  const res = await controller.delete_patch(
-    req.params.personID,
-    req.params.patchID
-    // req.body
-  );
-
-  return new APIResponse({ success: true, ...res });
-};
-
 export const PersonHandlers = {
   // Obtenir
   getPerson,
@@ -280,6 +257,5 @@ export const PersonHandlers = {
   // Gestion des demandes
   updatePersonPatch,
   acceptPersonPatch,
-  rejectPersonPatch,
-  deletePersonPatch,
+  rejectPersonPatch
 };

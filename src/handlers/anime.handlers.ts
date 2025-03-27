@@ -235,28 +235,6 @@ const rejectAnimePatch = async (
   return new APIResponse({ success: true, ...res });
 };
 
-/** Supprimer la demande de modification d'un anime */
-const deleteAnimePatch = async (
-  req: FastifyRequest<{
-    Body: IMediaVerifyBody;
-    Params: { animeID: string; patchID: string };
-  }>
-) => {
-  Checker.userIsDefined(req.user)
-
-  const controller = new AnimeController(req.mongooseSession, {
-    log: req.logSession,
-    user: req.user,
-  });
-
-  const res = await controller.delete_patch(
-    req.params.animeID,
-    req.params.patchID
-    // req.body
-  );
-  return new APIResponse({ success: true, ...res });
-};
-
 export const AnimeHandlers = {
   // Obtenir
   getAnime,
@@ -277,6 +255,5 @@ export const AnimeHandlers = {
   // Gestion des demandes
   updateAnimePatch,
   acceptAnimePatch,
-  rejectAnimePatch,
-  deleteAnimePatch,
+  rejectAnimePatch
 };

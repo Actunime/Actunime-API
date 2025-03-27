@@ -500,38 +500,6 @@ class MangaController extends UtilControllers.withBasic {
     return newPatchData.toJSON();
   }
 
-  public async delete_patch(
-    mangaID: string,
-    patchID: string
-    // params: IMediaDeleteBody
-  ) {
-    DevLog("Suppression d'une demande de modification d'un manga...", 'debug');
-    const request = await Patch.get(patchID, {
-      nullThrowErr: true,
-      json: false,
-      session: this.session,
-    });
-
-    if (!request.targetIdIs(mangaID))
-      throw new APIError(
-        "L'identifiant de l'manga n'est pas celui qui est lié a la requête",
-        'BAD_REQUEST'
-      );
-
-    const deleted = await request.delete({ nullThrowErr: true });
-
-    // Gérer le reccursive
-    // if (params.deleteTarget)
-    //     await this.delete(request.target.id, params, ["MANGA_REQUEST_DELETE"]);
-
-    DevLog(
-      `Demande supprimée (${deleted}), ID Manga: ${request.target.id}, ID Demande: ${request.id}`,
-      'debug'
-    );
-
-    return deleted;
-  }
-
   public async accept_patch(
     mangaID: string,
     patchID: string

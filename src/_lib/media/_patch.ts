@@ -191,6 +191,45 @@ export class Patch extends ClassUtilSession implements IPatch {
     return result as T; // Retourner l'objet modifié
   }
 
+  static restoreChangesFromDiff<T>(modifiedObject: T, differences: PatchDiff<any>[]) {
+    const original = JSON.parse(JSON.stringify(modifiedObject)); // Cloner l'objet modifié
+
+    differences.forEach((change) => {
+      const { path, kind, lhs, index, item } = change;
+
+      // Naviguer jusqu'à la bonne clé
+      let target = original;
+      for (let i = 0; i < path.length - 1; i++) {
+        target = target[path[i]];
+      }
+      const key = path[path.length - 1];
+
+      // Appliquer l'inversion
+      switch (kind) {
+        case 'N': // New (Ajouté) => Supprimer la propriété
+          delete target[key];
+          break;
+        case 'D': // Deleted (Supprimé) => Restaurer l'ancienne valeur
+          target[key] = lhs;
+          break;
+        case 'E': // Edited (Modifié) => Restaurer l'ancienne valeur
+          target[key] = lhs;
+          break;
+        case 'A': // Array modification
+          if (item.kind === 'N') {
+            target[key].splice(index, 1); // Supprimer l'élément ajouté
+          } else if (item.kind === 'D') {
+            target[key].splice(index, 0, item.lhs); // Restaurer l'élément supprimé
+          } else if (item.kind === 'E') {
+            target[key][index] = item.lhs; // Restaurer l'élément modifié
+          }
+          break;
+      }
+    });
+
+    return original as T;
+  }
+
   toJSON(): IPatch {
     return {
       ref: this.ref,
@@ -238,10 +277,7 @@ export class Patch extends ClassUtilSession implements IPatch {
     options?: MethodOption<J, E>
   ): Promise<Out<J, E>> {
     const id = typeof filter === 'string' ? filter : filter.id;
-    DevLog(
-      `Récupération de l'Patch ID: ${id}`,
-      'debug'
-    );
+    DevLog(`Récupération de l'Patch ID: ${id}`, 'debug');
     const {
       json = true,
       cache = true,

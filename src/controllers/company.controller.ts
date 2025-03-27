@@ -507,43 +507,6 @@ class CompanyController extends UtilControllers.withBasic {
     };
   }
 
-  public async delete_patch(
-    companyID: string,
-    patchID: string
-    // params: IMediaDeleteBody
-  ) {
-    DevLog(
-      "Suppression d'une demande de modification d'un company...",
-      'debug'
-    );
-    const request = await Patch.get(patchID, {
-      nullThrowErr: true,
-      json: false,
-      session: this.session,
-    });
-
-    if (!request.targetIdIs(companyID))
-      throw new APIError(
-        "L'identifiant de l'company n'est pas celui qui est lié a la requête",
-        'BAD_REQUEST'
-      );
-
-    const deleted = await request.delete({ nullThrowErr: true });
-
-    // Gérer le reccursive
-    // if (params.deleteTarget)
-    //     await this.delete(request.target.id, params, ["COMPANY_REQUEST_DELETE"]);
-
-    DevLog(
-      `Demande supprimée (${deleted}), ID Company: ${request.target.id}, ID Demande: ${request.id}`,
-      'debug'
-    );
-
-    return {
-      patch: request.toJSON(),
-    };
-  }
-
   public async accept_patch(
     companyID: string,
     patchID: string

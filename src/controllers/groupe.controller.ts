@@ -466,40 +466,6 @@ class GroupeController extends UtilControllers.withBasic {
     };
   }
 
-  public async delete_patch(
-    groupeID: string,
-    patchID: string
-    // params: IMediaDeleteBody
-  ) {
-    DevLog("Suppression d'une demande de modification d'un groupe...", 'debug');
-    const request = await Patch.get(patchID, {
-      nullThrowErr: true,
-      json: false,
-      session: this.session,
-    });
-
-    if (!request.targetIdIs(groupeID))
-      throw new APIError(
-        "L'identifiant de l'groupe n'est pas celui qui est lié a la requête",
-        'BAD_REQUEST'
-      );
-
-    const deleted = await request.delete({ nullThrowErr: true });
-
-    // Gérer le reccursive
-    // if (params.deleteTarget)
-    //     await this.delete(request.target.id, params, ["GROUPE_REQUEST_DELETE"]);
-
-    DevLog(
-      `Demande supprimée (${deleted}), ID Groupe: ${request.target.id}, ID Demande: ${request.id}`,
-      'debug'
-    );
-
-    return {
-      patch: request.toJSON(),
-    };
-  }
-
   public async accept_patch(
     groupeID: string,
     patchID: string

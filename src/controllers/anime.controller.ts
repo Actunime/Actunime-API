@@ -569,46 +569,6 @@ class AnimeController extends UtilControllers.withBasic {
     };
   }
 
-  public async delete_patch(
-    animeID: string,
-    patchID: string
-    // params: IMediaDeleteBody
-  ) {
-    DevLog("Suppression d'une demande de modification d'un anime...", 'debug');
-    const request = await Patch.get(patchID, {
-      nullThrowErr: true,
-      json: false,
-      session: this.session,
-    });
-
-    if (!request.targetIdIs(animeID))
-      throw new APIError(
-        "L'identifiant de l'anime n'est pas celui qui est lié a la requête",
-        'BAD_REQUEST'
-      );
-
-    if (request.isPending())
-      throw new APIError(
-        'Vous ne pouvez pas supprimer une demande en attente, refusez-la dabord',
-        'BAD_REQUEST'
-      );
-
-    const deleted = await request.delete({ nullThrowErr: true });
-
-    // Gérer le reccursive
-    // if (params.deleteTarget)
-    //     await this.delete(request.target.id, params, ["ANIME_REQUEST_DELETE"]);
-
-    DevLog(
-      `Demande supprimée (${deleted}), ID Anime: ${request.target.id}, ID Demande: ${request.id}`,
-      'debug'
-    );
-
-    return {
-      patch: request.toJSON(),
-    };
-  }
-
   public async accept_patch(
     animeID: string,
     patchID: string

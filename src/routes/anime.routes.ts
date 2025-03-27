@@ -244,22 +244,6 @@ async function AnimeRoutes(fastify: FastifyInstance) {
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.rejectAnimePatch,
   });
-
-  app.route({
-    method: 'POST',
-    url: '/:animeID/requests/:patchID/delete',
-    schema: {
-      description: "Supprimer la demande d'un anime",
-      tags,
-      body: MediaVerifyBody.strict().partial({ reccursive: true }),
-      response: {
-        200: Utilchema.ResponseBody(),
-      },
-    },
-    preValidation: [fastify.authorize(['ANIME_REQUEST_DELETE'])],
-    preHandler: [addSessionHandler, AddLogSession],
-    handler: handler.deleteAnimePatch,
-  });
 }
 
 export default AnimeRoutes;

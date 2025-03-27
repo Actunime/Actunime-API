@@ -242,22 +242,6 @@ async function PersonRoutes(fastify: FastifyInstance) {
     preHandler: [addSessionHandler, AddLogSession],
     handler: handler.rejectPersonPatch,
   });
-
-  app.route({
-    method: 'POST',
-    url: '/:personID/requests/:patchID/delete',
-    schema: {
-      description: "Supprimer la demande d'une personne",
-      tags,
-      body: MediaVerifyBody.strict().partial({ reccursive: true }),
-      response: {
-        200: Utilchema.ResponseBody(),
-      },
-    },
-    preValidation: [fastify.authorize(['PERSON_REQUEST_DELETE'])],
-    preHandler: [addSessionHandler, AddLogSession],
-    handler: handler.deletePersonPatch,
-  });
 }
 
 export default PersonRoutes;

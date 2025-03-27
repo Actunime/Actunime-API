@@ -265,40 +265,7 @@ class UserController extends UtilControllers.withBasic {
       data: deleted,
     };
   }
-
-  public async delete_patch(
-    personID: string,
-    patchID: string
-    // params: IMediaDeleteBody
-  ) {
-    DevLog("Suppression d'une demande de modification d'un person...", 'debug');
-    const request = await Patch.get(patchID, {
-      nullThrowErr: true,
-      json: false,
-      session: this.session,
-    });
-
-    if (!request.targetIdIs(personID))
-      throw new APIError(
-        "L'identifiant de l'person n'est pas celui qui est lié a la requête",
-        'BAD_REQUEST'
-      );
-
-    const deleted = await request.delete({ nullThrowErr: true });
-
-    // Gérer le reccursive
-    // if (params.deleteTarget)
-    //     await this.delete(request.target.id, params, ["PERSON_REQUEST_DELETE"]);
-
-    DevLog(
-      `Demande supprimée (${deleted}), ID Person: ${request.target.id}, ID Demande: ${request.id}`,
-      'debug'
-    );
-
-    return {
-      patch: deleted,
-    };
-  }
+  
 }
 
 export { UserController };
