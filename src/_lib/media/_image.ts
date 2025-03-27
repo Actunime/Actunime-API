@@ -1,4 +1,8 @@
-import { IImageLabel, IImagePaginationResponse, ITargetPath } from '@actunime/types';
+import {
+  IImageLabel,
+  IImagePaginationResponse,
+  ITargetPath,
+} from '@actunime/types';
 
 import { IImage, IImageDB, IMediaRelation } from '@actunime/types';
 import { ClientSession } from 'mongoose';
@@ -26,7 +30,8 @@ export class Image extends ClassUtilSession implements IImage {
   public isVerified: boolean;
 
   constructor(
-    data: Partial<IImage | IImageDB | ModelDoc<IImage>>,
+    data: Partial<IImage | IImageDB | ModelDoc<IImage>> &
+      Required<{ id: string }>,
     session: ClientSession | null = null
   ) {
     super(session);
@@ -44,6 +49,8 @@ export class Image extends ClassUtilSession implements IImage {
         'SERVER_ERROR'
       );
     this.targetPath = data.targetPath;
+    if (!data?.id)
+      throw new APIError('Image constructor id is empty', 'SERVER_ERROR');
     this.id = data.id;
     if (data.isVerified === undefined)
       throw new APIError(

@@ -58,7 +58,8 @@ export class Manga extends ClassUtilSession implements IManga {
   isVerified: boolean;
 
   constructor(
-    data: Partial<IManga | IMangaDB | ModelDoc<IManga>>,
+    data: Partial<IManga | IMangaDB | ModelDoc<IManga>> &
+      Required<{ id: string }>,
     session: ClientSession | null = null
   ) {
     super(session);
@@ -93,6 +94,8 @@ export class Manga extends ClassUtilSession implements IManga {
     this.companys = data.companys;
     this.staffs = data.staffs;
     this.characters = data.characters;
+    if (!data?.id)
+      throw new APIError('Manga constructor id is empty', 'SERVER_ERROR');
     this.id = data.id;
     if (data.isVerified === undefined)
       throw new APIError(

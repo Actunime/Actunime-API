@@ -78,7 +78,7 @@ class PatchController extends UtilControllers.withBasic {
     return res;
   }
 
-  async create(data: Partial<IPatch>) {
+  async create(data: Partial<IPatch> & { id: string }) {
     DevLog(
       `Création d'une mise a jour... | ${data.targetPath} (${data.target?.id})`,
       'debug'

@@ -5,11 +5,7 @@ import {
   IImageBody,
   IMediaDeleteBody,
 } from '@actunime/validations';
-import {
-  IImage,
-  ITargetPath,
-  IUser,
-} from '@actunime/types';
+import { IImage, ITargetPath, IUser } from '@actunime/types';
 import { UtilControllers } from '../_utils/_controllers';
 import { DevLog } from '../_lib/logger';
 import { genPublicID } from '@actunime/utils';
@@ -451,7 +447,7 @@ class ImageController extends UtilControllers.withBasic {
           `Le patch contient des changements qui vont être appliqués`,
           'debug'
         );
-        newData = patch.getChangedFromDiff(target.toJSON(), patch.changes);
+        newData = Patch.getChangedFromDiff(target.toJSON(), patch.changes);
         await target.update({ set: newData });
       } else {
         DevLog(`Le patch ne contient aucun changement |...`, 'debug');
@@ -463,7 +459,7 @@ class ImageController extends UtilControllers.withBasic {
           `Le patch contient des changements qui vont être appliqués`,
           'debug'
         );
-        newData = patch.getChangedFromDiff(target.toJSON(), patch.changes);
+        newData = Patch.getChangedFromDiff(target.toJSON(), patch.changes);
         await target.update({ set: newData });
       } else {
         throw new APIError(

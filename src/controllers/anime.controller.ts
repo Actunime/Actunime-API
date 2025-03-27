@@ -1,11 +1,6 @@
 import { ClientSession } from 'mongoose';
 import { APIError } from '../_lib/error';
-import {
-  IAnime,
-  IPatch,
-  ITargetPath,
-  IUser,
-} from '@actunime/types';
+import { IAnime, IPatch, ITargetPath, IUser } from '@actunime/types';
 import {
   IAnimeAddBody,
   IAnimeCreateBody,
@@ -199,7 +194,7 @@ class AnimeController extends UtilControllers.withBasic {
     this.needSession(this.session);
     const refId = genPublicID(8);
     const { build } = await this.build(data, { refId, isRequest: false });
-    build.setVerified();
+    build.setUnverified();
 
     const newPatch = new Patch(
       {
@@ -515,13 +510,19 @@ class AnimeController extends UtilControllers.withBasic {
       animeId: animeID,
     });
 
-    const { changes } = await build.getDBDiff();
+    const requestPatchAppliedChanges = Patch.getChangedFromDiff(
+      build.toJSON(),
+      request.changes
+    );
+
+    const { changes } = await build.getDBDiff(requestPatchAppliedChanges);
     if (!changes)
       throw new APIError("Aucun changement n'a été détecté !", 'EMPTY_CHANGES');
 
     // Création du PATCH de modification pour un suivi en status ACCEPTED pour un suivi;
     const newPatch = new Patch(
       {
+        id: genPublicID(8),
         type: 'UPDATE',
         author: { id: this.user.id },
         moderator: { id: this.user.id },
@@ -637,7 +638,7 @@ class AnimeController extends UtilControllers.withBasic {
           `Le patch contient des changements qui vont être appliqués`,
           'debug'
         );
-        newData = patch.getChangedFromDiff(target.toJSON(), patch.changes);
+        newData = Patch.getChangedFromDiff(target.toJSON(), patch.changes);
         await target.update({ set: newData });
       } else {
         DevLog(`Le patch ne contient aucun changement |...`, 'debug');
@@ -649,7 +650,7 @@ class AnimeController extends UtilControllers.withBasic {
           `Le patch contient des changements qui vont être appliqués`,
           'debug'
         );
-        newData = patch.getChangedFromDiff(target.toJSON(), patch.changes);
+        newData = Patch.getChangedFromDiff(target.toJSON(), patch.changes);
         await target.update({ set: newData });
       } else {
         throw new APIError(

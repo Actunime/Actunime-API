@@ -39,7 +39,8 @@ export class Character extends ClassUtilSession implements ICharacter {
   public isVerified: boolean;
 
   constructor(
-    data: Partial<ICharacter | ICharacterDB | ModelDoc<ICharacter>>,
+    data: Partial<ICharacter | ICharacterDB | ModelDoc<ICharacter>> &
+      Required<{ id: string }>,
     session: ClientSession | null = null
   ) {
     super(session);
@@ -55,6 +56,8 @@ export class Character extends ClassUtilSession implements ICharacter {
     this.description = data.description;
     this.avatar = data.avatar;
     this.actors = data.actors;
+    if (!data?.id)
+      throw new APIError('Character constructor id is empty', 'SERVER_ERROR');
     this.id = data.id;
     if (data.isVerified === undefined)
       throw new APIError(

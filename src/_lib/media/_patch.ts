@@ -50,7 +50,8 @@ export class Patch extends ClassUtilSession implements IPatch {
   original?: IPatch['original'];
 
   constructor(
-    data: Partial<IPatch | IPatchDB | ModelDoc<IPatch>>,
+    data: Partial<IPatch | IPatchDB | ModelDoc<IPatch>> &
+      Required<{ id: string }>,
     session: ClientSession | null = null
   ) {
     super(session);
@@ -78,6 +79,8 @@ export class Patch extends ClassUtilSession implements IPatch {
       throw new APIError('Patch constructor author is empty', 'SERVER_ERROR');
     this.author = data?.author;
     this.moderator = data?.moderator;
+    if (!data?.id)
+      throw new APIError('Patch constructor id is empty', 'SERVER_ERROR');
     this.id = data?.id;
     this.original = data?.original;
   }

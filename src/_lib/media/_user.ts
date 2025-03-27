@@ -35,7 +35,7 @@ export class User extends ClassUtilSession implements IUser {
   public id: string;
 
   constructor(
-    data: Partial<IUser | IUserDB | ModelDoc<IUser>>,
+    data: Partial<IUser | IUserDB | ModelDoc<IUser>> & Required<{ id: string }>,
     session: ClientSession | null = null
   ) {
     super(session);

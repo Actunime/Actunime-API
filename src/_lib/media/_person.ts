@@ -36,7 +36,8 @@ export class Person extends ClassUtilSession implements IPerson {
   public isVerified: boolean;
 
   constructor(
-    data: Partial<IPerson | IPersonDB | ModelDoc<IPerson>>,
+    data: Partial<IPerson | IPersonDB | ModelDoc<IPerson>> &
+      Required<{ id: string }>,
     session: ClientSession | null = null
   ) {
     super(session);
@@ -51,6 +52,8 @@ export class Person extends ClassUtilSession implements IPerson {
     this.avatar = data.avatar;
     this.links = data.links;
     this.isGroupe = data.isGroupe;
+    if (!data?.id)
+      throw new APIError('Person constructor id is empty', 'SERVER_ERROR');
     this.id = data.id;
     if (data.isVerified === undefined)
       throw new APIError(

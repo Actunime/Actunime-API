@@ -1,4 +1,9 @@
-import { IGroupe, IGroupeDB, IGroupePaginationResponse, IMediaName } from '@actunime/types';
+import {
+  IGroupe,
+  IGroupeDB,
+  IGroupePaginationResponse,
+  IMediaName,
+} from '@actunime/types';
 import { ClientSession } from 'mongoose';
 import { GroupeModel, ModelDoc } from '../models';
 import { APIError } from '../error';
@@ -22,7 +27,8 @@ export class Groupe extends ClassUtilSession implements IGroupe {
   public isVerified: boolean;
 
   constructor(
-    data: Partial<IGroupe | IGroupeDB | ModelDoc<IGroupe>>,
+    data: Partial<IGroupe | IGroupeDB | ModelDoc<IGroupe>> &
+      Required<{ id: string }>,
     session: ClientSession | null = null
   ) {
     super(session);
@@ -31,6 +37,8 @@ export class Groupe extends ClassUtilSession implements IGroupe {
     if (!data.name)
       throw new APIError('Groupe constructor name is empty', 'SERVER_ERROR');
     this.name = data.name;
+    if (!data?.id)
+      throw new APIError('Groupe constructor id is empty', 'SERVER_ERROR');
     this.id = data.id;
     if (data.isVerified === undefined)
       throw new APIError(

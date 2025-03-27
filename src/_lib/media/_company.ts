@@ -35,7 +35,8 @@ export class Company extends ClassUtilSession implements ICompany {
   public isVerified: boolean;
 
   constructor(
-    data: Partial<ICompany | ICompanyDB | ModelDoc<ICompany>>,
+    data: Partial<ICompany | ICompanyDB | ModelDoc<ICompany>> &
+      Required<{ id: string }>,
     session: ClientSession | null = null
   ) {
     super(session);
@@ -51,6 +52,8 @@ export class Company extends ClassUtilSession implements ICompany {
     this.description = data.description;
     this.logo = data.logo;
     this.links = data.links;
+    if (!data?.id)
+      throw new APIError('Company constructor id is empty', 'SERVER_ERROR');
     this.id = data.id;
     if (data.isVerified === undefined)
       throw new APIError(

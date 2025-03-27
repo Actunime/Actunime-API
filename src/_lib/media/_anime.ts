@@ -60,7 +60,8 @@ export class Anime extends ClassUtilSession implements IAnime {
   public isVerified: boolean;
 
   constructor(
-    data: Partial<IAnime | IAnimeDB | ModelDoc<IAnime>>,
+    data: Partial<IAnime | IAnimeDB | ModelDoc<IAnime>> &
+      Required<{ id: string }>,
     session: ClientSession | null = null
   ) {
     super(session);
@@ -96,6 +97,8 @@ export class Anime extends ClassUtilSession implements IAnime {
     this.staffs = data.staffs;
     this.characters = data.characters;
     this.tracks = data.tracks;
+    if (!data?.id)
+      throw new APIError('Anime constructor id is empty', 'SERVER_ERROR');
     this.id = data.id;
     if (data.isVerified === undefined)
       throw new APIError(
@@ -213,10 +216,12 @@ export class Anime extends ClassUtilSession implements IAnime {
   }
 
   async getDBDiff(original?: IAnime) {
-    original = await Anime.get(this.id, {
-      cache: false,
-      nullThrowErr: true,
-    });
+    original =
+      original ||
+      (await Anime.get(this.id, {
+        cache: false,
+        nullThrowErr: true,
+      }));
     const changes = DeepDiff.diff(original, this.toJSON());
     return { original, changes };
   }
@@ -230,12 +235,14 @@ export class Anime extends ClassUtilSession implements IAnime {
         source: this.source,
         title: this.title,
         synopsis: this.synopsis,
-        date: this.date,
+        date: (Object.keys(this.date || {}).length && this.date) || undefined,
         status: this.status,
         trailer: this.trailer,
         format: this.format,
         vf: this.vf,
-        episodes: this.episodes,
+        episodes:
+          (Object.keys(this.episodes || {}).length && this.episodes) ||
+          undefined,
         adult: this.adult,
         explicit: this.explicit,
         cover: this.cover,

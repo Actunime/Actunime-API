@@ -1,10 +1,6 @@
 import { ClientSession } from 'mongoose';
 import { APIError } from '../_lib/error';
-import {
-  IGroupe,
-  ITargetPath,
-  IUser,
-} from '@actunime/types';
+import { IGroupe, ITargetPath, IUser } from '@actunime/types';
 import {
   IGroupeAddBody,
   IGroupeBody,
@@ -33,7 +29,7 @@ class GroupeController extends UtilControllers.withBasic {
     input: IGroupeBody,
     params?: { groupeId?: string; refId?: string; isRequest?: boolean }
   ) {
-    const groupe: Partial<IGroupe> = {
+    const groupe: Partial<IGroupe> & { id: string } = {
       ...input,
       isVerified: false,
       id: params?.groupeId || genPublicID(8),
@@ -438,6 +434,7 @@ class GroupeController extends UtilControllers.withBasic {
     // Création du PATCH de modification pour un suivi en status ACCEPTED pour un suivi;
     const newPatch = new Patch(
       {
+        id: genPublicID(8),
         type: 'UPDATE',
         author: { id: this.user.id },
         moderator: { id: this.user.id },
@@ -545,7 +542,7 @@ class GroupeController extends UtilControllers.withBasic {
           `Le patch contient des changements qui vont être appliqués`,
           'debug'
         );
-        newData = patch.getChangedFromDiff(target.toJSON(), patch.changes);
+        newData = Patch.getChangedFromDiff(target.toJSON(), patch.changes);
         await target.update({ set: newData });
       } else {
         DevLog(`Le patch ne contient aucun changement |...`, 'debug');
@@ -557,7 +554,7 @@ class GroupeController extends UtilControllers.withBasic {
           `Le patch contient des changements qui vont être appliqués`,
           'debug'
         );
-        newData = patch.getChangedFromDiff(target.toJSON(), patch.changes);
+        newData = Patch.getChangedFromDiff(target.toJSON(), patch.changes);
         await target.update({ set: newData });
       } else {
         throw new APIError(

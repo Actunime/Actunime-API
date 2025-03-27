@@ -38,7 +38,8 @@ export class Track extends ClassUtilSession implements ITrack {
   public isVerified: boolean;
 
   constructor(
-    data: Partial<ITrack | ITrackDB | ModelDoc<ITrack>>,
+    data: Partial<ITrack | ITrackDB | ModelDoc<ITrack>> &
+      Required<{ id: string }>,
     session: ClientSession | null = null
   ) {
     super(session);
@@ -55,6 +56,8 @@ export class Track extends ClassUtilSession implements ITrack {
     this.artists = data.artists;
     this.cover = data.cover;
     this.links = data.links;
+    if (!data?.id)
+      throw new APIError('Track constructor id is empty', 'SERVER_ERROR');
     this.id = data.id;
     if (data.isVerified === undefined)
       throw new APIError(
