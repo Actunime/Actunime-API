@@ -191,7 +191,10 @@ export class Patch extends ClassUtilSession implements IPatch {
     return result as T; // Retourner l'objet modifié
   }
 
-  static restoreChangesFromDiff<T>(modifiedObject: T, differences: PatchDiff<any>[]) {
+  static restoreChangesFromDiff<T>(
+    modifiedObject: T,
+    differences: PatchDiff<any>[]
+  ) {
     const original = JSON.parse(JSON.stringify(modifiedObject)); // Cloner l'objet modifié
 
     differences.forEach((change) => {
@@ -353,7 +356,7 @@ export class Patch extends ClassUtilSession implements IPatch {
   ): Promise<IPatchPaginationResponse> {
     DevLog(`Pagination des patchs...`, 'debug');
     const pagination = new PaginationControllers(PatchModel);
-
+    pagination.setVerifiedOnly(false);
     pagination.useFilter(pageFilter);
 
     const res = await pagination.getResults();

@@ -115,17 +115,17 @@ class PatchController extends UtilControllers.withBasic {
         'FORBIDDEN'
       );
 
-    if (!CheckPermissions(this.user.permissions, [perm])) {
+    if (!CheckPermissions([perm], this.user.permissions)) {
       throw new APIError(
         `Vous n'avez pas la permission de supprimer cette demande`,
-        'FORBIDDEN'
+        'UNAUTHORIZED'
       );
     }
 
     if (request.isPending())
       throw new APIError(
         'Vous ne pouvez pas supprimer une demande en attente, refusez-la dabord',
-        'BAD_REQUEST'
+        'FORBIDDEN'
       );
 
     const deleted = await request.delete({ nullThrowErr: true });

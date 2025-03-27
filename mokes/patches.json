@@ -1123,6 +1123,33 @@
     "__v": 0
   },
   {
+    "_id": "67decff560442ccd076cb1d1",
+    "id": "m757z9i6",
+    "type": "UPDATE",
+    "status": "REJECTED",
+    "target": {
+      "id": "4ry66k99"
+    },
+    "targetPath": "Character",
+    "original": {
+      "id": "4ry66k99",
+      "name": {
+        "default": "test"
+      },
+      "gender": "FEMININ",
+      "species": "ELFE",
+      "isVerified": false,
+      "_id": "67decff560cc2ccd076cb1d0"
+    },
+    "isChangesUpdated": false,
+    "author": {
+      "id": "test"
+    },
+    "createdAt": "2025-03-22T14:57:57.115Z",
+    "updatedAt": "2025-03-22T14:57:57.115Z",
+    "__v": 0
+  },
+  {
     "_id": "67decff560cc2ccd076cb1dd",
     "id": "0g7w83h0",
     "type": "UPDATE",

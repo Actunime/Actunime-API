@@ -6,7 +6,9 @@ import { Patch } from '../_lib/media';
 import { Checker } from '../_utils/_checker';
 import { PatchController } from '../controllers/patch.controllers';
 
-const getPatchById: RouteHandler = async (req) => {
+const getPatchById = async (
+  req: FastifyRequest<{ Params: { id: string } }>
+) => {
   const { id } = z.object({ id: z.string() }).parse(req.params);
   const res = await Patch.get(id, { nullThrowErr: true });
   return new APIResponse({ success: true, data: res });

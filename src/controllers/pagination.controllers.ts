@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ClientSession, FilterQuery, Model, PipelineStage } from 'mongoose';
-import { IPaginationResponse } from '@actunime/types';
+import { IPaginationResponse, ITargetPath } from '@actunime/types';
 import { PaginationBody } from '@actunime/validations';
 import { z } from 'zod';
 import { flatten } from 'flat';
