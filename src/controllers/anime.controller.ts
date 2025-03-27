@@ -361,6 +361,20 @@ class AnimeController extends UtilControllers.withBasic {
       nullThrowErr: true,
       session: this.session,
     });
+    const patch = await Patch.get(
+      {
+        target: media.asRelation(),
+        targetPath: this.targetPath,
+        type: 'CREATE',
+        status: 'PENDING',
+      },
+      { session: this.session }
+    );
+    if (patch)
+      throw new APIError(
+        'Avant de vérifier cette anime, vous devez accepter la requête qui est lié a sa création',
+        'FORBIDDEN'
+      );
     await media.setVerified(true);
     DevLog(`Anime verifié, ID Anime: ${media.id}`, 'debug');
     return media.toJSON();
@@ -641,7 +655,7 @@ class AnimeController extends UtilControllers.withBasic {
         newData = Patch.getChangedFromDiff(target.toJSON(), patch.changes);
         await target.update({ set: newData });
       } else {
-        DevLog(`Le patch ne contient aucun changement |...`, 'debug');
+        DevLog(`Le patch ne contient aucun nouveau changement |...`, 'debug');
         newData = target.toJSON();
       }
     } else {
